@@ -10,7 +10,7 @@ chrome="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 n=$(python3 -I - "$f" "$out" <<'EOF'
 import re, sys
 src = open(sys.argv[1]).read(); out = sys.argv[2]
-style = re.search(r'<style>.*?</style>', src, re.S).group(0)
+style = (re.search(r'<style>.*?</style>', src, re.S) or [''])[0]  # a lesson may link its page styles; the graphic state block stays inline
 svg = re.search(r'<svg.*?</svg>', src, re.S).group(0)
 n = len(re.findall(r'class="step"', src))
 state = r'''

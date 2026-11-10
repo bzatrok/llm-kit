@@ -23,6 +23,12 @@
   code{font-family:ui-monospace,monospace;font-size:14px;background:#f3f3f3;padding:0 3px}
   @media (max-width:800px){#scrolly{flex-direction:column}#graphic{position:relative;height:auto}#steps{flex:auto}}
 
+  /* Tooltips. Any element with data-tip, svg or prose. Hover, tap, or keyboard focus. */
+  [data-tip]{cursor:help}
+  dfn[data-tip]{font-style:normal;border-bottom:1px dotted #1a73e8}
+  #tip{position:fixed;max-width:280px;padding:.5rem .7rem;background:#1f1f1f;color:#fff;font-size:13px;line-height:1.4;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9}
+  #tip.show{opacity:1}
+
   /* Graphic state. JS puts geN (step >= N) and atN (step == N) on the svg.
      Elements with class sN appear from step N on, oN only at step N (several oN allowed). JS sets that opacity. */
   svg text{font-size:13px}
@@ -43,7 +49,7 @@
   .ge1 #pkt{transform:translateX(430px)}
   /* step 2: cards fly out of the server onto the chain row, one after the other */
   .card{transform-box:fill-box;transform-origin:center;transition:transform .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),opacity .6s var(--d,0s)}
-  svg:not(.ge2) .card{transform:translate(var(--fx),var(--fy)) scale(.15);opacity:0}
+  svg:not(.ge2) .card{transform:translate(var(--fx),var(--fy)) scale(.15);opacity:0;pointer-events:none}
   /* steps 3-5: one check per step. The card under check is highlighted, a passed card turns green. */
   .ge3 #leaf,.ge4 #inter,.ge6 #rootslot,.ge6 #root{fill:#dff5e1;stroke:#2a8f3c;stroke-dasharray:none}
   .at3 #leaf,.at4 #inter,.at5 #rootslot{stroke:#1a73e8;stroke-width:3.5}
@@ -78,7 +84,7 @@
       </defs>
 
       <!-- trust store -->
-      <rect x="20" y="20" width="920" height="90" rx="10" fill="#eef4ff" stroke="#555"/>
+      <rect x="20" y="20" width="920" height="90" rx="10" fill="#eef4ff" stroke="#555" data-tip="The roots this client trusts without proof. Shipped with the OS, the browser, or the tool. Nothing the server sends can add to it."/>
       <text x="32" y="42" font-weight="700">client trust store</text>
       <text x="928" y="42" text-anchor="end" font-family="ui-monospace,monospace" font-size="11">shipped with the OS or the tool</text>
       <rect class="box" x="32" y="56" width="150" height="44" rx="5"/><text x="107" y="74" text-anchor="middle" font-size="11">DigiCert</text><text x="107" y="90" text-anchor="middle" font-size="11">Global Root G2</text>
@@ -94,9 +100,9 @@
       <text x="120" y="185" text-anchor="middle" font-weight="700">client</text>
       <text x="120" y="205" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">GET /v1/orders</text>
       <text x="120" y="230" text-anchor="middle" font-size="11" fill="#777">trusts nothing yet</text>
-      <line id="tunnel" x1="222" y1="205" x2="738" y2="205" stroke="#dfe8f6" stroke-width="14" stroke-linecap="round"/>
+      <line id="tunnel" data-tip="The TLS handshake on port 443. Encrypted only after step 6, and only then to a party the client can name." x1="222" y1="205" x2="738" y2="205" stroke="#dfe8f6" stroke-width="14" stroke-linecap="round"/>
       <text x="480" y="186" text-anchor="middle" font-size="11" fill="#555">TLS handshake :443</text>
-      <g id="pkt" class="fade o1 o2 o3 o4 o5"><circle cx="248" cy="205" r="7" fill="#1a73e8"/><text x="248" y="228" text-anchor="middle" font-size="10" fill="#1a73e8" font-weight="700">ClientHello</text></g>
+      <g id="pkt" class="fade o1 o2 o3 o4 o5" data-tip="ClientHello: the first message. Carries the hostname (SNI), supported TLS versions and cipher suites."><circle cx="248" cy="205" r="7" fill="#1a73e8"/><text x="248" y="228" text-anchor="middle" font-size="10" fill="#1a73e8" font-weight="700">ClientHello</text></g>
       <rect id="server" class="box" x="740" y="160" width="200" height="90" rx="10"/>
       <text x="840" y="185" text-anchor="middle" font-weight="700">server</text>
       <text x="840" y="205" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">api.example.com</text>
@@ -104,23 +110,25 @@
 
       <!-- chain row, cards fly in from the server (--fx/--fy = offset from rest position to the server centre) -->
       <text x="20" y="300" font-size="11" fill="#555">chain as received · arrow = "signed by" · checked left → right</text>
-      <g id="c-leaf" class="card" style="--fx:720px;--fy:-160px;--d:0s">
+      <g id="c-leaf" class="card" style="--fx:720px;--fy:-160px;--d:0s" data-tip="Leaf: the server's own certificate. Names the host in SAN, carries the server's public key, signed by the intermediate.">
         <rect id="leaf" class="box" x="20" y="320" width="200" height="90" rx="6"/>
         <text x="120" y="343" text-anchor="middle" font-weight="700">leaf</text>
         <text x="120" y="362" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">CN api.example.com</text>
         <text x="120" y="380" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">SAN api.example.com</text>
         <text x="120" y="398" text-anchor="middle" font-size="11" fill="#777">issuer: Example CA 1</text>
       </g>
-      <g id="c-inter" class="card" style="--fx:480px;--fy:-160px;--d:.25s">
+      <g id="c-inter" class="card" style="--fx:480px;--fy:-160px;--d:.25s" data-tip="Intermediate: a CA certificate that signed the leaf. Sent by the server so the client can bridge leaf to root.">
         <rect id="inter" class="box" x="260" y="320" width="200" height="90" rx="6"/>
         <text x="360" y="343" text-anchor="middle" font-weight="700">intermediate</text>
         <text x="360" y="362" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">CN Example CA 1</text>
         <text x="360" y="398" text-anchor="middle" font-size="11" fill="#777">issuer: Example Root CA</text>
       </g>
+      <g data-tip="Root: self-signed, top of the chain. Never sent. The client must already have it in the trust store.">
       <rect id="root" class="ghost" x="500" y="320" width="200" height="90" rx="6"/>
       <text x="600" y="343" text-anchor="middle" font-weight="700" fill="#777">root</text>
       <text x="600" y="362" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11" fill="#777">CN Example Root CA</text>
       <text x="600" y="390" text-anchor="middle" font-size="11" fill="#777">not sent · must be in the store</text>
+      </g>
       <path class="arrow draw s3" pathLength="1" d="M222 365 H 256" marker-end="url(#mg)" stroke="#2a8f3c"/>
       <path class="arrow draw s4" pathLength="1" d="M462 365 H 496" marker-end="url(#mg)" stroke="#2a8f3c"/>
       <path class="arrow s5" d="M600 318 V 104" marker-end="url(#m)" stroke-dasharray="5 4"/>
@@ -146,12 +154,13 @@
     <div class="step" data-step="0"><p><b>Start.</b> The client has one asset: a list of root certificates it was shipped with. Everything below follows from that list.</p></div>
     <div class="step" data-step="1"><p><b>ClientHello.</b> The client says which hostname it wants. The server uses that to pick a certificate. Nothing is trusted yet.</p></div>
     <div class="step" data-step="2"><p><b>Certificate chain arrives.</b> Leaf plus intermediate. The root is not sent. If it were, the client would ignore it: a server cannot vouch for itself.</p></div>
-    <div class="step" data-step="3"><p><b>Leaf check.</b> Signature verified with the intermediate's public key. Validity dates checked. The requested hostname must be in the SAN list.</p></div>
+    <div class="step" data-step="3"><p><b>Leaf check.</b> Signature verified with the intermediate's public key. Validity dates checked. The requested hostname must be in the <dfn data-tip="Subject Alternative Name: the list of hostnames a certificate is valid for. The CN field alone no longer counts." tabindex="0">SAN</dfn> list.</p></div>
     <div class="step" data-step="4"><p><b>Intermediate check.</b> Signature verified with the root's public key. The client has that key only if it can find the root. Where does it look?</p></div>
-    <div class="step" data-step="5"><p><b>Store lookup.</b> The intermediate names its issuer. The client searches its store for a root with that subject. A miss here is <span class="mono">unable to get local issuer certificate</span>, the error you see behind a corporate proxy from pip or Java.</p></div>
+    <div class="step" data-step="5"><p><b>Store lookup.</b> The intermediate names its issuer. The client searches its store for a root with that <dfn data-tip="Subject: the name field of a certificate. A chain links when one cert's issuer equals the next cert's subject." tabindex="0">subject</dfn>. A miss here is <span class="mono">unable to get local issuer certificate</span>, the error you see behind a corporate proxy from pip or Java.</p></div>
     <div class="step" data-step="6"><p><b>Anchored.</b> Every link is verified and the top link is in the client's own store. Only now does key exchange proceed and the connection becomes encrypted <i>to the right party</i>.</p></div>
   </article>
 </section>
+<div id="tip" role="tooltip"></div>
 
 <script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
 <script>
@@ -166,11 +175,23 @@ function show(n) {
     const c = el.getAttribute('class'), from = c.match(/\bs(\d+)\b/), only = [...c.matchAll(/\bo(\d+)\b/g)].map(m => +m[1]);
     if (from) { el.style.opacity = n >= +from[1] ? 1 : 0; el.classList.toggle('on', n >= +from[1]); }
     else if (only.length) { el.style.opacity = only.includes(n) ? 1 : 0; el.classList.toggle('now', only.includes(n)); }
+    else return;
+    el.style.pointerEvents = +el.style.opacity ? '' : 'none';  // a hidden part must not answer hover
   });
   steps.forEach((s, i) => s.classList.toggle('is-active', i === n));
   dots.forEach((d, i) => d.classList.toggle('on', i === n));
 }
 show(0);
+// Tooltips: data-tip on any element. Touch: tap shows, tap elsewhere hides.
+const tip = document.getElementById('tip');
+function tipShow(t, x, y) { tip.textContent = t.dataset.tip; tip.classList.add('show');
+  tip.style.left = Math.min(x + 14, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = Math.min(y + 18, innerHeight - tip.offsetHeight - 8) + 'px'; }
+addEventListener('pointerover', e => { const t = e.target.closest('[data-tip]'); if (t) tipShow(t, e.clientX, e.clientY); });
+addEventListener('pointermove', e => { const t = e.target.closest('[data-tip]'); if (t && tip.classList.contains('show')) tipShow(t, e.clientX, e.clientY); });
+addEventListener('pointerout', e => { if (e.pointerType !== 'touch' && e.target.closest('[data-tip]')) tip.classList.remove('show'); });
+addEventListener('pointerdown', e => { if (!e.target.closest('[data-tip]')) tip.classList.remove('show'); });
+addEventListener('focusin', e => { const t = e.target.closest('[data-tip]'); if (t) { const r = t.getBoundingClientRect(); tipShow(t, r.left, r.bottom); } });
+addEventListener('focusout', () => tip.classList.remove('show'));
 scrollama().setup({ step: '.step', offset: 0.55 }).onStepEnter(({element}) => show(+element.dataset.step));
 addEventListener('keydown', e => {
   const d = {ArrowDown: 1, ArrowRight: 1, j: 1, ArrowUp: -1, ArrowLeft: -1, k: -1}[e.key]; if (!d) return;

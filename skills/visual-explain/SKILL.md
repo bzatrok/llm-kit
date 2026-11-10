@@ -28,6 +28,7 @@ Walk one concrete example through the mechanism: real hostnames, real values, th
 | cycle, feedback loop | a token loops the path; each step zooms in on one leg |
 | trade-off, parameter | one slider in the sticky figure drives a pure `model(x)`; steps set presets |
 | failure branches | small multiples in one step, or a separate stepper file. Scrolly is linear. |
+| data format: certificate, JWT, packet, file header | anatomy: the sticky graphic is the artifact itself, drawn once with every field; each step highlights one region (issuer, subject, key, extensions, signature) and the prose reads it |
 
 | Concept is… | Renderer | Template |
 |---|---|---|
@@ -43,7 +44,7 @@ Walk one concrete example through the mechanism: real hostnames, real values, th
 3. **One predict step, minimum.** A step's prose ends with a question ("where does the client look for the root?"). The next step's graphic answers it. The reader commits before the reveal.
 4. **Build the graphic once** with every element present. State is a single step number; the graphic is a pure function of it.
 5. **Write the prose.** One `<div class="step" data-step="N">` per step, bold lead-in, 2–3 sentences. Depth in layers: the step text is plain language, a `<details>` under the step holds the deeper detail, the raw source (RFC section, file:line, command output) is one click away. The `<details>` glossary at the top stays.
-6. **Scrollama stays as in the template.** No GSAP, no timeline library. Only unpkg CDN deps. Offline needed → inline the scripts.
+6. **Scrollama stays as in the template.** No GSAP, no timeline library. Only unpkg CDN deps. Offline needed → inline the scripts. When the page links an external stylesheet (a teach lesson does), the graphic-state CSS still stays inline as the page's first `<style>` block: `check.sh` reads that block.
 7. **Verify** (section below). Mandatory for 3D: a wrong import map gives a silent black canvas.
 8. Save as `<topic>-explain.html` in the cwd. Report path, the one-line question, and the assumptions.
 
@@ -65,6 +66,7 @@ Port of the nicobailon/visual-explainer kit. The mechanics are in `template.html
 - Solid = sync / check done, dashed = async / in flight / not yet present, red ✕ = blocked.
 - One moving layer per step. Nothing autoplays that the step does not call for.
 - Reduced motion: the template hides tokens and snaps transitions. Keep that rule when you copy CSS out.
+- **Tooltips**: `data-tip="…"` on any svg part or a `<dfn data-tip tabindex="0">` in the prose. Hover, tap or focus shows the callout; the template's `#tip` code does the rest. Every term the glossary `<details>` defines gets one at its first use in the prose, and every box in the graphic gets one. One or two sentences, no new term inside a tip. `show()` turns pointer events off on hidden parts, so a tip never comes from something the reader cannot see.
 
 ## 2D rules (template.html)
 

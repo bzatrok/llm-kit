@@ -38,7 +38,7 @@ Some topics may require more skills than knowledge. Learning more about theoreti
 
 ## Session flow
 
-1. **First session only: profile the learner.** Four questions, answers into `NOTES.md`: current level (beginner / some exposure / intermediate / advanced); how they learn best (examples, analogies, step by step, visual, connecting to what they know); confusion tolerance (resolve fast, or sit with uncertainty); an analogy domain, a field they know well that metaphors can borrow from. Then the mission interview.
+1. **First session only: profile the learner.** Four questions, answers into `NOTES.md`: current level (beginner / some exposure / intermediate / advanced); how they learn best (examples, analogies, step by step, visual, connecting to what they know); confusion tolerance (resolve fast, or sit with uncertainty); an analogy domain, a field they know well that metaphors can borrow from. If they answer "visual", write the rule in `NOTES.md`: every lesson gets a scrolly, and a reference doc reuses the lesson's SVG when it fits. Then the mission interview.
 2. **Every session: recall first.** Read `REVIEW-QUEUE.md`. Quiz every concept that is due, in the terminal, before any new material. Update the queue from the result.
 3. **Then the lesson** in the zone of proximal development.
 4. **Close the loop.** Grade the lesson's practice in the terminal (see [Skills](#skills)), write learning records, add the lesson's concepts to the queue, update the glossary.
@@ -84,7 +84,7 @@ Each lesson should recommend a primary source for the user to read or watch. Thi
 
 Each lesson should contain a reminder to ask followup questions to the agent. The agent is their teacher, and can assist with anything that's unclear.
 
-A lesson about a mechanism, protocol, flow or architecture gets its knowledge half from the `visual-explain` skill when it is installed: build the scrolly explainer, save it as the lesson file in `./lessons/`, link `./assets/` stylesheet instead of inlining the page styles, then append the practice half (quiz, exercise, the terminal instruction above). The explainer's predict step counts toward the lesson's practice.
+When the `visual-explain` skill is installed, the knowledge half of a lesson is a scrolly explainer whenever the concept has a row in that skill's shape table: a flow, a comparison, a cycle, a trade-off, or a data format (the anatomy shape: one sticky artifact, one region per step). Recall-only review sessions and pure command drills stay plain HTML. Build the scrolly, save it as the lesson file in `./lessons/`, take page styles from `./assets/course.css` but keep the graphic-state CSS inline as the first `<style>` block so its `check.sh` works. Then append the practice half (quiz, exercise, the terminal instruction above). The explainer's predict step counts toward the lesson's practice. Run visual-explain's Verify section before you open the lesson. Every glossary term gets a `data-tip` callout at its first use.
 
 ## Assets
 
@@ -92,7 +92,7 @@ Lessons are built from reusable **components**, stored in `./assets/`: styleshee
 
 Reuse is the default, not the exception. Before authoring a lesson, read `./assets/` and build from the components already there. When a lesson needs something new and reusable, write it as a component in `./assets/` and link to it — never inline code a future lesson would duplicate.
 
-A shared stylesheet is the first component every workspace earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the workspace grows, so should the component library.
+A shared stylesheet, `./assets/course.css`, is the first component every workspace earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the workspace grows, so should the component library.
 
 ## The Mission
 
