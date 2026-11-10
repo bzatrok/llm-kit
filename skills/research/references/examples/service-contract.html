@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Internetcontract 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+/* ---- additions for this report type (built from the tokens above) ---- */
+.ch{display:block;width:100%;overflow:visible}
+
+/* range bars: label | track | value */
+.rg{display:grid;grid-template-columns:var(--lw,96px) minmax(0,1fr) auto;gap:8px 12px;align-items:center;font-size:var(--fs-s)}
+.rg .nm{color:var(--ink-2);line-height:1.3}
+.rg .tr{position:relative;height:18px}
+.rg .tr.sub{height:12px}
+.rg .s{position:absolute;top:5px;height:8px;min-width:8px;border-radius:var(--r-pill)}
+.rg .tr.sub .s{top:2px}
+.rg .db{position:absolute;top:8px;height:2px;opacity:.45}
+.rg .pt{position:absolute;top:4px;width:10px;height:10px;margin-left:-5px;border-radius:50%}
+.rg .pt.o{background:var(--card)!important;border:2px solid var(--c-mute)}
+.rg .z{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px solid var(--ink-3)}
+.hb .v{white-space:nowrap}
+.rg .v{color:var(--ink-2);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rg .v.pk{color:var(--teal);font-weight:500}
+.rg .ax{position:relative;height:18px;color:var(--ink-3)}
+.rg .ax span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.rg .gap{grid-column:1/-1;height:2px}
+
+/* line swatch for legends */
+.sw{display:inline-block;width:18px;height:0;border-top:2px solid;flex:none}
+.sw.da{border-top-style:dashed}.sw.do{border-top-style:dotted}
+
+/* date list: vertical timeline */
+.dl{display:grid}
+.dl .it{display:grid;grid-template-columns:104px 20px minmax(0,1fr);column-gap:12px}
+.dl .d{font-size:var(--fs-s);color:var(--ink-3);text-align:right;padding-top:1px;line-height:1.5}
+.dl .it.k .d{color:var(--ink);font-weight:500}
+.dl .ln{position:relative}
+.dl .ln:before{content:"";position:absolute;left:9px;top:0;bottom:0;width:2px;background:var(--rule)}
+.dl .it:first-child .ln:before{top:8px}
+.dl .it:last-child .ln:before{bottom:auto;height:8px}
+.dl .ln:after{content:"";position:absolute;left:4px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--card);border:2px solid var(--c-mute)}
+.dl .it.k .ln:after{border-color:var(--teal);background:var(--teal)}
+.dl .tx{padding-bottom:16px;line-height:1.5}
+.dl .it:last-child .tx{padding-bottom:0}
+.dl .tx .m{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+
+/* call script */
+.script{background:var(--soft);border-radius:var(--r-md);padding:14px 16px;color:var(--ink);line-height:1.6}
+.qs{display:grid;gap:8px;margin-top:12px}
+.qs .q{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;background:var(--soft);border-radius:var(--r-md);padding:12px 16px 12px 12px;line-height:1.6}
+.qs .n{width:24px;height:24px;border-radius:50%;background:var(--card);color:var(--ink-3);font-size:var(--fs-s);display:grid;place-items:center}
+.qs .q .m{display:block;font-size:var(--fs-s);color:var(--ink-3);margin-top:2px}
+.lbl{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:18px 0 0}
+.card .sub+.lbl{margin-top:0}
+.kv{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:4px 12px;font-size:var(--fs-m)}
+.kv .f{color:var(--ink-3);font-size:var(--fs-s);padding-top:2px}
+.glist .row>span:first-child .m{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+.next{margin:4px 2px 0;color:var(--ink-2)}
+@media (max-width:720px){
+  .dl .it{grid-template-columns:78px 20px minmax(0,1fr);column-gap:8px}
+  .rg{--lw:76px;gap:8px 8px}
+  .stk .row{grid-template-columns:1fr}
+  .stk .row .chip{justify-self:start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Onderzoek · 12 okt 2026</div>
+    <h1>Internetcontract 2026</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Thema</button>
+</header>
+
+<section class="card tldr" aria-label="Samenvatting">
+  <p class="k">TL;DR</p>
+  <p><mark>Zet het 1-jaarscontract om naar Lumio 2 jaar vast.</mark> Dat kost <a class="ref" data-src="4">€896</a> over 2 jaar.</p>
+  <p>Dit werkt alleen met de <mark>korting van €90</mark>. Start op 1 jan, anders vervalt het <a class="ref" data-src="10">Kabelia-tegoed</a>.</p>
+  <p>Bel eerst Lumio en volg het <a class="ref" data-src="2">belscript</a>. Zeg pas op als het nieuwe contract bevestigd is.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overzicht</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Opties</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Vergelijken</button>
+  <button role="tab" aria-selected="false" aria-controls="p-call" id="t-call">Bellen</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Open punten</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Bronnen</button>
+</div>
+
+<!-- OVERZICHT -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Kosten over de tijd per looptijd</h2>
+    <p class="sub">Cumulatief, na korting. De 1-jaarsroute rekent €68 korting per overstap, zonder infrastructuurheffing.</p>
+    <svg class="ch" id="cum" role="img" aria-label="Cumulatieve kosten per looptijd"></svg>
+    <div class="legend" style="margin-top:14px">
+      <span><span class="sw da" style="border-color:var(--c-pi)"></span>1 jaar, dan A: escalatie</span>
+      <span><span class="sw" style="border-color:var(--c-pi)"></span>1 jaar, dan B: prijsdruk blijft</span>
+      <span><span class="sw do" style="border-color:var(--c-pi)"></span>1 jaar, dan C: curve komt uit</span>
+      <span><span class="sw" style="border-color:var(--c-used)"></span>2 jaar, keuze: €896 na 2 jaar</span>
+      <span><span class="sw" style="border-color:var(--c-new)"></span>3 jaar, aanbod 12 okt</span>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>2 jaar tegenover blijven</h2>
+      <p class="sub">Euro, jan 2027 tot dec 2028. Positief: 2 jaar wint. Met infrastructuurheffing.</p>
+      <div class="rg" id="hedge"></div>
+      <div class="legend" style="margin-top:16px">
+        <span><span class="dot" style="background:var(--c-used)"></span>Korting 2028 €68</span>
+        <span><span class="dot" style="background:var(--c-diy)"></span>Korting 2028 €36</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Breekpunt 1 of 3 jaar</h2>
+      <p class="sub">Kale 1-jaarsprijs, gemiddeld bij de overstappen van 2028 en 2029. Breekpunt bij €68 of €36 korting. Links ervan wint 1 jaar.</p>
+      <div class="rg" id="brk" style="--lw:112px"></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Prijsstijging sinds je tekende</h2>
+      <p class="sub">Lumio, kale jaarprijs, 9 sep tot 12 okt.</p>
+      <div class="hb" id="rise"></div>
+    </div>
+    <div class="card">
+      <h2>Stijging per 1 apr 2027</h2>
+      <p class="sub">Euro per jaar, bij elk contract. Valt buiten het vaste tarief.</p>
+      <div class="hb" id="y27"></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Groothandel</h2>
+      <p class="sub">€/Gbit per maand (verzonnen). Open punt = 9 sep, vol punt = 11 of 12 okt.</p>
+      <div class="rg" id="wh" style="--lw:112px"></div>
+    </div>
+    <div class="card">
+      <h2>Netbelasting</h2>
+      <p class="sub">Piekbezetting backbone, 9 sep tot 12 okt. Streep = drempel van 80% op 1 dec.</p>
+      <div class="rg" id="stor"></div>
+    </div>
+  </div>
+
+  <p class="next">Volgende stap: bel Lumio en volg het belscript op het tabblad Bellen.</p>
+</section>
+
+<!-- OPTIES -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="c1"></div><div><span class="route"><span class="dot" style="background:var(--c-pi)"></span>1 jaar · getekend</span><span class="nm">Lumio 1 jaar vast</span></div><span class="pr">€432</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Kaal</span><span>€468 per jaar, aanbod 9 sep<span class="src">5</span></span></div>
+        <div class="row"><span class="f">Korting</span><span>€36, na 12 maanden</span></div>
+        <div class="row"><span class="f">Vrij op</span><span>31 dec 2027</span></div>
+        <div class="row"><span class="f">Daarna</span><span>Markt <span class="chip unv">Onbekend</span></span></div>
+        <div class="row"><span class="f">Op 9 sep</span><span>PrijsKompas 1 jaar was €11 goedkoper in jaar 1</span></div>
+      </div>
+      <div class="flag">Kost het meest in scenario A of B. Dan teken je volgend najaar op een hoog niveau, plus infrastructuurheffing.</div>
+    </article>
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="c2"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>2 jaar · keuze</span><span class="nm">Lumio 2 jaar vast</span></div><span class="pr">€896</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Per jaar</span><span>€403 in jaar 1, €493 in jaar 2<span class="src">4</span></span></div>
+        <div class="row"><span class="f">Verwacht</span><span>−€25 tot +€19 tegenover blijven</span></div>
+        <div class="row"><span class="f">Escalatie</span><span>+€168 tot +€212</span></div>
+        <div class="row"><span class="f">Slechtst</span><span>−€36 tot −€80, als de curve uitkomt</span></div>
+        <div class="row"><span class="f">Korting</span><span>€90 <span class="chip unv">Onbekend voor jou</span></span></div>
+      </div>
+      <div class="flag">Zonder de korting van €90 kost 2 jaar ~€115 in verwachting. Dan is het geen goede afdekking.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="c3"></div><div><span class="route"><span class="dot" style="background:var(--c-diy)"></span>3 jaar · Vergelijkdesk #1</span><span class="nm">Budgetnet 3 jaar vast</span></div><span class="pr">€1.332</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Per jaar</span><span>€396 in jaar 1, daarna €468</span></div>
+        <div class="row"><span class="f">Cashback</span><span>€72 <span class="chip unv">Timing onbekend</span></span></div>
+        <div class="row"><span class="f">Verwacht</span><span>−€34 tegenover blijven</span></div>
+        <div class="row"><span class="f">Wint vanaf</span><span>~22% kans op scenario A</span></div>
+      </div>
+      <div class="flag">PV art. 5.6 staat één prijsaanpassing toe bij onvoorziene regelgeving. Cashback terugvorderbaar binnen 6 maanden.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="c3"></div><div><span class="route"><span class="dot" style="background:var(--c-new)"></span>3 jaar</span><span class="nm">Lumio 3 jaar vast</span></div><span class="pr">€1.387</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Per jaar</span><span>€429 in jaar 1, daarna €479</span></div>
+        <div class="row"><span class="f">Korting</span><span>€50</span></div>
+        <div class="row"><span class="f">Verwacht</span><span>−€89 tegenover blijven</span></div>
+        <div class="row"><span class="f">Wint vanaf</span><span>~34% kans op scenario A</span></div>
+      </div>
+      <div class="flag">Het duurste alternatief. De korting is klein en 2029 ligt op de curve het laagst.</div>
+    </article>
+  </div>
+
+  <div class="card">
+    <h2>Voorwaarden die tellen</h2>
+    <p class="sub">Uit de productvoorwaarden van Lumio en Budgetnet.</p>
+    <div class="rows glist stk">
+      <div class="row"><span>Opzegvergoeding 1 jaar, nu<span class="m">€0 volgens art. 15: jouw tarief ligt onder het referentietarief. Marge €1,20 per maand.</span></span><span class="chip unv">Niet bevestigd</span></div>
+      <div class="row"><span>Indicatie opzegvergoeding<span class="m">Staat twee maanden vast (PV art. 12).</span></span><span class="chip ok">In voorwaarden</span></div>
+      <div class="row"><span>Welkomstkorting 1 jaar<span class="m">€36, uitbetaald na 12 maanden. Vervalt als je opzegt.</span></span><span class="chip one">Vervalt bij omzetten</span></div>
+      <div class="row"><span>Welkomstkorting 2 jaar<span class="m">€90 voor nieuwe klanten. Beslist of 2 jaar een goede afdekking is.</span></span><span class="chip unv">Onbekend voor jou</span></div>
+      <div class="row"><span>Startdatum<span class="m">Moet 1 jan 2027 zijn. Anders vervalt het tegoed van €60 bij Kabelia.</span></span><span class="chip one">Voorwaarde</span></div>
+      <div class="row"><span>Prijs vast bij tekenen of bij start<span class="m">De welkomstmail beslist. Ligt de prijs pas op 1 jan vast, dan vervalt het voordeel van €45.</span></span><span class="chip unv">Onbekend</span></div>
+      <div class="row"><span>Verhuizen binnen Nederland<span class="m">Het contract verhuist mee (art. 24). Het tarief mag naar de nieuwe regio (art. 8).</span></span><span class="chip ok">Geen boete</span></div>
+      <div class="row"><span>Beëindigen bij emigratie, samenwonen of woning zonder aansluiting<span class="m">(Jouw prijs − referentieprijs) × resterende maanden, plus btw. Geen maximum (art. 15, 27).</span></span><span class="chip one">Boete bij dalende prijs</span></div>
+      <div class="row"><span>Clausule infrastructuurheffing<span class="m">Lumio heeft geen heffingsclausule (AV 18.3).</span></span><span class="chip ok">Geen</span></div>
+      <div class="row"><span>Netwerkbeheer, netheffing, btw<span class="m">Mogen wijzigen binnen elk vast contract (AV 2.14, 12.3).</span></span><span class="chip">Buiten vast tarief</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- VERGELIJKEN -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Aanbod</th><th class="r">Kaal 9 sep</th><th class="r">Kaal 12 okt</th><th class="r">Verschil</th><th class="r">Korting 12 okt</th><th class="r">Jaar 1, 12 okt</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:var(--c-pi)"></span>Lumio 1 jaar</td><td class="r">€468</td><td class="r">€513</td><td class="r sn">+€45</td><td class="r">€68</td><td class="r">€445</td></tr>
+        <tr class="pick"><td><span class="dot" style="background:var(--c-used)"></span><b>Lumio 2 jaar</b></td><td class="r">€456</td><td class="r">€493</td><td class="r sn">+€37</td><td class="r">€90</td><td class="r">€403</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-new)"></span>Lumio 3 jaar</td><td class="r">€450</td><td class="r">€479</td><td class="r sn">+€29</td><td class="r">€50</td><td class="r">€429</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-diy)"></span>Budgetnet 3 jaar</td><td class="r muted">–</td><td class="r">€468</td><td class="r muted">–</td><td class="r">€72 cashback</td><td class="r">€396</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Tarief all-in, Lumio</th><th class="r">Abonnement €/maand</th><th class="r">Modemhuur €/maand</th><th class="r">Totaal €/maand</th><th class="r">Snelheid Mbit</th></tr></thead>
+      <tbody>
+        <tr><td>1 jaar, getekend 9 sep</td><td class="r">36,50</td><td class="r">2,50</td><td class="r">39,00</td><td class="r">500</td></tr>
+        <tr><td>1 jaar, aanbod 12 okt</td><td class="r">40,25</td><td class="r">2,50</td><td class="r">42,75</td><td class="r">500</td></tr>
+        <tr class="pick"><td><b>2 jaar, aanbod 12 okt</b></td><td class="r">38,58</td><td class="r">2,50</td><td class="r">41,08</td><td class="r">500</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Kaal tarief, excl. netheffing</th><th class="r">Abonnement €/maand</th><th class="r">Modemhuur €/maand</th><th>Gevolg</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td><b>Jouw tarief</b></td><td class="r">32,10</td><td class="r">2,10</td><td>Ligt onder beide andere</td></tr>
+        <tr><td>Aanbod 12 okt</td><td class="r">35,90</td><td class="r">2,30</td><td class="muted">Wachten was duurder</td></tr>
+        <tr><td>Referentie 8 okt</td><td class="r">38,75</td><td class="r">2,50</td><td class="muted">Opzeggen kost €0 (art. 15)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Tegenover blijven</th><th class="r">Totaal</th><th class="r">A</th><th class="r">B</th><th class="r">C</th><th class="r">Verwacht</th><th class="r">Wint vanaf P(A)</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td><span class="dot" style="background:var(--c-used)"></span><b>Lumio 2 jaar</b></td><td class="r">€896</td><td class="r sy">+168</td><td class="r sn">−19</td><td class="r sn">−80</td><td class="r sn">−€25</td><td class="r">~26%</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-diy)"></span>Budgetnet 3 jaar</td><td class="r">€1.332</td><td class="r sy">+364</td><td class="r sn">−10</td><td class="r sn">−156</td><td class="r sn">−€34</td><td class="r">~22%</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-new)"></span>Lumio 3 jaar</td><td class="r">€1.387</td><td class="r sy">+309</td><td class="r sn">−65</td><td class="r sn">−211</td><td class="r sn">−€89</td><td class="r">~34%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend"><span>Euro. Positief: het alternatief wint. Zonder infrastructuurheffing.</span><span>A: escalatie, kostenschok</span><span>B: prijsdruk blijft</span><span>C: prijscurve komt uit</span><span>Kansen A/B/C: 15/30/55%</span></div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Achteraf: 1 of 3 jaar</th><th class="r">Kaal 1 jaar 2028 / 2029</th><th class="r">Korting €68</th><th class="r">Korting €36</th></tr></thead>
+      <tbody>
+        <tr><td>A. Verdere escalatie</td><td class="r">~€700 (aanname)</td><td class="r">3 jaar +404–417</td><td class="r">3 jaar +468–481</td></tr>
+        <tr><td>B. Prijsdruk blijft</td><td class="r">€513 / €513</td><td class="r">3 jaar +30–43</td><td class="r">3 jaar +94–107</td></tr>
+        <tr><td>C. Prijscurve komt uit</td><td class="r">~€452 / ~€428</td><td class="r">1 jaar +103–116</td><td class="r">1 jaar +39–52</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend"><span>Jan 2027 tot dec 2029. 1-jaarsroute tegenover Lumio 3 jaar van 9 sep (€1.314 vast). Bandbreedte: infrastructuurheffing €22–35.</span></div>
+
+  <div class="card">
+    <h2>Looptijd per contract</h2>
+    <p class="sub">Streeplijn = peildatum 12 okt 2026.</p>
+    <div class="tl" id="tl" style="row-gap:30px;margin-top:4px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Belangrijke data</h2>
+    <p class="sub">Vol punt = actie voor jou.</p>
+    <div class="dl">
+      <div class="it"><span class="d">9 sep 2026</span><span class="ln"></span><span class="tx">1-jaarscontract getekend<span class="m">Aanname: het aanbod van die dag.</span></span></div>
+      <div class="it"><span class="d">12 okt 2026</span><span class="ln"></span><span class="tx">Herijking<span class="m">Verhuisrisico is nul. Advies wordt omzetten naar 2 jaar.</span></span></div>
+      <div class="it k"><span class="d">1 dec 2026</span><span class="ln"></span><span class="tx">Recheck</span></div>
+      <div class="it"><span class="d">31 dec 2026</span><span class="ln"></span><span class="tx">Kabelia-contract eindigt<span class="m">Het tegoed van €60 is dan verdiend.</span></span></div>
+      <div class="it k"><span class="d">1 jan 2027</span><span class="ln"></span><span class="tx">Overstapdatum<span class="m">Elk nieuw contract moet hier starten.</span></span></div>
+      <div class="it"><span class="d">20 jan 2027</span><span class="ln"></span><span class="tx">Slotfactuur Kabelia<span class="m">Met €60 tegoed. Controleer de afrekening.</span></span></div>
+      <div class="it"><span class="d">1 apr 2027</span><span class="ln"></span><span class="tx">Tariefsverhoging netwerkbeheer<span class="m">Netwerkbeheer en netheffing: ~+€16 per jaar.</span></span></div>
+      <div class="it k"><span class="d">half sep 2027</span><span class="ln"></span><span class="tx">Herijken voor de overstap van 1 jan 2028<span class="m">Alleen bij 1 jaar. Eerder als transit 2028 boven ~€43/Gbit komt.</span></span></div>
+      <div class="it k"><span class="d">~1 okt 2027</span><span class="ln"></span><span class="tx">Volgend contract tekenen<span class="m">Lumio boekt ~3 maanden vooruit.</span></span></div>
+      <div class="it"><span class="d">31 dec 2027</span><span class="ln"></span><span class="tx">Einde 1-jaarscontract</span></div>
+      <div class="it"><span class="d">1 jul 2028</span><span class="ln"></span><span class="tx">Infrastructuurheffing gaat in<span class="m">Een vast contract van 2026 mag dit niet doorberekenen.</span></span></div>
+      <div class="it"><span class="d">31 dec 2028</span><span class="ln"></span><span class="tx">Einde 2-jaarscontract</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BELLEN -->
+<section class="panel" id="p-call" role="tabpanel" aria-labelledby="t-call" hidden>
+  <div class="card">
+    <h2>Belscript</h2>
+    <p class="sub">Doel: 1 jaar omzetten naar 2 jaar, met start 1 jan 2027.</p>
+    <div class="kv">
+      <span class="f">Wie</span><span>Lumio klantenservice</span>
+      <span class="f">Nummer</span><span>0800-5550142 of 0800-5550143</span>
+      <span class="f">Wanneer</span><span>ma–vr, 09:00–17:00</span>
+      <span class="f">Klaarleggen</span><span>Klantnummer uit de welkomstmail</span>
+    </div>
+    <h3 class="lbl">Zeg dit</h3>
+    <div class="script" style="margin-top:8px">"Ik heb in september een contract 1 jaar vast afgesloten, levering vanaf 1 januari 2027, op Wilgenlaan 8 in Bruinhaven. Ik wil dat omzetten naar 2 jaar vast, met dezelfde startdatum van 1 januari 2027. Kan dat, en tegen welke tarieven en welke korting?"</div>
+    <h3 class="lbl">Vraag daarna, in deze volgorde</h3>
+    <div class="qs">
+      <div class="q"><span class="n">1</span><span>"Kunt u mij een indicatie geven van de opzegvergoeding als ik het 1-jaarscontract nu beëindig? Ik begrijp dat die indicatie twee maanden vaststaat."<span class="m">PV Vast art. 11–12</span></span></div>
+      <div class="q"><span class="n">2</span><span>"Krijg ik op het 2-jaarscontract de korting van €90 die nieuwe klanten nu op de website krijgen? Wanneer wordt die uitbetaald?"</span></div>
+      <div class="q"><span class="n">3</span><span>"Blijft de startdatum 1 januari 2027? Mijn Kabelia-contract loopt tot 31 december en ik verlies een tegoed als ik eerder overstap."</span></div>
+      <div class="q"><span class="n">4</span><span>"Zijn de tarieven vastgezet op de dag dat ik teken, of op de startdatum?"</span></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Een goed antwoord</h2>
+      <p class="sub">Accepteer alleen als dit klopt.</p>
+      <div class="rows glist">
+        <div class="row"><span>Opzegvergoeding €0<span class="m">Liefst schriftelijk of per e-mail.</span></span></div>
+        <div class="row"><span>2-jaarsprijs op of onder €493 per jaar voor korting<span class="m">Abonnement 38,58 €/maand, modemhuur 2,50 €/maand.</span></span></div>
+        <div class="row"><span>Korting van €90, of een duidelijk "nee"<span class="m">Minimaal ~€65 om om te zetten.</span></span></div>
+        <div class="row"><span>Startdatum 1 jan 2027</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Let op</h2>
+      <p class="sub">Vier valkuilen tijdens het gesprek.</p>
+      <div class="rows glist">
+        <div class="row"><span>De €36 korting op je 1-jaarscontract vervalt als je opzegt.<span class="m">Dit zit al in de vergelijking.</span></span></div>
+        <div class="row"><span>Een retentieaanbod kan afwijken van de websiteprijs.<span class="m">Vergelijk het met €493 per jaar voor korting.</span></span></div>
+        <div class="row"><span>Zeg niet op voordat het nieuwe contract met start 1 jan bevestigd is.</span></div>
+        <div class="row"><span>"Dat moet u online regelen" of "dat kan ik niet zeggen" is geen prijs.<span class="m">Noteer het als een dun antwoord.</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Beslisregel</h2>
+    <p class="sub">Na het gesprek.</p>
+    <div class="rows glist stk">
+      <div class="row"><span>Opzegvergoeding €0, 2-jaarsprijs op of onder €493 voor korting, korting minimaal ~€65</span><span class="chip ok">Omzetten</span></div>
+      <div class="row"><span>Hetzelfde, maar de korting is lager of nul<span class="m">Elke euro korting onder €90 gaat van de afdekking af. Bij €0 korting kost het ~€115 in verwachting.</span></span><span class="chip one">Blijven</span></div>
+      <div class="row"><span>Opzegvergoeding boven €0<span class="m">Geef het bedrag door. Dan reken ik opnieuw.</span></span><span class="chip one">Blijven</span></div>
+      <div class="row"><span>Startdatum is niet 1 januari<span class="m">Het tegoed van €60 bij Kabelia is meer waard dan de afdekking.</span></span><span class="chip one">Blijven</span></div>
+    </div>
+  </div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Al gepubliceerd, niet bellen</th><th class="r">Voor korting</th><th class="r">Korting</th><th>Opmerking</th></tr></thead>
+      <tbody>
+        <tr><td>Lumio 2 jaar, website</td><td class="r">€493</td><td class="r">€90</td><td class="muted">€403 in jaar 1</td></tr>
+        <tr><td>Budgetnet 3 jaar</td><td class="r">€468</td><td class="r">€72 cashback</td><td class="muted">Alleen terugval: prijsclausule art. 5.6</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- OPEN PUNTEN -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>Wat ik niet kon verifiëren</h2>
+    <p class="sub">11 open punten, gegroepeerd naar wat het antwoord kan veranderen.</p>
+    <h3 class="gh">Kan het advies veranderen</h3>
+    <div class="rows glist">
+      <div class="row"><span>Datum en tarieven van het getekende contract. Ik reken met het aanbod van 9 sep.</span><span class="who">Welkomstmail</span></div>
+      <div class="row"><span>Ligt de prijs vast bij tekenen of bij de start?</span><span class="who">Welkomstmail</span></div>
+      <div class="row"><span>Kost opzeggen vandaag €0? Afgeleid uit art. 15. De referentie heet sinds oktober "Modelcontract".</span><span class="who">Bel Lumio</span></div>
+      <div class="row"><span>Geldt de korting van €90 ook voor iemand die al klant is?</span><span class="who">Bel Lumio</span></div>
+    </div>
+    <h3 class="gh">Kan de rekensom verschuiven</h3>
+    <div class="rows glist">
+      <div class="row"><span>Infrastructuurheffing 2028–2029. Interpolatie van een Veldkamp-bandbreedte.</span><span class="who">Alleen via kiesnet.example</span></div>
+      <div class="row"><span>Welkomstkortingen in 2028 en 2029. €36 en €68 zijn de twee waargenomen niveaus.</span><span class="who">Niet te weten</span></div>
+      <div class="row"><span>Scenario A: €700 per jaar. Geen bron steunt een escalatie van die omvang.</span><span class="who">Eigen aanname</span></div>
+      <div class="row"><span>Kansen 15/30/55% voor A, B en C. Uit augustus, niet bijgewerkt.</span><span class="who">Eigen inschatting</span></div>
+    </div>
+    <h3 class="gh">Klein</h3>
+    <div class="rows glist">
+      <div class="row"><span>Nederlandse peering 2028 en 2029. Buitenlandse data gebruikt, 30 dagen vertraagd.</span><span class="who">Niet gevonden</span></div>
+      <div class="row"><span>Transit 2028 en 2029 van transitwatch.example. Mogelijk een 20-daags gemiddelde.</span><span class="who">Bron onduidelijk</span></div>
+      <div class="row"><span>Regionet netwerkbeheer 2027. Alleen een prognose.</span><span class="who">Toezichthouder, december</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BRONNEN -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>Wat</th><th class="r">Vastgelegd</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Herijking oktober, red-team en update verhuisrisico</td><td class="r muted">12 okt</td></tr>
+        <tr id="src-2"><td>2</td><td>Belscript Lumio en beslisregel</td><td class="r muted">12 okt</td></tr>
+        <tr id="src-3"><td>3</td><td>Eerste analyse, breakeven 1 of 3 jaar</td><td class="r muted">17 aug</td></tr>
+        <tr id="src-4"><td>4</td><td>Lumio 1, 2 en 3 jaar, referentietarieven, Vergelijkdesk</td><td class="r muted">12 okt</td></tr>
+        <tr id="src-5"><td>5</td><td>Idem, plus opzegvergoeding en verhuizing uitgewerkt</td><td class="r muted">9 sep</td></tr>
+        <tr id="src-6"><td>6</td><td>Lumio productvoorwaarden Vast en AV</td><td class="r muted">versie feb 2026</td></tr>
+        <tr id="src-7"><td>7</td><td>Transit spot en jaarcontracten, peering, netbelasting, kabelstoring Noordzee</td><td class="r muted">12 okt</td></tr>
+        <tr id="src-8"><td>8</td><td>Netheffing 2027, Regionet 2027, infrastructuurheffing</td><td class="r muted">12 okt</td></tr>
+        <tr id="src-9"><td>9</td><td>Toezichthouder-uitspraak infrastructuurheffing, Veldkamp-bandbreedte</td><td class="r muted">2026</td></tr>
+        <tr id="src-10"><td>10</td><td>Stresstest, scenario A, boekvenster, Kabelia-tegoed</td><td class="r muted">aug</td></tr>
+        <tr id="src-11"><td>11</td><td>Videocheck: kabelstoring Noordzee</td><td class="r muted">12 okt</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">Profiel: 500 Mbit glasvezel, 1 aansluiting, 4 gebruikers, Regionet. Bedragen incl. btw, netheffing en netwerkbeheer 2026. Red-team 12 okt: verzwakt, gecorrigeerd. Alle namen, bedragen en bronnen in dit voorbeeld zijn verzonnen.</p>
+</div>
+
+<script>
+var C={p:'var(--c-pi)',u:'var(--c-used)',n:'var(--c-new)',d:'var(--c-diy)',m:'var(--c-mute)'};
+function nl(v){var s=Math.abs(Math.round(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');return (v<0?'−':'')+s}
+
+// illustrations: contract sheet with 1, 2 or 3 year blocks (generic)
+function cal(n){var b='';for(var i=0;i<3;i++)b+='<rect x="'+(11+i*8)+'" y="24" width="6" height="8" rx="1"'+(i<n?' fill="currentColor"':'')+'/>';
+ return '<svg width="34" height="34" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="7" y="9" width="30" height="28" rx="3"/><path d="M7 17h30M14 5v7M30 5v7" stroke-linecap="round"/>'+b+'</svg>'}
+var ILL={c1:cal(1),c2:cal(2),c3:cal(3)};
+document.querySelectorAll('[data-ill]').forEach(function(e){e.innerHTML=ILL[e.dataset.ill]});
+
+// range bars (HTML)
+function rg(id,o){
+ var el=document.getElementById(id),h='',X=function(v){return (v-o.min)/(o.max-o.min)*100};
+ o.rows.forEach(function(r){
+  if(r.gap){h+='<span class="gap"></span>';return}
+  h+='<span class="nm">'+(r.l||'')+'</span><div class="tr'+(r.sub?' sub':'')+'">';
+  (o.marks||[]).forEach(function(m){h+='<span class="z" style="left:'+X(m)+'%"></span>'});
+  (r.mk||[]).forEach(function(m){h+='<span class="z" style="left:'+X(m)+'%"></span>'});
+  r.s.forEach(function(s){
+   if(s.db){h+='<span class="db" style="left:'+X(s.a)+'%;width:'+(X(s.b)-X(s.a))+'%;background:'+s.c+'"></span>'+(s.a0?'':'<span class="pt o" style="left:'+X(s.a)+'%"></span>')+'<span class="pt" style="left:'+X(s.b)+'%;background:'+s.c+'"></span>';}
+   else if(s.pt){h+='<span class="pt" style="left:'+X(s.a)+'%;background:'+s.c+'"></span>'}
+   else{var a=Math.min(s.a,s.b),b=Math.max(s.a,s.b);h+='<span class="s" style="left:'+X(a)+'%;width:'+(X(b)-X(a))+'%;background:'+s.c+(s.op?';opacity:'+s.op:'')+'"></span>'}
+  });
+  h+='</div><span class="v'+(r.pk?' pk':'')+'">'+(r.v||'')+'</span>';
+ });
+ var tk=(window.innerWidth<720&&o.tm)?o.tm:o.ticks;
+ if(tk){h+='<span></span><div class="ax">';tk.forEach(function(t){h+='<span style="left:'+X(t[0])+'%">'+t[1]+'</span>'});h+='</div><span></span>'}
+ el.innerHTML=h;
+}
+
+function drawRg(){
+// 2 jaar vs blijven (met infrastructuurheffing)
+rg('hedge',{min:-120,max:260,marks:[0],ticks:[[-100,'−€100'],[0,'€0'],[100,'€100'],[200,'€200']],tm:[[0,'€0'],[200,'€200']],rows:[
+ {l:'A: escalatie',s:[{a:168,b:180,c:C.u}],v:'+168 … +180'},
+ {sub:1,s:[{a:200,b:212,c:C.d}],v:'+200 … +212'},
+ {gap:1},
+ {l:'B: vlak',s:[{a:-19,b:-7,c:C.u}],v:'−19 … −7'},
+ {sub:1,s:[{a:13,b:25,c:C.d}],v:'+13 … +25'},
+ {gap:1},
+ {l:'C: curve',s:[{a:-80,b:-68,c:C.u}],v:'−80 … −68'},
+ {sub:1,s:[{a:-48,b:-36,c:C.d}],v:'−48 … −36'},
+ {gap:1},
+ {l:'Verwacht',s:[{a:-25,b:-13,c:C.u}],v:'−25 … −13',pk:1},
+ {sub:1,s:[{a:7,b:19,c:C.d}],v:'+7 … +19',pk:1}
+]});
+
+// breekpunt
+rg('brk',{min:400,max:540,ticks:[[420,'€420'],[460,'€460'],[500,'€500']],tm:[[420,'€420'],[500,'€500']],rows:[
+ {l:'Vandaag',s:[{a:513,pt:1,c:'var(--ink-3)'}],v:'€513'},
+ {l:'Breekpunt, €68',s:[{a:492,b:498,c:C.u}],v:'€492–498'},
+ {l:'Breekpunt, €36',s:[{a:460,b:466,c:C.d}],v:'€460–466'},
+ {l:'Scenario C',s:[{a:428,b:452,db:1,a0:1,c:C.p},{a:428,pt:1,c:C.p}],v:'€428–452'}
+]});
+
+// hbar helper (reference .hb)
+function hb(id,d,max){var h='';d.forEach(function(r){var w=r[1]/max*100,pk=r[3]?' pk':'';
+ h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="b" style="width:'+w+'%;background:'+r[2]+'"></span><span class="v'+pk+'" style="left:'+w+'%">'+r[4]+'</span></div>';});
+ document.getElementById(id).innerHTML=h;}
+hb('rise',[['1 jaar',45,C.p,0,'+€45 · +9,6%'],['2 jaar',37,C.u,1,'+€37 · +8,1%'],['3 jaar',29,C.n,0,'+€29 · +6,4%']],90);
+hb('y27',[['Regionet netbeheer',14,C.d,0,'~+€14'],['Netheffing',2,C.d,0,'+€2'],['Totaal',16,'var(--ink-3)',0,'~+€16']],40);
+
+// groothandel
+rg('wh',{min:0,max:80,ticks:[[0,'0'],[20,'20'],[40,'40'],[60,'60']],tm:[[0,'0'],[60,'60']],rows:[
+ {l:'Transit spot',s:[{a:41.2,b:43.85,db:1,c:C.d}],v:'41,20 → 43,85'},
+ {l:'Transit 2027',s:[{a:36.1,b:39.9,db:1,c:C.d}],v:'36,10 → ~39,90'},
+ {l:'Transit 2028',s:[{a:31,pt:1,c:C.d}],v:'31,00'},
+ {l:'Transit 2029',s:[{a:27.5,pt:1,c:C.d}],v:'27,50'},
+ {l:'Peering NL 2027',s:[{a:62.4,b:67.15,db:1,c:C.p}],v:'62,40 → 67,15'}
+]});
+
+// netbelasting
+rg('stor',{min:0,max:100,ticks:[[0,'0%'],[50,'50%'],[100,'100%']],tm:[[0,'0%'],[100,'100%']],rows:[
+ {l:'Landelijk',mk:[80],s:[{a:58.2,b:64.9,db:1,c:C.p}],v:'58,2 → 64,9%'},
+ {l:'Regio Noord',s:[{a:41,b:52.6,db:1,c:C.p}],v:'41,0 → 52,6%'}
+]});
+}
+
+// cumulative cost line chart (SVG, drawn at container width)
+function drawCum(){
+ var s=document.getElementById('cum'),w=s.clientWidth;if(!w)return;
+ var mob=w<520,H=mob?250:270,pl=mob?44:58,pr=mob?72:92,pt=12,pb=28;
+ s.setAttribute('viewBox','0 0 '+w+' '+H);s.setAttribute('height',H);
+ var max=1800;function X(i){return pl+i/3*(w-pl-pr)}function Y(v){return pt+(1-v/max)*(H-pt-pb)}
+ var L=[
+  {d:[0,432,1064,1696],c:C.p,da:'7 5',k:'A'},
+  {d:[0,432,877,1322],c:C.p,k:'B'},
+  {d:[0,432,816,1176],c:C.p,da:'2 4',k:'C'},
+  {d:[0,429,908,1387],c:C.n,k:'3 jaar'},
+  {d:[0,403,896],c:C.u,pk:1}];
+ var h='';
+ [0,600,1200,1800].forEach(function(v){h+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--rule)"/><text x="'+(pl-8)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="12" fill="var(--ink-3)">€'+nl(v)+'</text>'});
+ var xl=mob?['start','1 jaar','2 jaar','3 jaar']:['1 jan 2027','dec 2027','dec 2028','dec 2029'];
+ xl.forEach(function(t,i){h+='<text x="'+X(i)+'" y="'+(H-6)+'" text-anchor="'+(i===0?'start':'middle')+'" font-size="12" fill="var(--ink-3)">'+t+'</text>'});
+ L.forEach(function(l){var p=l.d.map(function(v,i){return X(i)+','+Y(v)}).join(' ');
+  h+='<polyline points="'+p+'" fill="none" stroke="'+l.c+'" stroke-width="'+(l.pk?2.5:2)+'"'+(l.da?' stroke-dasharray="'+l.da+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+  l.d.forEach(function(v,i){if(i)h+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="'+(l.pk?3.5:2.5)+'" fill="'+l.c+'"/>'});});
+ var e=L[4];h+='<circle cx="'+X(2)+'" cy="'+Y(e.d[2])+'" r="7" fill="none" stroke="var(--teal)" stroke-width="2"/>';
+ // end labels at year 3, nudged apart
+ var ends=L.filter(function(l){return l.d.length===4}).map(function(l){return {y:Y(l.d[3]),t:l.k+' €'+nl(l.d[3]),c:l.c}}).sort(function(a,b){return a.y-b.y});
+ for(var i=1;i<ends.length;i++)if(ends[i].y-ends[i-1].y<15)ends[i].y=ends[i-1].y+15;
+ ends.forEach(function(o){h+='<text x="'+(X(3)+10)+'" y="'+(o.y+4)+'" font-size="12" fill="var(--ink-2)">'+o.t+'</text>'});
+ s.innerHTML=h;
+}
+
+// contract term timeline (reference .tl)
+function drawTl(){
+ var a=2026,b=2030,t=document.getElementById('tl');function x(y){return (y-a)/(b-a)*100}
+ var now=2026+(9+11/31)/12,start=2027;
+ var rows=[['Kabelia (huidig)','var(--ink-3)',a,start,'31 dec 2026'],
+  ['Lumio 1 jaar',C.p,start,start+1,'31 dec 2027'],
+  ['Lumio 2 jaar',C.u,start,start+2,'31 dec 2028'],
+  ['Lumio 3 jaar',C.n,start,start+3,'dec 2029']];
+ var mob=t.clientWidth<520,h='';
+ rows.forEach(function(r){var lab=mob?r[4].replace('31 dec ','dec '):r[4],late=x(r[3])>78;
+  h+='<span>'+(mob?r[0].replace('Lumio','LU').replace(' (huidig)',''):r[0])+'</span><div class="track"><span class="bar" style="left:'+x(r[2])+'%;width:'+(x(r[3])-x(r[2]))+'%;background:'+r[1]+'"></span><span class="end" style="right:'+(100-x(r[3]))+'%;padding-left:0;top:12px">'+lab+'</span><span class="now" style="left:'+x(now)+'%"></span></div>';});
+ h+='<span></span><div class="ax">';for(var y=2026;y<=2030;y+=(mob?2:1))h+='<span style="left:'+x(y)+'%;'+(y===2026?'transform:none':y===2030?'transform:translateX(-100%)':'')+'">'+y+'</span>';
+ t.innerHTML=h+'</div>';
+}
+
+function drawAll(){drawRg();drawCum();drawTl()}
+drawAll();window.addEventListener('resize',drawAll);
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});drawAll();});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>

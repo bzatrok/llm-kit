@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portugal 2028</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+
+/* ---- additions for this report type ---- */
+/* table card with heading outside the scroll area */
+.tcard{padding:0;min-width:0}
+.tcard .hd{padding:22px 22px 0}
+.tcard .hd .sub{margin-bottom:6px}
+.tcard .tw{padding:0 0 6px}
+.tcard td,.tcard th{padding:10px 22px}
+td.wrap,th.wrap{white-space:normal;min-width:200px}
+.tcard td.r{white-space:nowrap}
+.tcard td,.tcard th{white-space:nowrap}
+.tcard td.wrap,.tcard th.wrap{white-space:normal}
+.note{margin:0;padding:0 22px 18px;font-size:var(--fs-s);color:var(--ink-3)}
+
+/* range rows: low to high on one track (HTML, text stays 12px) */
+.rg{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.rg .nm{color:var(--ink-2);white-space:nowrap}
+.rg .tr{position:relative;height:20px}
+.rg .ln{position:absolute;top:8px;height:4px;border-radius:var(--r-pill);opacity:.35}
+.rg .pt{position:absolute;top:5px;width:10px;height:10px;margin-left:-5px;border-radius:50%}
+.rg .pt.o{background:var(--card);border:2px solid}
+.rg .v{position:absolute;top:0;line-height:20px;padding-left:10px;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.rg .ax{position:relative;height:18px;color:var(--ink-3)}
+.rg .ax span{position:absolute;transform:translateX(-50%)}
+.rg .gl{position:absolute;top:-4px;bottom:-4px;width:0;border-left:1px solid var(--rule)}
+
+/* stacked bars with a total */
+.sb{display:grid;grid-template-columns:150px 1fr;gap:10px 14px;align-items:center;font-size:var(--fs-s)}
+.sb .nm{color:var(--ink-2);white-space:nowrap}
+.sb .tr{display:flex;align-items:center;gap:3px;height:18px}
+.sb .tr span.s{height:14px;border-radius:4px}
+.sb .tr .v{padding-left:6px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sb .gh2{grid-column:1/-1;color:var(--ink-3);margin-top:6px}
+.sb .gh2:first-child{margin-top:0}
+
+/* schematic route */
+.route-wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center}
+.route-svg{width:100%;max-width:400px;display:block;margin:0 auto}
+.stops .row{grid-template-columns:auto 1fr auto;gap:10px}
+.stops .n{font-size:var(--fs-s);color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* nights strip */
+.strip{display:flex;gap:3px}
+.strip div{flex:1;min-width:0;text-align:center;font-size:var(--fs-s);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.strip i{display:block;height:14px;border-radius:4px;margin-bottom:4px}
+
+/* itinerary */
+.it .row{grid-template-columns:6.5em 1fr;align-items:start;padding:10px 0}
+.it .d{font-size:var(--fs-s);color:var(--ink-3);white-space:nowrap;padding-top:1px}
+.it .t{display:flex;align-items:center;gap:8px;font-weight:500}
+.it .x{display:block;color:var(--ink-2);font-size:var(--fs-s);margin-top:2px}
+
+/* stop cards (things to do) */
+.stop h2{display:flex;align-items:center;gap:8px}
+.stop .rows{margin:0}
+.stop .row{grid-template-columns:4.5em 1fr;align-items:start}
+.stop .row .f{padding-top:2px}
+
+/* maps: the background is the sea */
+.gm{position:relative;background:var(--bg);border:1px solid var(--rule);border-radius:var(--r-md);overflow:hidden}
+.gm svg{display:block}
+.gm .gm-hit{cursor:pointer;outline:none}
+.gm .gm-hit:focus-visible{stroke:var(--teal);stroke-width:2}
+.gm-tip{position:absolute;z-index:2;max-width:240px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:8px 10px;font-size:var(--fs-s);line-height:1.45;color:var(--ink-2);pointer-events:none}
+.gm-tip[hidden]{display:none}
+.gm-tip b{display:block;font-weight:500;color:var(--ink)}
+.legend .ln{display:inline-block;width:16px;height:2px;border-radius:2px;background:var(--ink-3)}
+.legend button{font:400 var(--fs-s) var(--f);color:var(--ink-2);background:none;border:0;padding:0;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.legend button[aria-pressed="false"]{color:var(--ink-3);opacity:.5}
+.legend button:focus-visible,.fil button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.fil{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.fil button{font:400 var(--fs-s) var(--f);color:var(--ink-2);background:var(--soft);border:0;border-radius:var(--r-pill);padding:6px 12px;cursor:pointer}
+.fil button[aria-pressed="true"]{background:var(--teal-soft);color:var(--teal)}
+
+@media (max-width:720px){
+  .route-wrap{grid-template-columns:1fr}
+  .rg,.sb{grid-template-columns:96px 1fr}
+  .it .row{grid-template-columns:5.2em 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 19 Dec 2027</div>
+    <h1>Portugal 2028</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Skip peak summer.</mark> May costs <a class="ref" data-src="2">€1,470</a> for two. September costs €1,676 and has everything open.</p>
+  <p>A <a class="ref" data-src="9">long weekend</a> can crowd the end of May. <mark>May and September tie on crowds</mark> (<a class="ref" data-src="5">correction</a>).</p>
+  <p>Pick a window by end of January 2028. Then book the <a class="ref" data-src="6">flights</a>.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-plan" id="t-plan">Plan</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW: charts only -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Trip total for two</h2>
+    <p class="sub">Flights (1 stop) plus 13 nights. Excludes car, fuel, tolls, food and tax.</p>
+    <div class="sb" id="total"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-pi)"></span>Flights</span>
+      <span><span class="dot" style="background:var(--c-new)"></span>Quinta, 3 nights</span>
+      <span><span class="dot" style="background:var(--c-diy)"></span>City stay, 10 nights</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Flight price per start date</h2>
+    <p class="sub">Round trip to Lisbon, two adults. Dot = cheapest 1 stop, ring = Lusavia nonstop.</p>
+    <div class="rg" id="flights"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-pi)"></span>Before</span>
+      <span><span class="dot" style="background:var(--c-diy)"></span>During</span>
+      <span><span class="dot" style="background:var(--c-used)"></span>After</span>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Hotel price per night</h2>
+      <p class="sub">Median of 4–5 chains on a booking site, room for two.</p>
+      <svg id="hotels" width="100%" style="max-width:400px;display:block" viewBox="0 0 352 200" role="img" aria-label="Hotel price per night by city and window"></svg>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--c-pi)"></span>20 May</span>
+        <span><span class="dot" style="background:var(--c-diy)"></span>5 Aug</span>
+        <span><span class="dot" style="background:var(--c-used)"></span>23 Sep</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Nights per stop</h2>
+      <p class="sub">The 13-night route for the May window.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Nights per stop"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-pi)"></span>Lisbon<b>4</b></span>
+          <span><span class="dot" style="background:var(--c-diy)"></span>Porto<b>4</b></span>
+          <span><span class="dot" style="background:var(--c-used)"></span>Douro, quinta<b>2</b></span>
+          <span><span class="dot" style="background:var(--ink-3)"></span>Coimbra<b>2</b></span>
+          <span><span class="dot" style="background:var(--c-new)"></span>Évora, quinta<b>1</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Temperature</h2>
+    <p class="sub">Average daily low to high, °C. No figure found for the peak-summer window.</p>
+    <div class="rg" id="temp"></div>
+  </div>
+
+  <p style="margin:0;color:var(--ink-2)">Next step: pick May or September by end of January 2028, then book the flights. Check the long-range forecast in late April.</p>
+</section>
+
+<!-- OPTIONS: the windows -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="sprig"></div><div><span class="route"><span class="dot" style="background:var(--c-pi)"></span>Before the high season</span><span class="nm">Sat 13 – Sat 27 May 2028</span></div><span class="pr">€1,470</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Crowds</span><span><span class="chip ok">Quiet</span> guide text only<span class="src">5</span></span></div>
+        <div class="row"><span class="f">Open</span><span>Cities, coast, quintas. Sea at 17 °C.<span class="src">1</span></span></div>
+        <div class="row"><span class="f">Lisbon</span><span>23 / 14 °C</span></div>
+        <div class="row"><span class="f">Flights</span><span>€386 1 stop · €598 nonstop<span class="src">6</span></span></div>
+        <div class="row"><span class="f">Hotels</span><span>Lisbon €118, Porto €96, Coimbra €74<span class="src">8</span></span></div>
+        <div class="row"><span class="f">Total</span><span>€1,470 Airbnb · €1,802 hotels<span class="src">2</span></span></div>
+      </div>
+      <div class="flag">Red team: a long weekend falls on 27–29 May in 2028. A fixed holiday can bring crowds into the last days.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="mount"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>After the high season</span><span class="nm">Sat 16 – Sat 30 Sep 2028</span></div><span class="pr">€1,676</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Crowds</span><span><span class="chip ok">Quiet</span> guide text only<span class="src">5</span></span></div>
+        <div class="row"><span class="f">Open</span><span>Everything. Grape harvest begins at the quintas.<span class="src">1</span></span></div>
+        <div class="row"><span class="f">Lisbon</span><span>27 / 18 °C</span></div>
+        <div class="row"><span class="f">Flights</span><span>€468 1 stop · €704 nonstop<span class="src">6</span></span></div>
+        <div class="row"><span class="f">Hotels</span><span>Lisbon €142, Porto €121, Coimbra €81<span class="src">8</span></span></div>
+        <div class="row"><span class="f">Total</span><span>€1,676 Airbnb · €2,094 hotels<span class="src">2</span></span></div>
+      </div>
+      <div class="flag">Red team: no weekly visitor data compares September with May. Ends before the October rain.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="sun"></div><div><span class="route"><span class="dot" style="background:var(--c-diy)"></span>Peak summer</span><span class="nm">About 28 Jul – 11 Aug 2028</span></div><span class="pr">€2,268</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Crowds</span><span><span class="chip unv">Most crowded</span><span class="src">5</span></span></div>
+        <div class="row"><span class="f">Open</span><span>Everything. Inland trails too hot at midday.<span class="src">1</span></span></div>
+        <div class="row"><span class="f">Heat</span><span>Normal peak Lisbon 34 °C, Évora 40 °C<span class="src">9</span></span></div>
+        <div class="row"><span class="f">Flights</span><span>€724 1 stop · €1,120 nonstop<span class="src">6</span></span></div>
+        <div class="row"><span class="f">Hotels</span><span>Lisbon €196, Porto €168, Coimbra €102<span class="src">8</span></span></div>
+        <div class="row"><span class="f">Total</span><span>€2,268 Airbnb · €2,796 hotels<span class="src">2</span></span></div>
+      </div>
+      <div class="flag">Heat is a gamble. Évora's hottest day moved between 38 and 44 °C over 2021–2026.</div>
+    </article>
+  </div>
+</section>
+
+<!-- PLAN: route, itinerary, stays, things to do -->
+<section class="panel" id="p-plan" role="tabpanel" aria-labelledby="t-plan" hidden>
+  <div class="card">
+    <h2>Route</h2>
+    <p class="sub">A loop for the May window. Select a pin for details.</p>
+    <div id="map"></div>
+    <div class="legend" style="margin-top:12px">
+      <span><span class="dot" style="background:var(--c-pi);width:10px;height:10px"></span>Stop, with nights</span>
+      <span><span class="dot" style="background:var(--c-pi)"></span>Other quiet base</span>
+      <span><span class="dot" style="background:var(--c-mute)"></span>Airport, station</span>
+      <span><span class="ln"></span>Route</span>
+    </div>
+    <div>
+      <div class="rows stops" style="margin:16px 0 0">
+        <div class="row"><span class="dot" style="background:var(--c-pi)"></span><span>Lisbon, Campo de Ourique</span><span class="n">3 nights</span></div>
+        <div class="row"><span class="dot" style="background:var(--c-new)"></span><span>Évora, Quinta do Azinhal</span><span class="n">1 night</span></div>
+        <div class="row"><span class="dot" style="background:var(--ink-3)"></span><span>Coimbra, Alta</span><span class="n">2 nights</span></div>
+        <div class="row"><span class="dot" style="background:var(--c-diy)"></span><span>Porto, Cedofeita</span><span class="n">4 nights</span></div>
+        <div class="row"><span class="dot" style="background:var(--c-used)"></span><span>Pinhão, Quinta da Pedra Alta</span><span class="n">2 nights</span></div>
+        <div class="row"><span class="dot" style="background:var(--c-pi)"></span><span>Lisbon, Estrela or Graça</span><span class="n">1 night</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Places</h2>
+    <p class="sub">From the brief, public-map coordinates. Pick an area, switch categories in the legend.</p>
+    <div class="fil" id="area" role="group" aria-label="Area"></div>
+    <div id="places"></div>
+    <div class="legend" id="cats" role="group" aria-label="Categories" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Day by day</h2>
+    <p class="sub">Sun 14 – Sat 27 May 2028. Colour = where you sleep that night.</p>
+    <div class="strip" id="strip"></div>
+    <div class="rows it" id="it" style="margin:16px 0 0"></div>
+    <p class="muted" style="font-size:12px;margin:12px 0 0">The route ends on Fri 26 May, before the long weekend of 27–29 May. Opening days of each bar and restaurant were checked against the dates.</p>
+  </div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Where to stay</h2><p class="sub">Quiet residential pockets. Noise ratings are guide statements, not measurements.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>City</th><th>Area</th><th>Night noise</th><th>Why</th></tr></thead>
+      <tbody id="areas"></tbody>
+    </table></div>
+    <p class="note">Avoid for sleep: Bairro Alto, Cais do Sodré (Lisbon). Ribeira and Rua Galeria de Paris (Porto). Coimbra riverfront bars. Lisbon and Porto centres are built for walking, so quiet areas are often far from dinner.</p>
+  </div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Quintas</h2><p class="sub">For two, one night, dinner and breakfast. Mostly "from" prices, not quotes for our dates. Shaded = on the route.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>Quinta</th><th>Area</th><th class="r">Price</th><th>Walks from the door</th></tr></thead>
+      <tbody id="quintas"></tbody>
+    </table></div>
+  </div>
+
+  <div class="grid" id="stops"></div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Car, tolls and transfers</h2><p class="sub">Pick up on day 4, drop on day 13. A 10-day rental costs about €290. The same loop by train and taxi costs about €410.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>Item</th><th class="r">Price</th><th>Note</th></tr></thead>
+      <tbody id="trains"></tbody>
+    </table></div>
+  </div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Tourist tax</h2><p class="sub">Per person per night, paid at the desk. Not in the prices above.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>City</th><th>Rate</th></tr></thead>
+      <tbody>
+        <tr><td>Lisbon</td><td class="wrap">€3.50, first 7 nights</td></tr>
+        <tr><td>Porto</td><td class="wrap">€2.50, first 7 nights</td></tr>
+        <tr><td>Coimbra</td><td class="wrap">€2.00, first 5 nights, children exempt</td></tr>
+        <tr><td>Évora and Pinhão</td><td class="wrap">€0 to €1.50 by municipality, quinta stays often exempt</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">In May the city nights add about €56 (Lisbon €28, Porto €20, Coimbra €8) for two.</p>
+  </div>
+
+  <div class="card">
+    <h2>Variants</h2>
+    <p class="sub">Swap one stop.</p>
+    <div class="rows glist">
+      <div class="row"><span>Gerês loop, Vilarinho das Furnas, about 9 km, 2–3 h, instead of Coimbra. Mud on trails in May. Lodging not priced.</span><span class="who">May</span></div>
+      <div class="row"><span>Serra da Estrela summit road, free. "Extremely crowded on summer weekends".</span><span class="who">Summer</span></div>
+      <div class="row"><span>Aveiro. Canal boats leave from 09:30, the quiet hour.</span><span class="who">Any</span></div>
+      <div class="row"><span>Alentejo coast (Zambujeira) instead of Évora. Beach cafes open until 30 September.</span><span class="who">September</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tcard">
+    <div class="hd"><h2>Windows</h2><p class="sub">Brief order: crowds, fit, cost, travel time. May and September tie on crowds.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>Window</th><th class="c">Quiet</th><th class="c">Coastal walks</th><th class="c">Serra trails</th><th class="c">Swimming</th><th class="r">Lisbon °C</th><th class="r">Flights</th><th class="r">Trip total</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table></div>
+    <p class="note">Flights: cheapest 1 stop for two. Trip total: 1 stop, Airbnb and 2 quinta stops (3 nights).</p>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> yes</span><span><b class="sq">~</b> partly</span><span><b class="sq">?</b> not found</span><span><b class="sn">✗</b> no</span></div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Flights</h2><p class="sub">Google Flights, 19 Dec 2027. Two adults, economy, bags not checked. Max 1 stop, 8 h or less.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>Window</th><th>Dates</th><th class="r">1 stop</th><th>Airline, via</th><th class="r">Duration</th><th class="r">Lusavia nonstop</th><th class="r">Duration</th></tr></thead>
+      <tbody id="fl"></tbody>
+    </table></div>
+    <p class="note">Shaded = the two dates in the options. Lusavia costs €228 more on a Monday start. Budget carrier Kitewing from €260 takes 14–16 h with two stops, so the 8-hour cap excludes it. Open-jaw tickets into Lisbon and out of Porto could not be priced.</p>
+  </div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Stay per night</h2><p class="sub">For two. Hotels: booking-site median, room only. Airbnb: entire home, median of the first results page.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>City</th><th>Type</th><th class="r">Before</th><th class="r">During</th><th class="r">After</th></tr></thead>
+      <tbody id="stay"></tbody>
+    </table></div>
+    <p class="note">The same Porto room costs €96 on 20 May and €168 on 5 Aug, ×1.75.</p>
+  </div>
+
+  <div class="card tcard">
+    <div class="hd"><h2>Walks by window</h2><p class="sub">Every coastal trail is open in May. The high serra is not.</p></div>
+    <div class="tw"><table>
+      <thead><tr><th>Walk</th><th>Before</th><th>During</th><th>After</th></tr></thead>
+      <tbody id="hikes"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">13 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the pick</h3>
+    <div class="rows glist">
+      <div class="row"><span>Is mid-May quieter than late September? No weekly visitor data. Guide text only.</span><span class="who">No source found</span></div>
+      <div class="row"><span>When do the 2028 school holidays start? A long weekend can reach Lisbon before 27 May.</span><span class="who">Published Jan 2028</span></div>
+      <div class="row"><span>Weekend hotel prices in May. The route has Porto on Sat 20 and Sun 21.</span><span class="who">Not searched yet</span></div>
+      <div class="row"><span>Bags on the €386 Iberwing fare.</span><span class="who">Check fare rules</span></div>
+    </div>
+    <h3 class="gh">Could change the route</h3>
+    <div class="rows glist">
+      <div class="row"><span>Douro roads and quintas in mid-May. Some close before the harvest.</span><span class="who">Ask the Pinhão tourist office</span></div>
+      <div class="row"><span>Live quinta availability for any 2028 date.</span><span class="who">Ask each quinta</span></div>
+      <div class="row"><span>May rain on Buçaco, Arrábida and the Douro terraces.</span><span class="who">No source found</span></div>
+      <div class="row"><span>Open-jaw flights into Lisbon, out of Porto.</span><span class="who">Search failed</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>Hotel prices from a second platform, with breakfast or refund.</span><span class="who">Sites blocked</span></div>
+      <div class="row"><span>Does the Airbnb total include the tourist tax?</span><span class="who">Not checked</span></div>
+      <div class="row"><span>Tolls Évora → Coimbra, Coimbra → Porto and Porto → Pinhão.</span><span class="who">Not captured</span></div>
+      <div class="row"><span>School holiday dates for 2028. The 2027 dates are used.</span><span class="who">Not published</span></div>
+      <div class="row"><span>Tourist tax in Évora, Pinhão and Coimbra.</span><span class="who">Not captured</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Windows ranked on crowds, fit, cost, travel time</td><td class="r muted">01-windows.md</td></tr>
+        <tr id="src-2"><td>2</td><td>Areas, hotel and Airbnb prices, quintas, tax, trip totals</td><td class="r muted">02-stay.md</td></tr>
+        <tr id="src-3"><td>3</td><td>13-night route, day by day</td><td class="r muted">03-route.md</td></tr>
+        <tr id="src-4"><td>4</td><td>Red-team self-review: stands, with gotchas</td><td class="r muted">04-redteam.md</td></tr>
+        <tr id="src-5"><td>5</td><td>Correction: May and September tie on crowds</td><td class="r muted">05-crowds-correction.md</td></tr>
+        <tr id="src-6"><td>6</td><td>Google Flights, 10 searches</td><td class="r muted">19 Dec</td></tr>
+        <tr id="src-7"><td>7</td><td>Airbnb, 18 searches</td><td class="r muted">19 Dec</td></tr>
+        <tr id="src-8"><td>8</td><td>Area guides, hotel prices, quintas, tourist tax</td><td class="r muted">19 Dec</td></tr>
+        <tr id="src-9"><td>9</td><td>Holidays, crowds, heat history, weather, openings</td><td class="r muted">19 Dec</td></tr>
+        <tr id="src-10"><td>10</td><td>Car hire, tolls, fuel, walks, nature stops</td><td class="r muted">19 Dec</td></tr>
+        <tr id="src-11"><td>11</td><td>Food, wine, practical</td><td class="r muted">19 Dec</td></tr>
+        <tr id="src-12"><td>12</td><td>Fuel price per litre, national average</td><td class="r muted">18 Dec</td></tr>
+        <tr id="src-13"><td>13</td><td>Map outline: coarse hand-drawn Portugal coast and border</td><td class="r muted">own sketch</td></tr>
+        <tr id="src-14"><td>14</td><td>Map points and route: public-map coordinate lookup</td><td class="r muted">portugal2028-brief.html</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">3 windows, one 13-night route. Ranked on crowds, fit, cost, travel time. Red-team pass: stands, with gotchas. Revised once: May and September tie on crowds.</p>
+</div>
+
+<script id="geo">
+// Map outline: coarse hand-drawn Portugal mainland (public-domain coordinates). Each ring is [[lon,lat],...].
+var GEO={pt:[[[-8.87,41.87],[-8.85,41.70],[-8.80,41.50],[-8.72,41.15],[-8.65,41.00],[-8.70,40.80],[-8.75,40.64],[-8.80,40.45],[-8.88,40.15],[-8.95,39.90],[-9.07,39.60],[-9.15,39.45],[-9.36,39.35],[-9.45,39.00],[-9.50,38.78],[-9.30,38.69],[-9.20,38.68],[-9.22,38.60],[-9.22,38.42],[-9.08,38.44],[-8.95,38.50],[-8.78,38.52],[-8.80,38.40],[-8.76,38.20],[-8.78,38.00],[-8.80,37.80],[-8.80,37.50],[-8.80,37.43],[-8.95,37.20],[-8.99,37.03],[-8.80,37.08],[-8.67,37.10],[-8.53,37.12],[-8.20,37.08],[-7.93,37.01],[-7.65,37.12],[-7.41,37.17],[-7.45,37.50],[-7.35,37.78],[-7.27,38.05],[-7.00,38.17],[-7.05,38.55],[-7.12,38.88],[-7.20,39.10],[-7.30,39.40],[-7.50,39.66],[-7.20,39.95],[-7.17,40.17],[-7.00,40.40],[-6.90,40.72],[-6.82,41.03],[-6.20,41.58],[-6.55,41.95],[-7.15,41.93],[-7.45,41.85],[-8.00,42.10],[-8.20,42.15],[-8.50,42.05],[-8.75,41.92],[-8.87,41.87]]]};
+
+// Places and route from portugal2028-brief.html, public-map coordinates: [name, category, lat, lon, note]
+var JM=[["Campo de Ourique","stay",38.7167,-9.1670,"Quiet residential grid, tram 28 at the edge. First choice for Lisbon."],["Estrela Garden","stay",38.7140,-9.1595,"Park and basilica, tram 25. Last-night option."],["Graça","stay",38.7208,-9.1285,"Hilltop viewpoints, steep streets, hard parking."],["Príncipe Real","stay",38.7160,-9.1500,"Garden square, dining district."],["Coimbra Alta","stay",40.2083,-8.4255,"University hill, car-free lanes. First choice for Coimbra."],["Santa Clara","stay",40.1985,-8.4310,"Across the river, easy parking."],["Cedofeita","stay",41.1560,-8.6250,"Flat streets, galleries. First choice for Porto."],["Foz do Douro","stay",41.1500,-8.6770,"Seaside, tram to Ribeira."],["Boavista","stay",41.1590,-8.6430,"Central, flat, concert hall nearby."],["Quinta do Azinhal","quinta",38.5400,-7.9400,"Quinta do Azinhal, €128 for two, dinner and breakfast."],["Quinta da Pedra Alta","quinta",41.1840,-7.5650,"Quinta da Pedra Alta, €142 for two, half board. Tasting €15."],["Casa do Zimbro","quinta",40.3300,-7.6100,"Serra da Estrela, €96–134 for two."],["Quinta dos Salgueiros","quinta",41.2720,-8.0830,"Amarante, €110–152 for two."],["Monte Velho","quinta",38.3830,-8.7860,"Comporta coast, €158–219 for two."],["Casa da Ribeira Funda","quinta",41.7100,-8.1700,"Gerês, €118 for two, half board."],["Cabo da Roca","hike",38.7804,-9.4989,"End of the Sintra path, 11 km, 4 h. Wind on the cliffs."],["Arrábida Ridge","hike",38.4950,-8.9890,"Ridge walk, about 2 h 30."],["Almendres Cromlech","hike",38.5575,-8.0600,"Cork-oak trail loop, 6 km."],["Buçaco Forest","hike",40.3790,-8.3590,"Forest loop, about 2 h."],["Matosinhos Beach","hike",41.1830,-8.7000,"Foz to Matosinhos boardwalk, 8 km. Spray in May."],["Guimarães Hill","hike",41.4400,-8.3000,"Castle ridge. Cable car €10."],["São Leonardo Terraces","hike",41.1760,-7.5900,"Vineyard path from the quinta, 4 km."],["Douro River Trail","hike",41.1850,-7.5300,"Terrace trail to the river, 7 km."],["Zêzere Valley","hike",40.3900,-7.5800,"Glacial valley, 10 km. Snow patches possible. Off the route."],["Gerês Waterfalls","hike",41.7300,-8.1500,"Waterfall path, 9 km. Wet in May. Off the route."],["Odeceixe Beach","hike",37.4380,-8.7940,"Coastal path, 12 km, 4 h. Far south, off the route."],["Mercado de Campo de Ourique","food",38.7175,-9.1665,"Market hall: stalls, lunch €9."],["Taberna Rosal","food",38.7150,-9.1620,"Petiscos, €22 for two. Closed Sundays."],["Pastelaria Dom Duarte","food",38.7160,-9.1660,"Pastel de nata from 07:30."],["Tasca do Mondego","food",40.2060,-8.4270,"Chanfana, €14 pp. Cash."],["Cantina Aliados","food",41.1480,-8.6110,"Francesinha €11."],["Mercado Bom Sucesso","food",41.1570,-8.6420,"Food hall. Quietest 09:30–11:00."],["Adega Velha","wine",38.7120,-9.1590,"40 wines by the glass. Closed Mondays."],["Adega do Cais","wine",41.1395,-8.6140,"Tawny tasting €12. Closed Mondays."],["Cave Pereira","wine",41.1450,-8.6150,"20 labels, open to 23:00."],["Moscatel Cellar","wine",38.5300,-8.8900,"Free tasting on weekdays. Approximate position."],["Lisbon Airport","transport",38.7742,-9.1342,""],["Porto Airport","transport",41.2481,-8.6814,""],["Oriente Station","transport",38.7678,-9.0997,""],["Évora Station","transport",38.5668,-7.9020,""],["Coimbra-B Station","transport",40.2170,-8.4380,""],["São Lourenço Station","transport",41.1456,-8.6105,""],["Pinhão Station","transport",41.1894,-7.5457,""]];
+var JR=[[38.7742,-9.1342],[38.7167,-9.1670],[38.5400,-7.9400],[40.2083,-8.4255],[41.1560,-8.6250],[41.1840,-7.5650],[38.7140,-9.1595],[38.7742,-9.1342]];
+// map component: inline SVG, equirectangular with cos(mid-latitude) x-scaling, drawn at the container's pixel width
+function geoMap(el,o){
+ var NS='http://www.w3.org/2000/svg',tip=document.createElement('div'),lastW=0,ctx=document.createElement('canvas').getContext('2d');
+ el.classList.add('gm');tip.className='gm-tip';tip.hidden=true;el.appendChild(tip);
+ function mk(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e}
+ function tw(s){ctx.font='12px '+getComputedStyle(document.body).fontFamily;return ctx.measureText(s).width}
+ function hit(a,b){return a[0]<b[2]&&a[2]>b[0]&&a[1]<b[3]&&a[3]>b[1]}
+ function hide(){tip.hidden=true}
+ function draw(force){
+  var W=Math.round(el.clientWidth);if(!W||(W===lastW&&!force))return;lastW=W;
+  var pts=o.pts||[],route=o.route||[],b=[180,90,-180,-90];
+  function add(l,a){b=[Math.min(b[0],l),Math.min(b[1],a),Math.max(b[2],l),Math.max(b[3],a)]}
+  if(o.fit==='land')o.rings.forEach(function(r){r.forEach(function(p){add(p[0],p[1])})});
+  else{pts.forEach(function(p){if(!p.off)add(p.lon,p.lat)});route.forEach(function(p){add(p[0],p[1])});}
+  if(b[0]>b[2])b=o.empty||[0,0,1,1];
+  var pd=o.padDeg||0,ms=o.minSpan||0;b=[b[0]-pd,b[1]-pd,b[2]+pd,b[3]+pd];
+  if(b[2]-b[0]<ms){var c0=(b[0]+b[2])/2;b[0]=c0-ms/2;b[2]=c0+ms/2}
+  if(b[3]-b[1]<ms*.7){var c1=(b[1]+b[3])/2;b[1]=c1-ms*.35;b[3]=c1+ms*.35}
+  var k=Math.cos((b[1]+b[3])/2*Math.PI/180),dx=(b[2]-b[0])*k,dy=b[3]-b[1],p=o.pad==null?28:o.pad;
+  var H=typeof o.h==='function'?o.h(W):o.h;
+  if(!H)H=Math.max(o.minH||160,Math.min(o.maxH||420,Math.round(dy/dx*(W-2*p)+2*p)));
+  var s=Math.min((W-2*p)/dx,(H-2*p)/dy),lc=(b[0]+b[2])/2,ac=(b[1]+b[3])/2;
+  function X(l){return W/2+(l-lc)*k*s}function Y(a){return H/2-(a-ac)*s}
+  var svg=mk('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label||'Map'});
+  // land
+  var d='';
+  o.rings.forEach(function(r){
+   var q=r.map(function(c){return [X(c[0]),Y(c[1])]}),x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+   q.forEach(function(c){x0=Math.min(x0,c[0]);y0=Math.min(y0,c[1]);x1=Math.max(x1,c[0]);y1=Math.max(y1,c[1])});
+   if(x1<-50||y1<-50||x0>W+50||y0>H+50||(x1-x0<1.5&&y1-y0<1.5))return;
+   var lx=null,ly=null;
+   q.forEach(function(c,i){if(i&&Math.abs(c[0]-lx)<.8&&Math.abs(c[1]-ly)<.8)return;d+=(i?'L':'M')+c[0].toFixed(1)+' '+c[1].toFixed(1);lx=c[0];ly=c[1]});d+='Z';});
+  svg.appendChild(mk('path',{d:d,fill:o.land||'var(--card)',stroke:'var(--rule)','stroke-width':1,'stroke-linejoin':'round'}));
+  // route
+  var obs=[];
+  if(route.length>1){
+   svg.appendChild(mk('polyline',{points:route.map(function(c){return X(c[0]).toFixed(1)+','+Y(c[1]).toFixed(1)}).join(' '),fill:'none',stroke:o.routeColor||'var(--ink-3)','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+   for(var i=1;i<route.length;i++){var ax=X(route[i-1][0]),ay=Y(route[i-1][1]),bx=X(route[i][0]),by=Y(route[i][1]),n=Math.ceil(Math.hypot(bx-ax,by-ay)/6);
+    for(var j=0;j<=n;j++){var t=j/n,px=ax+(bx-ax)*t,py=ay+(by-ay)*t;obs.push([px-2,py-2,px+2,py+2])}}
+  }
+  // pins
+  var P=pts.map(function(q){var x=X(q.lon),y=Y(q.lat),r=q.r||4.5;
+   if(q.off){var e=14,cx=W/2,cy=H/2,vx=x-cx,vy=y-cy,f=Math.min(Math.abs((W/2-e)/(vx||1e-9)),Math.abs((H/2-e)/(vy||1e-9)),1);x=cx+vx*f;y=cy+vy*f}
+   return {q:q,x:x,y:y,r:r,box:[x-r-2,y-r-2,x+r+2,y+r+2]}});
+  var G=mk('g',{});svg.appendChild(G);
+  P.slice().sort(function(a,b){return (a.q.pri||0)-(b.q.pri||0)}).forEach(function(P1){var q=P1.q;
+   G.appendChild(mk('circle',{cx:P1.x,cy:P1.y,r:P1.r,fill:q.off?'var(--card)':q.c,stroke:q.off?q.c:'var(--card)','stroke-width':2}));
+   var h=mk('circle',{cx:P1.x,cy:P1.y,r:Math.max(12,P1.r+6),fill:'transparent','class':'gm-hit',tabindex:0,role:'button','aria-label':q.aria||q.lab||q.name||''});
+   function show(){if(!q.tip)return;tip.innerHTML=q.tip;tip.hidden=false;var w=tip.offsetWidth,hh=tip.offsetHeight,l=P1.x+14,t=P1.y-hh/2;
+    if(l+w>W-4)l=P1.x-14-w;if(l<4)l=Math.max(4,Math.min(W-w-4,P1.x-w/2));t=Math.max(4,Math.min(H-hh-4,t));
+    if(l<P1.x+14&&l+w>P1.x-14&&t<P1.y+14&&t+hh>P1.y-14)t=P1.y-hh-16<4?P1.y+16:P1.y-hh-16;
+    tip.style.left=l+'px';tip.style.top=t+'px'}
+   h.addEventListener('pointerenter',show);h.addEventListener('focus',show);
+   h.addEventListener('pointerleave',hide);h.addEventListener('blur',hide);
+   h.addEventListener('click',function(e){e.stopPropagation();show();if(o.onPin)o.onPin(q)});
+   h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(o.onPin)o.onPin(q)}});
+   G.appendChild(h);});
+  // labels, greedy: try 8 offsets, skip a label that does not fit (the tooltip still has it)
+  var placed=[],LB=mk('g',{'font-size':12});svg.insertBefore(LB,G);
+  P.slice().sort(function(a,b){return (b.q.pri||0)-(a.q.pri||0)}).forEach(function(P1){var q=P1.q;if(!q.lab)return;
+   var lines=[q.lab].concat(q.sub?[q.sub]:[]),w=Math.max.apply(null,lines.map(tw))+2,lh=15,h=lines.length*lh,g=P1.r+4,x=P1.x,y=P1.y;
+   var C=[[x+g,y-h/2,'start'],[x-g-w,y-h/2,'end'],[x-w/2,y-g-h,'middle'],[x-w/2,y+g,'middle'],[x+g-2,y-g-h+4,'start'],[x+g-2,y+g-4,'start'],[x-g-w+2,y-g-h+4,'end'],[x-g-w+2,y+g-4,'end']];
+   var pick=null;
+   // pass 0: avoid labels, pins and the route; pass 1 (must-label pins only): may cross the route and slide inside the frame
+   for(var ps=0;ps<(q.must?2:1)&&!pick;ps++)for(var i=0;i<C.length&&!pick;i++){var cx0=C[i][0],cy0=C[i][1];
+    if(ps){cx0=Math.max(2,Math.min(W-2-w,cx0));cy0=Math.max(2,Math.min(H-2-h,cy0))}
+    var bx=[cx0,cy0,cx0+w,cy0+h];
+    if(bx[0]<2||bx[1]<2||bx[2]>W-2||bx[3]>H-2)continue;
+    if(placed.some(function(z){return hit(z,bx)})||P.some(function(z){return z!==P1&&!(ps&&Math.hypot(z.x-P1.x,z.y-P1.y)<P1.r+z.r+2)&&hit(z.box,bx)})||(!ps&&obs.some(function(z){return hit(z,bx)})))continue;
+    pick=[cx0,cy0,C[i][2]];placed.push(bx);}
+   if(!pick)return;
+   var tx=pick[2]==='start'?pick[0]:pick[2]==='end'?pick[0]+w:pick[0]+w/2;
+   lines.forEach(function(s,i){var t=mk('text',{x:tx.toFixed(1),y:(pick[1]+11+i*lh).toFixed(1),'text-anchor':pick[2],fill:i?'var(--ink-3)':'var(--ink-2)'});t.textContent=s;LB.appendChild(t)});
+  });
+  svg.addEventListener('click',hide);
+  var old=el.querySelector('svg');if(old)el.replaceChild(svg,old);else el.insertBefore(svg,tip);
+  tip.hidden=true;
+ }
+ if(window.ResizeObserver)new ResizeObserver(function(){draw()}).observe(el);
+ window.addEventListener('resize',function(){draw()});
+ draw();
+ return {set:function(n){for(var key in n)o[key]=n[key];draw(true)},redraw:function(){draw(true)}};
+}
+</script>
+<script>
+var W={b:'var(--c-pi)',d:'var(--c-diy)',a:'var(--c-used)'};
+var ST={lis:'var(--c-pi)',eva:'var(--c-new)',coi:'var(--ink-3)',por:'var(--c-diy)',dou:'var(--c-used)'};
+function $(id){return document.getElementById(id)}
+function eur(v){return '€'+v.toLocaleString('en-US')}
+
+// generic line drawings for the option image slots
+var ILL={
+ sprig:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 36C14 30 20 24 26 14M18 26l9 2M22 20l-3-8"/><circle cx="29" cy="11" r="3"/><circle cx="31" cy="28" r="2.5"/><circle cx="18" cy="10" r="2.5"/></svg>',
+ mount:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 36l12-18 7 9 5-6 12 15z"/><path d="M13 22.5l3-4.5 3 4"/><circle cx="33" cy="10" r="4"/></svg>',
+ sun:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="22" cy="22" r="7"/><path d="M22 6v5M22 33v5M6 22h5M33 22h5M10.7 10.7l3.5 3.5M29.8 29.8l3.5 3.5M10.7 33.3l3.5-3.5M29.8 14.2l3.5-3.5"/></svg>'};
+document.querySelectorAll('[data-ill]').forEach(function(e){e.innerHTML=ILL[e.dataset.ill].replace(/width="44" height="44"/,'width="34" height="34"')});
+
+// trip total, stacked: flights + quinta + city stay
+(function(){
+ var g=[['Before · 13–27 May',[['Airbnb',386,412,672],['Hotels',386,412,1004]]],
+        ['During · 28 Jul–11 Aug',[['Airbnb',724,412,1132],['Hotels',724,412,1660]]],
+        ['After · 16–30 Sep',[['Airbnb',468,412,796],['Hotels',468,412,1214]]]];
+ var col=['var(--c-pi)','var(--c-new)','var(--c-diy)'],max=3400,h='';
+ g.forEach(function(w){h+='<span class="gh2">'+w[0]+'</span>';
+  w[1].forEach(function(r){var t=r[1]+r[2]+r[3];h+='<span class="nm">'+r[0]+'</span><div class="tr">';
+   for(var i=1;i<4;i++)h+='<span class="s" title="'+eur(r[i])+'" style="width:'+(r[i]/max*100)+'%;background:'+col[i-1]+'"></span>';
+   h+='<span class="v">'+eur(t)+'</span></div>';});});
+ $('total').innerHTML=h;
+})();
+
+// range rows helper
+function range(el,rows,lo,hi,ticks,fmt){
+ function x(v){return (v-lo)/(hi-lo)*100}
+ var h='';
+ rows.forEach(function(r){
+  h+='<span class="nm">'+r[0]+'<br><span class="muted">'+r[4]+'</span></span><div class="tr">';
+  ticks.forEach(function(t){h+='<span class="gl" style="left:'+x(t)+'%"></span>'});
+  h+='<span class="ln" style="left:'+x(r[1])+'%;width:'+(x(r[2])-x(r[1]))+'%;background:'+r[3]+'"></span>'+
+     '<span class="pt" style="left:'+x(r[1])+'%;background:'+r[3]+'"></span>'+
+     '<span class="pt'+(r[5]?' o':'')+'" style="left:'+x(r[2])+'%;'+(r[5]?'border-color:':'background:')+r[3]+'"></span></div>';});
+ h+='<span></span><div class="ax">';ticks.forEach(function(t){h+='<span style="left:'+x(t)+'%">'+fmt(t)+'</span>'});
+ el.innerHTML=h+'</div>';
+}
+range($('flights'),[
+ ['Mon 8 May',412,640,W.b,'€412 · €640',1],['Wed 10 May',438,612,W.b,'€438 · €612',1],
+ ['Sat 13 May',386,598,W.b,'€386 · €598',1],['Wed 17 May',455,612,W.b,'€455 · €612',1],
+ ['Fri 28 Jul',724,1120,W.d,'€724 · €1,120',1],['Sat 29 Jul',738,1134,W.d,'€738 · €1,134',1],
+ ['Sat 16 Sep',468,704,W.a,'€468 · €704',1],['Wed 20 Sep',494,688,W.a,'€494 · €688',1]],
+ 200,1300,[400,800,1200],function(t){return '€'+t});
+range($('temp'),[
+ ['Lisbon · May',14,23,W.b,'14 to 23 °C'],['Lisbon · September',18,27,W.a,'18 to 27 °C'],['Douro · May',10,25,W.b,'10 to 25 °C']],
+ 5,30,[5,10,15,20,25,30],function(t){return t+'°'});
+
+// hotel price, grouped columns
+(function(){
+ var d=[['Lisbon',118,196,142],['Porto',96,168,121],['Coimbra',74,102,81]],c=[W.b,W.d,W.a];
+ var y0=164,y1=18,mx=200;function Y(v){return y0-v/mx*(y0-y1)}
+ var h='';
+ [0,50,100,150,200].forEach(function(v){h+='<line x1="42" x2="350" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--rule)"/><text x="36" y="'+(Y(v)+4)+'" text-anchor="end" font-size="12" fill="var(--ink-3)">€'+v+'</text>';});
+ d.forEach(function(g,i){var gx=60+i*100;
+  for(var k=0;k<3;k++){var x=gx+k*28,v=g[k+1];
+   h+='<rect x="'+x+'" y="'+Y(v)+'" width="24" height="'+(y0-Y(v))+'" rx="4" fill="'+c[k]+'"/>';
+   h+='<text x="'+(x+12)+'" y="'+(Y(v)-5)+'" text-anchor="middle" font-size="12" fill="var(--ink-2)">'+v+'</text>';}
+  h+='<text x="'+(gx+40)+'" y="186" text-anchor="middle" font-size="12" fill="var(--ink-2)">'+g[0]+'</text>';});
+ $('hotels').innerHTML=h;
+})();
+
+// donut: nights per stop
+(function(){
+ var s=$('donut'),d=[[4,ST.lis],[4,ST.por],[2,ST.dou],[2,ST.coi],[1,ST.eva]],tot=13,r=56,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="75" cy="75" r="'+r+'" fill="none" stroke="'+x[1]+'" stroke-width="18" stroke-dasharray="'+(len-3)+' '+(circ-len+3)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">nights</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">13</text>';
+ s.innerHTML=h;
+})();
+
+// maps: coarse outline, public-map coordinates from the brief (JM, JR)
+var CAT={stay:['var(--c-pi)','Quiet base'],quinta:['var(--c-new)','Quinta'],hike:['var(--c-used)','Walk'],food:['var(--c-diy)','Food'],wine:['var(--red)','Wine']};
+var SHORT={'Campo de Ourique':'Ourique','Coimbra Alta':'Coimbra Alta','Quinta da Pedra Alta':'Pedra Alta','Mercado de Campo de Ourique':'Mercado',
+ 'Pastelaria Dom Duarte':'Dom Duarte','Mercado Bom Sucesso':'Bom Sucesso','Almendres Cromlech':'Almendres','Moscatel Cellar':'Moscatel',
+ 'São Leonardo Terraces':'São Leonardo','Quinta dos Salgueiros':'Salgueiros','Casa da Ribeira Funda':'Ribeira Funda','Lisbon Airport':'Airport'};
+function jm(n){for(var i=0;i<JM.length;i++)if(JM[i][0]===n)return JM[i]}
+function jshort(n){return SHORT[n]||n.replace(/ Station$/,'')}
+function jtip(m,extra){return '<b>'+jshort(m[0])+'</b>'+(extra||m[4]||CAT[m[1]]&&CAT[m[1]][1]||'')}
+
+// route map: the 13-night loop
+(function(){
+ var S=[['lis','Lisbon','3 + 1 nights','Campo de Ourique','Campo de Ourique, 3 nights. Last night in Estrela or Graça.'],
+  ['eva','Évora','1 night','Quinta do Azinhal','Quinta do Azinhal, 1 night.'],
+  ['coi','Coimbra','2 nights','Coimbra Alta','Alta, 2 nights.'],
+  ['por','Porto','4 nights','Cedofeita','Cedofeita, 4 nights.'],
+  ['dou','Douro','2 nights','Quinta da Pedra Alta','Quinta da Pedra Alta, 2 nights.']];
+ var used=S.map(function(s){return s[3]}),pts=[];
+ JM.forEach(function(m){if(m[1]!=='stay'||used.indexOf(m[0])>=0)return;
+  var city=m[2]>40.9?'por':m[2]>40?'coi':'lis';
+  pts.push({lat:m[2],lon:m[3],c:ST[city],r:4,tip:jtip(m),aria:jshort(m[0])});});
+ ['Lisbon Airport','Pinhão Station'].forEach(function(n){var m=jm(n);
+  pts.push({lat:m[2],lon:m[3],c:'var(--c-mute)',r:4,lab:jshort(m[0]).replace(' Airport',''),pri:1,tip:'<b>'+m[0]+'</b>'+(n[0]==='L'?'Arrival and departure.':'Train stop on the Douro line.')});});
+ S.forEach(function(s,i){var m=jm(s[3]);
+  pts.push({lat:m[2],lon:m[3],c:ST[s[0]],r:5,lab:s[1],sub:s[2],pri:10-i,must:1,tip:'<b>'+s[1]+'</b>'+s[4],aria:s[1]+', '+s[2]});});
+ geoMap($('map'),{rings:GEO.pt,pts:pts,route:JR.map(function(p){return [p[1],p[0]]}),padDeg:.3,pad:20,maxH:400,minH:220,
+  label:'Route map: Lisbon, Évora, Coimbra, Porto, Douro, Lisbon'});
+})();
+
+// places map: filter by area and category
+(function(){
+ var AREAS=[['all','All'],['lisbon','Lisbon'],['alentejo','Alentejo'],['coimbra','Coimbra'],['porto','Porto'],['douro','Douro'],['far','Further out']];
+ function area(m){var la=m[2],lo=m[3];
+  if(la>38.3&&la<39&&lo<-8.7)return 'lisbon';
+  if(la>38&&lo>-8.7&&la<39.2)return 'alentejo';
+  if(la>39.9&&la<40.6&&lo<-8)return 'coimbra';
+  if(la>41&&la<41.6&&lo<-8.2)return 'porto';
+  if(la>41&&la<41.4&&lo<-7.3)return 'douro';
+  return 'far';}
+ var cur='all',on={stay:1,quinta:1,hike:1,food:1,wine:1},PRI={stay:5,quinta:4,hike:3,food:2,wine:2};
+ function pts(){return JM.filter(function(m){return CAT[m[1]]&&on[m[1]]&&(cur==='all'||area(m)===cur)}).map(function(m){
+  return {lat:m[2],lon:m[3],c:CAT[m[1]][0],r:4.5,lab:jshort(m[0]),pri:PRI[m[1]],tip:jtip(m),aria:jshort(m[0])+', '+CAT[m[1]][1]}})}
+ var map=geoMap($('places'),{rings:GEO.pt,pts:pts(),pad:30,minSpan:.06,maxH:440,minH:260,empty:[-9.6,38.4,-7.4,41.4],label:'Places by category'});
+ $('area').innerHTML=AREAS.map(function(a){return '<button type="button" aria-pressed="'+(a[0]===cur)+'" data-a="'+a[0]+'">'+a[1]+'</button>'}).join('');
+ $('cats').innerHTML=Object.keys(CAT).map(function(c){return '<button type="button" aria-pressed="true" data-c="'+c+'"><span class="dot" style="background:'+CAT[c][0]+'"></span>'+CAT[c][1]+'</button>'}).join('');
+ $('area').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;cur=b.dataset.a;
+  [].forEach.call(this.children,function(x){x.setAttribute('aria-pressed',x===b)});map.set({pts:pts()});});
+ $('cats').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var c=b.dataset.c;
+  if(on[c]&&Object.keys(on).filter(function(k){return on[k]}).length===1)return;
+  on[c]=on[c]?0:1;b.setAttribute('aria-pressed',!!on[c]);map.set({pts:pts()});});
+})();
+
+// nights strip + itinerary
+(function(){
+ var n=[[14,'lis'],[15,'lis'],[16,'lis'],[17,'eva'],[18,'coi'],[19,'coi'],[20,'por'],[21,'por'],[22,'por'],[23,'por'],[24,'dou'],[25,'dou'],[26,'lis']];
+ $('strip').innerHTML=n.map(function(x){return '<div><i style="background:'+ST[x[1]]+'"></i>'+x[0]+'</div>'}).join('');
+ var d=[
+  ['Sun 14 May','lis','Arrive in Lisbon','Lusavia lands at 11:05, Iberwing at 20:40. Metro to the apartment 25 min, €1.85. The car waits until day 4.'],
+  ['Mon 15','lis','Campo de Ourique, Estrela, Príncipe Real on foot','Pastelaria Dom Duarte, the market hall, jacaranda streets at Estrela. Lunch at Taberna Rosal. Adega Velha is closed on Mondays.'],
+  ['Tue 16','lis','Walk','Train to Sintra 40 min, €2.40, then the Cabo da Roca path, 11 km, 4 h. Or Arrábida, about 2 h 30. Evening at Adega Velha.'],
+  ['Wed 17','eva','Into the Alentejo','Pick up the car at the airport at 09:00. Toll €14.20, 1 h 40 to Évora. Cork-oak trail in the afternoon. Night at Quinta do Azinhal.'],
+  ['Thu 18','coi','Almendres, then Coimbra','Cromlech at 08:00, 6 km loop. Toll €19.40, 3 h to Coimbra. Some rain risk. Evening on the university hill.'],
+  ['Fri 19','coi','Buçaco','Buçaco forest loop at 08:30, about 2 h. Chanfana lunch at Tasca do Mondego, cash. University library €12, book ahead.'],
+  ['Sat 20','por','To Porto','Toll €17.80, 1 h 15. Foz seafront walk, 8 km, in the afternoon. Park at the Cedofeita garage, €14 a day.'],
+  ['Sun 21','por','Ribeira and the Gaia side','Bom Sucesso market at 09:30. Cross the upper deck of the bridge. Tawny tasting about €12 on the Gaia side.'],
+  ['Mon 22','por','Guimarães','Cable car €10. Walk the castle ridge. Back for francesinha at Cantina Aliados, €11.'],
+  ['Tue 23','por','Slow day','Park and museum, €15. Evening at Cave Pereira.'],
+  ['Wed 24','dou','Into the Douro','Toll €12.40, then the river road, 2 h 10. Vineyard path to São Leonardo, 4 km. Night at Quinta da Pedra Alta, half board.'],
+  ['Thu 25','dou','Douro','Terrace trail to the river, 7 km. Tasting at the quinta, €15 per person. Some quintas run reduced hours before the harvest.'],
+  ['Fri 26','lis','Back to Lisbon','Toll €24.60, 4 h 15. Return the car at the airport. Last night at Estrela, dinner in Príncipe Real.'],
+  ['Sat 27','','Fly home','Metro to the airport, 20 min, €1.85.']];
+ $('it').innerHTML=d.map(function(r){return '<div class="row"><span class="d">'+r[0]+'</span><span><span class="t"><span class="dot" style="background:'+(r[1]?ST[r[1]]:'var(--c-mute)')+'"></span>'+r[2]+'</span><span class="x">'+r[3]+'</span></span></div>'}).join('');
+})();
+
+// areas
+(function(){
+ var d=[['Lisbon','Campo de Ourique','ok','Quiet','Residential grid. Tram 28 at the edge, market hall on the main street. Cafes shut early.',1],
+  ['Lisbon','Estrela','ok','Quiet','Park, basilica, tram 25. Short drive to the south bridge.'],
+  ['Lisbon','Graça','one','Quiet-ish','Hilltop viewpoints, steep streets, parking is hard.'],
+  ['Lisbon','Príncipe Real','one','Quiet back streets','Dining district, not a party district. Garden square.'],
+  ['Coimbra','Alta','ok','Quiet','University hill. Car-free lanes. Park at the river and walk up.',1],
+  ['Coimbra','Santa Clara','ok','Quiet','Across the river, easy parking, monastery views.'],
+  ['Porto','Cedofeita','ok','Quiet','Galleries and flat streets, garages nearby.',1],
+  ['Porto','Foz do Douro','ok','Quiet','Seaside, far from the centre, tram to Ribeira.'],
+  ['Porto','Boavista','ok','Quiet business core','Central and flat. Concert hall nearby.'],
+  ['Porto','Ribeira','unv','Mixed to noisy','Postcard riverfront. Bars until late. Stay near it, not on it.']];
+ $('areas').innerHTML=d.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+(r[5]?'<b>'+r[1]+'</b>':r[1])+'</td><td><span class="chip '+r[2]+'">'+r[3]+'</span></td><td class="wrap">'+r[4]+'</td></tr>'}).join('');
+})();
+
+// quintas
+(function(){
+ var d=[['Quinta do Azinhal','Évora countryside, Alentejo','€128','Cork-oak trail to the Almendres cromlech, 6 km.',1],
+  ['Quinta da Pedra Alta','Pinhão, Douro','€142','Terrace trail to the river and São Leonardo path. Harvest tours.',1],
+  ['Casa do Zimbro','Serra da Estrela','€96–134','Glacial valley walks. High trails snowed over until May.'],
+  ['Quinta dos Salgueiros','Amarante, Tâmega','€110–152','Riverside path.'],
+  ['Monte Velho','Comporta coast','€158–219','Rice fields and dunes.'],
+  ['Casa da Ribeira Funda','Gerês','€118 · half board','Waterfall walks.']];
+ $('quintas').innerHTML=d.map(function(r){return '<tr'+(r[4]?' class="pick"':'')+'><td>'+(r[4]?'<b>'+r[0]+'</b>':r[0])+'</td><td>'+r[1]+'</td><td class="r">'+r[2]+'</td><td class="wrap">'+r[3]+'</td></tr>'}).join('');
+})();
+
+// things to do, by stop
+(function(){
+ var d=[['lis','Lisbon',[['Walk','Sintra to Cabo da Roca, 11 km. Arrábida ridge, about 2 h 30.'],
+   ['Food','Pastelaria Dom Duarte, pastel de nata. Taberna Rosal, petiscos. Campo de Ourique market hall, lunch €9.'],
+   ['Wine','Adega Velha, 40 wines by the glass. Moscatel cellar near Setúbal, free tasting on weekdays.']]],
+  ['eva','Évora',[['Walk','Cork-oak trail to the Almendres cromlech, 6 km.'],
+   ['Stay','Quinta do Azinhal, dinner and breakfast.']]],
+  ['coi','Coimbra',[['Walk','Buçaco forest loop, about 2 h. River path, 9 km.'],
+   ['Food','Tasca do Mondego, chanfana, cash. Bakeries on the lower town streets.'],
+   ['Sights','University library €12, book ahead. Santa Clara monastery.']]],
+  ['por','Porto',[['Walk','Foz to Matosinhos seafront, 8 km. Guimarães castle ridge, day trip.'],
+   ['Food','Cantina Aliados, francesinha €11. Bom Sucesso market hall.'],
+   ['Wine','Adega do Cais, tawny tasting €12. Cave Pereira, 20 labels.']]],
+  ['dou','Douro',[['Walk','Terrace trail to the river, 7 km. São Leonardo vineyard path, 4 km.'],
+   ['Taste','Tasting at the quinta, €15 per person.'],
+   ['Stay','Quinta da Pedra Alta, half board.']]],
+  ['','In season and by car',[['Spring','Strawberries to June. Cherries from late May. Wildflowers on the Alentejo plain to mid-May.'],
+   ['Wine','Setúbal: moscatel cellars with free tasting. Dão: six cellars within an hour of Coimbra.'],
+   ['Beer','Porto craft taproom, 12 taps. No wine festival found in May.']]]];
+ $('stops').innerHTML=d.map(function(s){return '<div class="card stop"><h2>'+(s[0]?'<span class="dot" style="background:'+ST[s[0]]+'"></span>':'')+s[1]+'</h2><div class="rows" style="margin-top:12px">'+
+  s[2].map(function(r){return '<div class="row"><span class="f">'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join('')+'</div></div>'}).join('');
+})();
+
+// car and transfers
+(function(){
+ var d=[['Compact rental, 10 days','€290','Airport pick-up and drop-off, full insurance extra €86'],['Fuel, about 1,150 km','€138','At 6.4 l/100 km'],
+  ['Tolls, whole loop','€88.40','Five legs: €14.20, €19.40, €17.80, €12.40, €24.60'],['Electronic toll tag','€1.60 a day','Optional, billed after the trip'],
+  ['Metro, Lisbon airport → centre','€1.85','25 min'],['Train, Lisbon → Sintra','€2.40','40 min, each way'],
+  ['Parking, Porto garage','€14 a day','Cedofeita, 4 nights'],['Lisbon transit card','€0.50','Valid 12 months, top up at machines']];
+ $('trains').innerHTML=d.map(function(r){return '<tr><td>'+r[0]+'</td><td class="r">'+r[1]+'</td><td class="wrap">'+r[2]+'</td></tr>'}).join('');
+})();
+
+// compare: windows matrix
+(function(){
+ var S={y:'<td class="c sy">✓</td>',p:'<td class="c sq">~</td>',q:'<td class="c sq">?</td>',n:'<td class="c sn">✗</td>'};
+ var d=[['Before · 13–27 May','b','yynp','23 / 14','€386','€1,470'],['During · 28 Jul–11 Aug','d','nypy','<span class="sq">?</span>','€724','€2,268'],['After · 16–30 Sep','a','yyyp','27 / 18','€468','€1,676']];
+ $('mx').innerHTML=d.map(function(r){return '<tr><td><span class="dot" style="background:'+W[r[1]]+'"></span>'+r[0]+'</td>'+r[2].split('').map(function(c){return S[c]}).join('')+'<td class="r">'+r[3]+'</td><td class="r">'+r[4]+'</td><td class="r">'+r[5]+'</td></tr>'}).join('');
+})();
+
+// compare: flights
+(function(){
+ var q='<span class="sq">?</span>';
+ var d=[['b','Before','Mon 8 – Mon 22 May',412,'Nordair via FRA',q,640,'2 h 55'],['b','Before','Wed 10 – Wed 24 May',438,'Aerolink via MAD',q,612,'2 h 55'],
+  ['b','Before','Sat 13 – Sat 27 May',386,'Iberwing via MAD','5 h 40',598,'2 h 55',1],['b','Before','Wed 17 – Wed 31 May',455,'Aerolink via MAD',q,612,'2 h 55'],
+  ['d','During','Fri 28 Jul – Fri 11 Aug',724,'Aerolink via MAD',q,1120,'2 h 55'],['d','During','Sat 29 Jul – Sat 12 Aug',738,'Iberwing via MAD',q,1134,'2 h 55'],
+  ['a','After','Sat 16 – Sat 30 Sep',468,'Iberwing via MAD','5 h 50',704,'3 h 00',1],['a','After','Wed 20 Sep – Wed 4 Oct',494,'Nordair via FRA',q,688,'3 h 00']];
+ $('fl').innerHTML=d.map(function(r){return '<tr'+(r[8]?' class="pick"':'')+'><td><span class="dot" style="background:'+W[r[0]]+'"></span>'+r[1]+'</td><td>'+r[2]+'</td><td class="r">'+eur(r[3])+'</td><td>'+r[4]+'</td><td class="r">'+r[5]+'</td><td class="r">'+eur(r[6])+'</td><td class="r">'+r[7]+'</td></tr>'}).join('');
+})();
+
+// compare: stay per night
+(function(){
+ var d=[['Lisbon','Hotel',118,196,142],['','Airbnb, Campo de Ourique',74,121,88],['','Airbnb, Graça',66,109,79],
+  ['Porto','Hotel',96,168,121],['','Airbnb, Cedofeita',68,124,82],['','Airbnb, Boavista',59,101,70],
+  ['Coimbra','Hotel',74,102,81],['','Airbnb, Alta',52,76,58],['','Airbnb, Santa Clara',47,70,53]];
+ $('stay').innerHTML=d.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="r">€'+r[2]+'</td><td class="r">€'+r[3]+'</td><td class="r">€'+r[4]+'</td></tr>'}).join('');
+})();
+
+// compare: walks by window
+(function(){
+ var d=[['Sintra to Cabo da Roca','Open, quietest. Wind on the cliffs.','Open, busy','Open, best balance'],
+  ['Arrábida ridge','Open, green','Dry, hot at noon','Open'],
+  ['Alentejo cork-oak trail','Walkable. Wildflowers.','Hot, shade scarce','Mild'],
+  ['Buçaco forest loop','Walkable. Wet leaves.','Open. Busy at weekends.','Open'],
+  ['Seven-valleys coast path','Open, quietest','Among the coast’s most crowded','Busier than May'],
+  ['Foz to Matosinhos seafront','Passable. Spray on the boardwalk.','Walkable, breezy','Mild, busier'],
+  ['Douro vineyard terraces','Open. Some paths muddy.','Open, hot','Open, popular in harvest'],
+  ['Serra da Estrela, Zêzere valley','Snow patches possible.','Likely fine','Likely good'],
+  ['Gerês waterfalls','Trails may be wet','Dry, busy','Best. Cool mornings.'],
+  ['Gerês high plateau','<span class="sn">Closed</span>','<span class="sn">Fire-risk closures</span>','<span class="sy">Open</span>']];
+ $('hikes').innerHTML=d.map(function(r){return '<tr><td>'+r[0]+'</td><td class="wrap">'+r[1]+'</td><td class="wrap">'+r[2]+'</td><td class="wrap">'+r[3]+'</td></tr>'}).join('');
+})();
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>

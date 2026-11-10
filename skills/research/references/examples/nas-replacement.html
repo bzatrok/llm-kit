@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Research Report Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+/* a.ref jumps to a Sources row; a.out opens the offer page (shop, listing) in a new tab */
+a.ref,a.out{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible,a.out:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 9 Nov 2026</div>
+    <h1>NAS replacement</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Buy the used Vaultek VK-440+ for €210 shipped.</mark> It is the cheapest non-Stornex 4-bay that still gets <a class="ref" data-src="4">security updates</a> and takes your 2.5" disks.</p>
+  <p>Vaultek can end those updates at any time, so <mark>plan on 1–2 years</mark> (<a class="ref" data-src="2">red team</a>). New and low-power: the <a class="ref" data-src="7">Brightbyte BB4300 Plus</a> at €350.</p>
+  <p>Before you pay, ask if the <a class="ref" data-src="5">listing</a> includes drive trays and the power adapter.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW: chart gallery -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Total cost per option</h2>
+    <p class="sub">Euro, incl. shipping. 12 options with a fixed price.</p>
+    <div class="hb" id="hbar"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Used brand</span>
+      <span><span class="dot" style="background:var(--c-new)"></span>New brand</span>
+      <span><span class="dot" style="background:var(--c-diy)"></span>DIY</span>
+      <span><span class="dot" style="background:var(--c-pi)"></span>SBC</span>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Options by route</h2>
+      <p class="sub">All 17 options found.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Options by route"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-used)"></span>Used brand<b>6</b></span>
+          <span><span class="dot" style="background:var(--c-new)"></span>New brand<b>6</b></span>
+          <span><span class="dot" style="background:var(--c-diy)"></span>DIY<b>3</b></span>
+          <span><span class="dot" style="background:var(--c-pi)"></span>SBC<b>2</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Price range per route</h2>
+      <p class="sub">Cheapest to dearest option. Ring = pick.</p>
+      <svg id="dumb" width="100%" viewBox="0 0 400 170" role="img" aria-label="Price range per route"></svg>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Pick vs alternatives</h2>
+      <p class="sub">Scored from the matrix: ✓ = 2, ~ = 1, ? or ✗ = 0.</p>
+      <svg id="radar" width="100%" viewBox="0 0 340 215" role="img" aria-label="Radar chart"></svg>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--c-used)"></span>VK-440+ (pick)</span>
+        <span><span class="dot" style="background:var(--c-new)"></span>BB4300 Plus</span>
+        <span><span class="dot" style="background:var(--ink-3)"></span>SX4j</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Requirement coverage</h2>
+      <p class="sub">11 priced options, per requirement.</p>
+      <div id="stack"></div>
+      <div class="legend" style="margin-top:16px">
+        <span><span class="dot" style="background:var(--c-used)"></span>Yes</span>
+        <span><span class="dot" style="background:var(--c-diy)"></span>Partial</span>
+        <span><span class="dot" style="background:var(--c-mute)"></span>Unknown</span>
+        <span><span class="dot" style="background:var(--red)"></span>No</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPTIONS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="nas"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>Used brand · pick</span><span class="nm">Vaultek VK-440+ 8 GB</span></div><span class="pr">€210</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€195 + €15 shipping, <a class="out" href="https://example.com/listings/vaultek-vk-440-8gb" target="_blank" rel="noopener">Tradepost</a>, Exampleton<span class="src">5</span></span></div>
+        <div class="row"><span class="f">Updates</span><span>VaultOS Legacy, active <span class="chip one">No end date</span><span class="src">4</span></span></div>
+        <div class="row"><span class="f">2.5" × 4</span><span><span class="sy">✓</span> spec lists 2.5" bays<span class="src">4</span></span></div>
+        <div class="row"><span class="f">Mac backup</span><span><span class="sy">✓</span> SMB</span></div>
+        <div class="row"><span class="f">Idle power</span><span><span class="chip unv">Unverified</span></span></div>
+      </div>
+      <div class="flag">Red team: Vaultek can end Legacy updates at any time. Plan 1–2 years.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="nas"></div><div><span class="route"><span class="dot" style="background:var(--c-new)"></span>New brand</span><span class="nm">Brightbyte BB4300 Plus</span></div><span class="pr">€350</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Updates</span><span>BrightOS <span class="chip unv">Policy unknown</span></span></div>
+        <div class="row"><span class="f">2.5" × 4</span><span><span class="sy">✓</span> screws included<span class="src">7</span></span></div>
+        <div class="row"><span class="f">Mac backup</span><span><span class="sy">✓</span><span class="src">7</span></span></div>
+        <div class="row"><span class="f">Idle power</span><span>~8 W <span class="chip one">Single source</span><span class="src">7</span></span></div>
+      </div>
+      <div class="flag">Red team: ARM, no BIOS. No FreeStore fallback if Brightbyte stops updates.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="pi"></div><div><span class="route"><span class="dot" style="background:var(--c-pi)"></span>Single-board computer</span><span class="nm">SBC 5 8 GB + 4-bay SATA HAT</span></div><span class="pr">€255</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Updates</span><span>SBC OS / OpenNAS 7 <span class="chip ok">Verified</span><span class="src">8</span></span></div>
+        <div class="row"><span class="f">2.5" × 4</span><span><span class="sy">✓</span> one 12 V supply</span></div>
+        <div class="row"><span class="f">Mac backup</span><span><span class="sy">✓</span> SMB<span class="src">9</span></span></div>
+        <div class="row"><span class="f">Setup</span><span>high</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="pc"></div><div><span class="route"><span class="dot" style="background:var(--c-diy)"></span>Home build</span><span class="nm">Office PC + OpenNAS</span></div><span class="pr">€90–130+</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Updates</span><span>OpenNAS / FreeStore, free <span class="chip ok">Verified</span></span></div>
+        <div class="row"><span class="f">2.5" × 4</span><span><span class="sn">✗</span> Acme 300 G2 has 2 bays</span></div>
+        <div class="row"><span class="f">Mac backup</span><span><span class="sy">✓</span> SMB<span class="src">9</span></span></div>
+        <div class="row"><span class="f">Status</span><span><span class="chip unv">Tower PC not priced</span></span></div>
+      </div>
+      <div class="flag">Red team: the €70 PC cannot hold 4 disks. Real price unknown.</div>
+    </article>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card">
+    <h2>Security updates</h2>
+    <p class="sub">Dashed line = today.</p>
+    <div class="tl" id="tl"></div>
+  </div>
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Option</th><th class="r">Total price</th><th class="c">Gets security updates</th><th class="c">Takes four 2.5" disks</th><th class="c">Mac backup works</th><th class="c">Seller ships</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> yes</span><span><b class="sq">~</b> partly, or one source only</span><span><b class="sq">?</b> not found</span><span><b class="sn">✗</b> no</span></div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">6 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the pick</h3>
+    <div class="rows glist">
+      <div class="row"><span>Are drive trays and the power adapter included with the VK-440+?</span><span class="who">Ask the seller</span></div>
+      <div class="row"><span>Which 4 disks do you have, and what capacity?</span><span class="who">Only you know</span></div>
+    </div>
+    <h3 class="gh">Could change another option</h3>
+    <div class="rows glist">
+      <div class="row"><span>How long will Brightbyte and Corevault ship security updates?</span><span class="who">No policy published</span></div>
+      <div class="row"><span>What does a tower PC with a full 5.25" bay cost?</span><span class="who">Not searched yet</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>Idle power draw. Measured for the BB4300 Plus only.</span><span class="who">No source found</span></div>
+      <div class="row"><span>Shipping cost for the other Tradepost listings.</span><span class="who">Ask each seller</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Route analysis, every number with capture</td><td class="r muted">03-routes.md</td></tr>
+        <tr id="src-2"><td>2</td><td>Red-team check: weakened, nothing fatal</td><td class="r muted">04-redteam.md</td></tr>
+        <tr id="src-3"><td>3</td><td>Tradepost used NAS rescan</td><td class="r muted">9 Nov</td></tr>
+        <tr id="src-4"><td>4</td><td>Vaultek support status and VK-440 spec</td><td class="r muted">7–9 Nov</td></tr>
+        <tr id="src-5"><td>5</td><td>VK-440+ listing live, €15 shipping</td><td class="r muted">9 Nov</td></tr>
+        <tr id="src-6"><td>6</td><td>New NAS prices: Gadgetly, Shopfair</td><td class="r muted">9 Nov</td></tr>
+        <tr id="src-7"><td>7</td><td>BB4300 Plus review: 2.5", 8 W, Mac backup</td><td class="r muted">9 Nov</td></tr>
+        <tr id="src-8"><td>8</td><td>Boardstore, Partshub, OpenNAS 7 SBC wiki</td><td class="r muted">9 Nov</td></tr>
+        <tr id="src-9"><td>9</td><td>SMB and FreeStore backup docs</td><td class="r muted">9 Nov</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">6 routes, 17 options. Ranked on updates, then total cost. Red-team pass: weakened, nothing fatal.</p>
+</div>
+
+<script>
+var C={u:'var(--c-used)',n:'var(--c-new)',d:'var(--c-diy)',p:'var(--c-pi)'};
+var NS='http://www.w3.org/2000/svg';
+
+// product illustrations (generic placeholders for real photos)
+var ILL={
+ nas:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="8" width="32" height="30" rx="4"/><path d="M12 13v20M18 13v20M24 13v20M30 13v20" stroke-linecap="round"/><circle cx="34" cy="14" r=".8" fill="currentColor"/></svg>',
+ pi:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="10" width="34" height="24" rx="3"/><rect x="15" y="16" width="9" height="9" rx="1"/><path d="M8 13h16" stroke-dasharray="1.5 2"/><rect x="29" y="17" width="7" height="12" rx="1"/></svg>',
+ pc:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="12" y="5" width="20" height="34" rx="3"/><path d="M16 11h12M16 15h12" stroke-linecap="round"/><circle cx="22" cy="31" r="2.5"/></svg>'};
+document.querySelectorAll('[data-ill]').forEach(function(e){e.innerHTML=ILL[e.dataset.ill].replace(/width="44" height="44"/,'width="34" height="34"')});
+
+// horizontal bars
+(function(){
+ var d=[['Stornex SX4j',110,'u'],['Stornex SX4play',165,'u'],['Vaultek VK-440+',210,'u',1],['SBC 5 + SATA HAT',255,'p'],
+  ['Mini-PC + dock',260,'d'],['Vaultek VK-443A',285,'u'],['Nimbus NB-1204',310,'n'],['Brightbyte BB4300 Plus',350,'n'],
+  ['Corevault C4-250',395,'n'],['Vaultek VK-423',455,'n'],['Stornex SX5+',520,'n'],['Brightbyte BB4800 Plus',590,'n']];
+ var max=680,h='';
+ d.forEach(function(r){var w=r[1]/max*100,pk=r[3]?' pk':'';
+  h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="b" style="width:'+w+'%;background:'+C[r[2]]+'"></span><span class="v'+pk+'" style="left:'+w+'%">€'+r[1]+'</span></div>';});
+ document.getElementById('hbar').innerHTML=h;
+})();
+
+// donut
+(function(){
+ var s=document.getElementById('donut'),d=[[6,'u'],[6,'n'],[3,'d'],[2,'p']],tot=17,r=56,cx=75,cy=75,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+C[x[1]]+'" stroke-width="18" stroke-dasharray="'+(len-3)+' '+(circ-len+3)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="11" fill="var(--ink-3)">options</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">17</text>';
+ s.innerHTML=h;
+})();
+
+// dumbbell
+(function(){
+ var s=document.getElementById('dumb'),rows=[['Used brand',55,285,'u',210],['New brand',310,590,'n'],['DIY',90,260,'d'],['SBC',0,255,'p']];
+ var x0=90,x1=380,mx=650;function X(v){return x0+v/mx*(x1-x0)}
+ var h='';
+ [0,200,400,600].forEach(function(v){h+='<line x1="'+X(v)+'" x2="'+X(v)+'" y1="8" y2="140" stroke="var(--rule)"/><text x="'+X(v)+'" y="160" text-anchor="middle" font-size="11" fill="var(--ink-3)">€'+v+'</text>';});
+ rows.forEach(function(r,i){var y=24+i*34;
+  h+='<text x="0" y="'+(y+4)+'" font-size="12" fill="var(--ink-2)">'+r[0]+'</text>';
+  h+='<line x1="'+X(r[1])+'" x2="'+X(r[2])+'" y1="'+y+'" y2="'+y+'" stroke="'+C[r[3]]+'" stroke-width="6" stroke-linecap="round" opacity=".35"/>';
+  h+='<circle cx="'+X(r[1])+'" cy="'+y+'" r="5" fill="'+C[r[3]]+'"/><circle cx="'+X(r[2])+'" cy="'+y+'" r="5" fill="'+C[r[3]]+'"/>';
+  if(r[4])h+='<circle cx="'+X(r[4])+'" cy="'+y+'" r="8" fill="none" stroke="var(--teal)" stroke-width="2"/>';});
+ s.innerHTML=h;
+})();
+
+// radar
+(function(){
+ var s=document.getElementById('radar'),ax=['Updates','2.5" fit','Mac backup','Ships','Price'],cx=170,cy=112,R=78,n=5;
+ C.g='var(--ink-3)';var ser=[[[1,2,2,2,2],'u'],[[0,2,2,2,1],'n'],[[2,2,2,0,2],'g']];
+ function P(i,v){var a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*R*v/2,cy+Math.sin(a)*R*v/2]}
+ var h='';
+ [1,2].forEach(function(l){var pts=[];for(var i=0;i<n;i++)pts.push(P(i,l).join(','));h+='<polygon points="'+pts.join(' ')+'" fill="none" stroke="var(--rule)"/>';});
+ for(var i=0;i<n;i++){var p=P(i,2),q=P(i,2.12);h+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="var(--rule)"/>';
+  var an=Math.abs(q[0]-cx)<5?'middle':(q[0]<cx?'end':'start'),dy=q[1]<cy-R*.9?-2:(q[1]>cy+R*.5?12:4);h+='<text x="'+(q[0]+(an==='start'?4:an==='end'?-4:0))+'" y="'+(q[1]+dy)+'" text-anchor="'+an+'" font-size="11" fill="var(--ink-2)">'+ax[i]+'</text>';}
+ ser.slice().reverse().forEach(function(s2){var pts=s2[0].map(function(v,i){return P(i,v).join(',')});
+  h+='<polygon points="'+pts.join(' ')+'" fill="'+C[s2[1]]+'" fill-opacity=".12" stroke="'+C[s2[1]]+'" stroke-width="2"/>';
+  s2[0].forEach(function(v,i){var p=P(i,v);h+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="'+C[s2[1]]+'"/>';});});
+ s.innerHTML=h;
+})();
+
+// stacked coverage bars
+(function(){
+ var d=[['Updates',7,2,2,0],['2.5" × 4',8,1,2,0],['Mac backup',11,0,0,0],['Ships',8,0,1,2]];
+ var col=['var(--c-used)','var(--c-diy)','var(--c-mute)','var(--red)'],h='';
+ d.forEach(function(r){h+='<div style="display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;margin-bottom:12px;font-size:12px"><span style="color:var(--ink-2)">'+r[0]+'</span><div style="display:flex;gap:3px;height:14px">';
+  for(var i=1;i<5;i++)if(r[i])h+='<span title="'+r[i]+'" style="flex:'+r[i]+';background:'+col[i-1]+';border-radius:4px;color:'+(i==3?'var(--ink)':'#fff')+';font-size:10px;line-height:14px;text-align:center">'+r[i]+'</span>';
+  h+='</div></div>';});
+ document.getElementById('stack').innerHTML=h;
+})();
+
+// timeline
+(function(){
+ var a=2026,b=2031,t=document.getElementById('tl');function x(y){return (y-a)/(b-a)*100}
+ var now=2026+10.3/12;
+ var rows=[['SX3slim (current)','var(--red)',2026,2026.08,'ended'],
+  ['Stornex SX4 family','var(--c-used)',now,2028.2,'Mar 2028'],
+  ['Vaultek VK-440+','linear-gradient(90deg,var(--c-diy) 50%,transparent)',now,2029.3,'Legacy, no date'],
+  ['Brightbyte / Corevault','repeating-linear-gradient(90deg,var(--c-mute) 0 8px,transparent 8px 13px)',now,2029.3,'unknown'],
+  ['OpenNAS / FreeStore','var(--c-pi)',now,2029.8,'ongoing']];
+ var h='';
+ rows.forEach(function(r){h+='<span>'+r[0]+'</span><div class="track"><span class="bar" style="left:'+x(r[2])+'%;width:'+(x(r[3])-x(r[2]))+'%;background:'+r[1]+'"></span><span class="end" style="'+(x(r[3])>55?'left:auto;right:0;background:var(--card);padding-right:4px':'left:'+x(r[3])+'%')+'">'+r[4]+'</span><span class="now" style="left:'+x(now)+'%"></span></div>';});
+ h+='<span></span><div class="ax">';for(var y=2026;y<=2030;y++)h+='<span style="left:'+x(y)+'%">'+y+'</span>';
+ t.innerHTML=h+'</div>';
+})();
+
+// matrix
+(function(){
+ var S={y:'<td class="c sy">✓</td>',p:'<td class="c sq">~</td>',q:'<td class="c sq">?</td>',n:'<td class="c sn">✗</td>'};
+ var d=[['Stornex SX4j (used)',110,'u','yyyn'],['Stornex SX4play (used)',165,'u','yyyn'],['Vaultek VK-440+ 8 GB (used)',210,'u','pyyy',1],
+  ['SBC 5 + 4-bay SATA HAT',255,'p','yyyy'],['DIY mini-PC + USB dock',260,'d','yyyy'],['Vaultek VK-443A (used)','285+','u','pqyq'],
+  ['Nimbus NB-1204',310,'n','ypyy'],['Brightbyte BB4300 Plus',350,'n','qyyy'],['Corevault C4-250',395,'n','qyyy'],['Vaultek VK-423-4G',455,'n','yqyy'],['Stornex SX5+',520,'n','yyyy']];
+ var h='';d.forEach(function(r){h+='<tr'+(r[4]?' class="pick"':'')+'><td><span class="dot" style="background:'+C[r[2]]+'"></span>'+(r[4]?'<b>'+r[0]+'</b>':r[0])+'</td><td class="r">€'+r[1]+'</td>'+r[3].split('').map(function(c){return S[c]}).join('')+'</tr>';});
+ h+='<tr><td colspan="6" class="c muted" style="font-size:12px">+ 6 more, excluded or end of life</td></tr>';
+ document.getElementById('mx').innerHTML=h;
+})();
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>

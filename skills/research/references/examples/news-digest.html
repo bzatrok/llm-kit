@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Today's news: DE, FR, PL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+
+/* ---- additions for this report type ---- */
+/* stacked bars with a total */
+.sb{display:grid;grid-template-columns:150px 1fr;gap:12px 14px;align-items:center;font-size:var(--fs-s)}
+.sb .nm{color:var(--ink-2);white-space:nowrap}
+.sb .tr{display:flex;align-items:center;gap:3px;height:18px}
+.sb .tr span.s{height:14px;border-radius:4px}
+.sb .tr .v{padding-left:6px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* headline rows, image slot on the left */
+.hl .row{grid-template-columns:96px minmax(0,1fr);gap:6px 16px;padding:14px 0;align-items:start}
+.hl .bd{display:grid;gap:6px;min-width:0}
+.hl .tp{display:flex;align-items:center;gap:8px;font-weight:500}
+.hl .sm{color:var(--ink-2);margin:0}
+.hl .cs{display:flex;flex-wrap:wrap;gap:6px}
+.hl .flag{margin:2px 0 0}
+.hl.brief .row{grid-template-columns:96px minmax(0,1fr) auto;gap:12px 16px;padding:10px 0;align-items:center}
+.thumb{width:96px;height:64px;border-radius:var(--r-sm);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.hl .row.hit{background:var(--teal-soft);box-shadow:0 0 0 8px var(--teal-soft);border-radius:var(--r-sm)}
+
+/* maps: the background is the sea */
+.gm{position:relative;background:var(--bg);border:1px solid var(--rule);border-radius:var(--r-md);overflow:hidden}
+.gm svg{display:block}
+.gm .gm-hit{cursor:pointer;outline:none}
+.gm .gm-hit:focus-visible{stroke:var(--teal);stroke-width:2}
+.gm-tip{position:absolute;z-index:2;max-width:240px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:8px 10px;font-size:var(--fs-s);line-height:1.45;color:var(--ink-2);pointer-events:none}
+.gm-tip[hidden]{display:none}
+.gm-tip b{display:block;font-weight:500;color:var(--ink)}
+.dot.ring{background:var(--card);border:2px solid}
+.mm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mm h3{font-size:var(--fs-m);font-weight:500;margin:0 0 8px}
+.hl.brief .tp{font-weight:400}
+.hl.brief .cs{justify-content:flex-end}
+
+/* citation chip */
+.chip.cite{gap:6px;border:0;font-family:var(--f);cursor:pointer}
+.chip.cite b{color:var(--ink-3);font-weight:500;font-variant-numeric:tabular-nums}
+.chip.cite:hover{color:var(--teal);background:var(--teal-soft)}
+.chip.cite:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+tr.hit td{background:var(--teal-soft)}
+
+@media (max-width:720px){
+  .sb{grid-template-columns:1fr;gap:4px 0}
+  .sb .nm{white-space:normal}
+  .sb .tr{margin-bottom:10px}
+  .hl .row,.hl.brief .row{grid-template-columns:72px minmax(0,1fr);gap:6px 12px}
+  .hl.brief .cs{justify-content:flex-start;grid-column:2}
+  .thumb{width:72px;height:48px}
+  .mm{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 8 Apr 2027</div>
+    <h1>Today's news: Germany, France, Poland</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Storm "Orla" killed 3 people in France.</mark> More than 1,600 were evacuated (<a class="ref" data-src="7">Courrier Lumière</a>).</p>
+  <p>Poland's new cabinet presented its <mark>2028 budget</mark>. The deficit target is 3.8% of GDP (<a class="ref" data-src="12">Dziennik Wisła</a>).</p>
+  <p>German <a class="ref" data-src="1">reservoir levels</a> reached 71%. That is above the seasonal minimum.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-de" id="t-de">Germany</button>
+  <button role="tab" aria-selected="false" aria-controls="p-fr" id="t-fr">France</button>
+  <button role="tab" aria-selected="false" aria-controls="p-pl" id="t-pl">Poland</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW: one chart + headline list -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Citations per country</h2>
+    <p class="sub">15 citations from 6 sites. Darker segment = main site.</p>
+    <div class="sb" id="cites"></div>
+  </div>
+  <div class="card">
+    <h2>Places</h2>
+    <p class="sub">Places the stories name, at city-centre coordinates. Select a pin for its headline.</p>
+    <div class="mm">
+      <div><h3>Germany</h3><div id="mm-de"></div></div>
+      <div><h3>France</h3><div id="mm-fr"></div></div>
+      <div><h3>Poland</h3><div id="mm-pl"></div></div>
+    </div>
+    <div class="legend" style="margin-top:12px">
+      <span><span class="dot" style="background:var(--c-diy)"></span>Germany</span>
+      <span><span class="dot" style="background:var(--c-new)"></span>France</span>
+      <span><span class="dot" style="background:var(--c-used)"></span>Poland</span>
+      <span><span class="dot ring" style="border-color:var(--ink-3)"></span>Outside the map</span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Headlines</h2>
+    <p class="sub">16 items across 3 countries. Select a source for its capture.</p>
+    <div class="rows hl brief" id="all" style="margin:0"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-de" role="tabpanel" aria-labelledby="t-de" hidden>
+  <div class="card">
+    <h2>Water, fares and a supermarket outage</h2>
+    <p class="sub">6 items. Sources: rheinbote.example, elbe-courier.example.</p>
+    <div id="m-de"></div>
+    <div class="legend" style="margin-top:12px">
+      <span><span class="dot ring" style="border-color:var(--c-diy)"></span>Outside the map: Vienna</span>
+      <span class="muted">The home stories name no place.</span>
+    </div>
+    <div id="c-de"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-fr" role="tabpanel" aria-labelledby="t-fr" hidden>
+  <div class="card">
+    <h2>Storm "Orla" and a housing election</h2>
+    <p class="sub">5 items. Sources: courrier-lumiere.example, le-phare-du-soir.example. Condensed captures.</p>
+    <div id="m-fr"></div>
+    <div class="legend" style="margin-top:12px">
+      <span><span class="dot" style="background:var(--c-new)"></span>Place named in a story</span>
+      <span class="muted">The election stories name no place.</span>
+    </div>
+    <div id="c-fr"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-pl" role="tabpanel" aria-labelledby="t-pl" hidden>
+  <div class="card">
+    <h2>The new cabinet's first budget</h2>
+    <p class="sub">5 items. Sources: dziennik-wisla.example, kurier-nadodrza.example.</p>
+    <div id="m-pl"></div>
+    <div class="legend" style="margin-top:12px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Place named in a story</span>
+      <span class="muted">The budget stories name no place.</span>
+    </div>
+    <div id="c-pl"></div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>Site</th><th>Article</th><th class="r">Capture</th></tr></thead>
+      <tbody id="src"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2>About the captures</h2>
+    <p class="sub">Captured with Chrome, one agent per country, 8 Apr 2027.</p>
+    <div class="rows glist">
+      <div class="row"><span>French and kurier-nadodrza.example articles are condensed captures, not verbatim. Site text extraction returns partial pages.</span><span class="who">7–11, 14</span></div>
+      <div class="row"><span>The employers' federation article is paywalled. Only its headline and first paragraph were read.</span><span class="who">11</span></div>
+      <div class="row"><span>Several capture times in the agent headers are off by 1–12 min. The file times are reliable.</span><span class="who">All</span></div>
+      <div class="row"><span>No article images were captured. Real reports show the article's lead image here.</span><span class="who">All</span></div>
+      <div class="row"><span>Map pins use city-centre coordinates for places named in the stories. Stories without a place have no pin.</span><span class="who">Maps</span></div>
+    </div>
+  </div>
+</section>
+
+<p class="foot">3 countries, 6 sites, 15 citations. One-day snapshot, 8 Apr 2027, 14:40 CEST.</p>
+</div>
+
+<script id="geo">
+// Map outlines: Natural Earth 1:10m, simplified (world-atlas 2.0.2). Each ring is [[lon,lat],...].
+var GEO={de:[[[13.815,48.767],[13.797,48.598],[13.718,48.522],[13.455,48.574],[13.405,48.377],[12.861,48.196],[12.739,48.113],[12.991,47.846],[12.894,47.723],[13.02,47.713],[13.074,47.659],[13.002,47.466],[12.778,47.554],[12.814,47.612],[12.76,47.667],[12.498,47.629],[12.426,47.691],[12.238,47.679],[12.238,47.732],[12.177,47.706],[12.206,47.637],[12.174,47.605],[11.619,47.59],[11.551,47.514],[11.414,47.505],[11.385,47.445],[11.238,47.394],[11.194,47.429],[10.978,47.39],[10.852,47.493],[10.87,47.527],[10.608,47.563],[10.482,47.532],[10.428,47.576],[10.428,47.396],[10.305,47.303],[10.161,47.271],[10.208,47.372],[10.082,47.358],[10.082,47.428],[9.945,47.541],[9.833,47.534],[9.769,47.588],[9.614,47.522],[9.182,47.671],[8.883,47.656],[8.797,47.72],[8.717,47.694],[8.714,47.757],[8.645,47.791],[8.617,47.757],[8.584,47.801],[8.39,47.693],[8.458,47.64],[8.606,47.656],[8.573,47.593],[8.491,47.62],[8.354,47.581],[8.231,47.622],[8.041,47.561],[7.821,47.595],[7.767,47.556],[7.609,47.564],[7.659,47.596],[7.587,47.585],[7.511,47.708],[7.619,47.971],[7.58,48.115],[7.749,48.341],[7.81,48.615],[8.091,48.807],[8.199,48.959],[7.933,49.035],[7.634,49.039],[7.411,49.169],[7.274,49.104],[7.087,49.142],[7.043,49.108],[7.011,49.182],[6.914,49.207],[6.835,49.209],[6.82,49.148],[6.712,49.158],[6.511,49.425],[6.345,49.456],[6.356,49.577],[6.493,49.7],[6.503,49.797],[6.302,49.836],[6.097,50.048],[6.147,50.214],[6.374,50.329],[6.338,50.481],[6.169,50.523],[6.248,50.614],[6.158,50.622],[6.082,50.714],[6.01,50.709],[5.967,50.795],[6.057,50.852],[6.064,50.908],[5.999,50.93],[6.003,50.974],[5.873,50.965],[5.852,51.043],[5.938,51.031],[6.147,51.153],[6.061,51.171],[6.057,51.212],[6.208,51.387],[6.194,51.509],[6.086,51.595],[6.1,51.644],[5.938,51.732],[5.963,51.776],[5.927,51.806],[6.158,51.842],[6.093,51.885],[6.125,51.897],[6.345,51.821],[6.377,51.86],[6.745,51.909],[6.813,51.973],[6.68,52.061],[7.029,52.235],[7.047,52.365],[6.975,52.451],[6.741,52.453],[6.673,52.542],[6.745,52.559],[6.701,52.618],[6.737,52.635],[7.018,52.627],[7.061,52.824],[7.184,52.966],[7.195,53.245],[7.267,53.324],[7.367,53.302],[7.04,53.348],[7.051,53.513],[7.141,53.537],[7.087,53.588],[7.306,53.685],[7.951,53.723],[8.03,53.707],[8.051,53.637],[8.167,53.554],[8.059,53.501],[8.087,53.456],[8.221,53.407],[8.321,53.51],[8.231,53.525],[8.257,53.604],[8.375,53.588],[8.552,53.544],[8.491,53.486],[8.505,53.358],[8.498,53.474],[8.566,53.547],[8.491,53.716],[8.573,53.858],[8.653,53.893],[8.861,53.831],[9.275,53.864],[9.581,53.591],[9.833,53.544],[9.549,53.635],[9.531,53.711],[9.437,53.748],[9.394,53.831],[8.915,53.937],[8.833,54.037],[8.998,54.03],[9.02,54.098],[8.977,54.146],[8.861,54.125],[8.811,54.18],[8.84,54.256],[8.962,54.317],[8.678,54.27],[8.602,54.312],[8.696,54.359],[8.635,54.366],[8.649,54.407],[8.887,54.418],[9.013,54.483],[8.887,54.602],[8.825,54.597],[8.854,54.619],[8.818,54.673],[8.689,54.736],[8.649,54.819],[8.66,54.896],[8.825,54.906],[9.196,54.851],[9.243,54.802],[9.452,54.81],[9.581,54.866],[9.581,54.83],[9.823,54.756],[9.949,54.78],[10.017,54.702],[9.931,54.673],[10.035,54.673],[10.028,54.56],[9.841,54.476],[10.143,54.493],[10.204,54.461],[10.143,54.324],[10.32,54.444],[10.73,54.31],[10.935,54.379],[11.137,54.386],[11.068,54.359],[11.068,54.184],[10.752,54.05],[10.903,53.961],[11.176,54.018],[11.256,53.94],[11.335,53.961],[11.457,53.907],[11.518,54.037],[11.691,54.155],[12.087,54.194],[12.116,54.098],[12.094,54.146],[12.141,54.18],[12.109,54.184],[12.343,54.304],[12.534,54.488],[12.922,54.434],[12.44,54.388],[12.364,54.31],[12.411,54.251],[12.541,54.373],[12.706,54.415],[12.685,54.373],[12.854,54.358],[13.034,54.434],[13.113,54.28],[13.29,54.234],[13.322,54.167],[13.405,54.173],[13.484,54.091],[13.48,54.125],[13.711,54.173],[13.808,54.104],[13.747,54.037],[13.909,53.934],[13.819,53.853],[14.038,53.755],[14.265,53.751],[14.211,53.707],[14.265,53.701],[14.305,53.508],[14.442,53.252],[14.344,53.049],[14.143,52.959],[14.164,52.895],[14.125,52.851],[14.643,52.576],[14.546,52.382],[14.586,52.291],[14.712,52.237],[14.686,52.122],[14.762,52.076],[14.586,51.804],[14.733,51.658],[14.712,51.531],[14.956,51.435],[14.96,51.335],[15.021,51.273],[14.956,51.065],[14.758,50.81],[14.614,50.845],[14.629,50.921],[14.55,50.913],[14.575,50.975],[14.481,51.038],[14.287,51.036],[14.24,50.982],[14.38,50.921],[14.348,50.881],[13.891,50.781],[13.833,50.724],[13.556,50.707],[13.448,50.597],[13.369,50.629],[13.286,50.568],[13.232,50.582],[13.16,50.497],[13.009,50.492],[12.951,50.405],[12.818,50.443],[12.512,50.389],[12.336,50.259],[12.3,50.161],[12.17,50.303],[12.076,50.315],[12.112,50.276],[12.08,50.242],[12.184,50.172],[12.246,50.045],[12.451,49.981],[12.519,49.912],[12.454,49.78],[12.382,49.743],[12.498,49.67],[12.645,49.43],[12.778,49.332],[13.002,49.295],[13.178,49.118],[13.3,49.094],[13.459,48.946],[13.61,48.946],[13.815,48.767]],[[14.211,53.939],[14.2,53.878],[13.84,53.851],[13.93,53.9],[13.905,53.996],[13.974,53.989],[13.959,53.94],[14.049,53.94],[14.053,54.005],[13.995,54.045],[13.776,54.023],[13.815,54.101],[13.754,54.153],[13.797,54.179],[14.211,53.939]],[[6.874,53.672],[7.047,53.694],[6.874,53.672]],[[7.133,53.707],[7.346,53.723],[7.133,53.707]],[[7.519,53.761],[7.627,53.75],[7.515,53.746],[7.468,53.745],[7.519,53.761]],[[7.663,53.761],[7.749,53.761],[7.663,53.761]],[[8.962,54.523],[8.825,54.471],[8.843,54.52],[8.962,54.523]],[[11.256,54.479],[11.313,54.413],[11.04,54.447],[11.007,54.469],[11.072,54.531],[11.256,54.479]],[[13.7,54.391],[13.765,54.346],[13.722,54.278],[13.65,54.297],[13.711,54.332],[13.617,54.317],[13.689,54.352],[13.599,54.352],[13.358,54.275],[13.419,54.266],[13.408,54.228],[13.311,54.251],[13.336,54.283],[13.268,54.256],[13.117,54.337],[13.268,54.386],[13.156,54.427],[13.272,54.483],[13.164,54.526],[13.243,54.557],[13.297,54.52],[13.369,54.586],[13.347,54.523],[13.376,54.565],[13.43,54.493],[13.506,54.488],[13.52,54.57],[13.441,54.557],[13.369,54.613],[13.254,54.565],[13.293,54.643],[13.232,54.653],[13.419,54.689],[13.408,54.594],[13.671,54.567],[13.574,54.472],[13.61,54.413],[13.7,54.391]],[[8.498,54.756],[8.595,54.729],[8.534,54.687],[8.393,54.716],[8.498,54.756]],[[8.361,54.949],[8.39,54.895],[8.653,54.893],[8.343,54.879],[8.296,54.832],[8.296,54.913],[8.415,55.065],[8.462,55.05],[8.393,55.043],[8.429,55.03],[8.361,54.949]]],fr:[[[2.522,51.087],[2.608,50.962],[2.587,50.845],[2.767,50.734],[2.885,50.697],[3.13,50.779],[3.245,50.671],[3.271,50.526],[3.609,50.477],[3.695,50.298],[4.005,50.344],[4.185,50.266],[4.127,50.128],[4.21,50.06],[4.131,49.976],[4.466,49.935],[4.657,49.989],[4.682,50.084],[4.815,50.161],[4.873,50.139],[4.783,49.959],[4.862,49.913],[4.847,49.795],[5.258,49.692],[5.456,49.5],[5.747,49.55],[5.96,49.442],[6.194,49.5],[6.403,49.466],[6.575,49.361],[6.712,49.158],[6.914,49.207],[7.043,49.108],[7.274,49.104],[7.411,49.169],[7.634,49.039],[8.199,48.959],[8.091,48.807],[7.81,48.615],[7.749,48.341],[7.58,48.115],[7.619,47.971],[7.511,47.708],[7.587,47.585],[7.389,47.433],[6.975,47.488],[6.867,47.353],[7.036,47.33],[6.665,47.021],[6.442,46.945],[6.428,46.761],[6.118,46.583],[6.053,46.42],[6.136,46.371],[6.093,46.252],[5.956,46.2],[5.96,46.131],[6.14,46.149],[6.28,46.241],[6.215,46.315],[6.269,46.376],[6.482,46.448],[6.788,46.414],[6.752,46.345],[6.827,46.269],[6.773,46.134],[6.871,46.112],[6.849,46.053],[7.022,45.925],[6.802,45.827],[6.795,45.719],[6.964,45.641],[6.982,45.511],[7.162,45.411],[7.054,45.214],[6.604,45.104],[6.723,45.013],[6.745,44.908],[7.007,44.822],[7.054,44.685],[6.961,44.684],[6.835,44.533],[6.917,44.435],[6.867,44.371],[6.982,44.241],[7.331,44.125],[7.655,44.175],[7.691,44.067],[7.493,43.887],[7.475,43.765],[7.151,43.655],[7.141,43.554],[6.961,43.541],[6.892,43.427],[6.73,43.407],[6.59,43.269],[6.694,43.274],[6.68,43.201],[6.403,43.147],[6.374,43.091],[6.219,43.117],[6.161,43.093],[6.179,43.036],[5.942,43.134],[5.881,43.12],[5.953,43.08],[5.855,43.044],[5.675,43.179],[5.369,43.208],[5.294,43.355],[5.035,43.336],[5.027,43.409],[5.225,43.48],[5.027,43.559],[5.053,43.429],[4.869,43.421],[4.901,43.367],[4.855,43.341],[4.696,43.579],[4.79,43.345],[4.592,43.36],[4.513,43.456],[4.181,43.465],[4.106,43.552],[3.955,43.541],[3.512,43.28],[3.317,43.264],[3.112,43.107],[3.04,42.943],[3.04,42.629],[3.181,42.431],[2.932,42.47],[2.525,42.326],[2.277,42.429],[1.996,42.348],[1.928,42.436],[1.712,42.494],[1.766,42.563],[1.723,42.61],[1.528,42.649],[1.431,42.595],[1.341,42.708],[1.15,42.706],[1.089,42.771],[0.725,42.845],[0.65,42.825],[0.643,42.684],[0.355,42.718],[0.275,42.669],[0.167,42.727],[-0.038,42.684],[-0.322,42.843],[-0.571,42.772],[-0.761,42.946],[-1.15,43.005],[-1.312,43.069],[-1.287,43.11],[-1.435,43.036],[-1.489,43.081],[-1.402,43.243],[-1.647,43.272],[-1.748,43.291],[-1.795,43.385],[-1.661,43.4],[-1.478,43.579],[-1.258,44.555],[-1.186,44.665],[-1.046,44.67],[-1.172,44.778],[-1.262,44.628],[-1.1,45.553],[-0.765,45.325],[-0.722,45.146],[-0.549,44.902],[-0.596,45.025],[-0.495,44.998],[-0.657,45.099],[-0.794,45.477],[-1.247,45.71],[-1.229,45.793],[-1.165,45.807],[-0.988,45.717],[-1.15,45.867],[-1.067,45.916],[-1.111,46.018],[-1.049,46.04],[-1.211,46.175],[-1.111,46.303],[-1.24,46.284],[-1.795,46.494],[-1.91,46.691],[-2.119,46.82],[-2.129,46.894],[-1.989,47.036],[-2.241,47.142],[-2.165,47.168],[-2.162,47.271],[-2.014,47.299],[-1.726,47.211],[-2.011,47.32],[-2.277,47.247],[-2.543,47.299],[-2.435,47.308],[-2.558,47.384],[-2.392,47.424],[-2.493,47.492],[-2.363,47.507],[-2.623,47.514],[-2.576,47.554],[-2.831,47.504],[-2.911,47.558],[-2.741,47.551],[-2.705,47.642],[-2.918,47.595],[-2.975,47.664],[-2.936,47.564],[-3.123,47.598],[-3.083,47.478],[-3.13,47.478],[-3.202,47.64],[-3.119,47.732],[-3.191,47.747],[-3.159,47.711],[-3.224,47.656],[-3.357,47.698],[-3.281,47.691],[-3.357,47.711],[-3.281,47.787],[-3.447,47.705],[-3.53,47.781],[-3.85,47.801],[-3.962,47.9],[-4.037,47.855],[-4.131,47.924],[-4.109,47.87],[-4.185,47.875],[-4.185,47.813],[-4.372,47.808],[-4.347,47.863],[-4.433,47.976],[-4.729,48.041],[-4.289,48.108],[-4.379,48.233],[-4.484,48.243],[-4.556,48.177],[-4.556,48.263],[-4.628,48.267],[-4.559,48.339],[-4.516,48.296],[-4.189,48.307],[-4.325,48.321],[-4.268,48.363],[-4.455,48.336],[-4.289,48.432],[-4.768,48.346],[-4.765,48.52],[-4.577,48.567],[-4.563,48.63],[-4.192,48.65],[-3.973,48.733],[-3.955,48.657],[-3.85,48.63],[-3.811,48.733],[-3.584,48.682],[-3.515,48.843],[-3.397,48.807],[-3.231,48.873],[-3.22,48.794],[-3.091,48.871],[-3.127,48.76],[-3.008,48.821],[-3.044,48.789],[-2.932,48.767],[-2.684,48.508],[-2.317,48.699],[-2.281,48.67],[-2.331,48.63],[-2.252,48.65],[-2.212,48.583],[-2.054,48.65],[-1.982,48.513],[-1.953,48.576],[-2.029,48.643],[-1.946,48.699],[-1.845,48.713],[-1.859,48.64],[-1.795,48.616],[-1.355,48.643],[-1.553,48.746],[-1.604,48.849],[-1.507,49.033],[-1.593,49.028],[-1.611,49.216],[-1.55,49.226],[-1.625,49.219],[-1.697,49.356],[-1.816,49.383],[-1.885,49.532],[-1.838,49.619],[-1.935,49.724],[-1.607,49.65],[-1.262,49.695],[-1.229,49.624],[-1.305,49.559],[-1.121,49.346],[-0.941,49.391],[-0.218,49.28],[0.412,49.452],[0.491,49.493],[0.34,49.457],[0.077,49.515],[0.185,49.704],[0.596,49.857],[1.222,49.979],[1.521,50.215],[1.672,50.192],[1.543,50.278],[1.611,50.371],[1.553,50.405],[1.611,50.548],[1.582,50.869],[1.921,50.997],[2.522,51.087]],[[8.566,42.208],[8.689,42.272],[8.548,42.377],[8.66,42.429],[8.71,42.58],[8.786,42.563],[9.117,42.732],[9.293,42.674],[9.347,43.004],[9.463,42.99],[9.441,42.641],[9.527,42.563],[9.56,42.146],[9.401,41.953],[9.347,41.619],[9.283,41.607],[9.351,41.582],[9.265,41.531],[9.207,41.366],[9.095,41.403],[9.081,41.482],[8.797,41.556],[8.8,41.639],[8.923,41.695],[8.656,41.751],[8.786,41.825],[8.804,41.908],[8.613,41.901],[8.588,41.968],[8.746,42.056],[8.559,42.154],[8.566,42.208]],[[-1.219,45.943],[-1.208,45.813],[-1.373,45.986],[-1.373,46.05],[-1.219,45.943]],[[-1.28,46.156],[-1.499,46.246],[-1.28,46.156]],[[-2.201,46.985],[-2.144,46.909],[-2.219,46.973],[-2.295,47.032],[-2.201,46.985]],[[-3.116,47.331],[-3.224,47.313],[-3.256,47.369],[-3.116,47.331]]],pl:[[[18.834,49.51],[18.794,49.662],[18.618,49.714],[18.56,49.906],[18.294,49.908],[18.002,50.047],[18.031,50.003],[17.84,49.974],[17.732,50.096],[17.631,50.106],[17.588,50.163],[17.746,50.217],[17.707,50.312],[17.43,50.239],[17.188,50.379],[16.893,50.433],[16.864,50.408],[17.016,50.219],[16.818,50.187],[16.659,50.092],[16.342,50.369],[16.198,50.406],[16.425,50.568],[16.332,50.644],[15.982,50.604],[15.972,50.678],[15.849,50.675],[15.792,50.742],[15.442,50.8],[15.356,50.776],[15.255,50.899],[15.27,50.953],[15.144,51.011],[14.96,50.992],[14.996,50.958],[14.982,50.859],[14.809,50.859],[14.956,51.065],[15.021,51.273],[14.96,51.335],[14.946,51.45],[14.712,51.531],[14.733,51.658],[14.586,51.804],[14.762,52.076],[14.686,52.122],[14.712,52.237],[14.586,52.291],[14.546,52.382],[14.643,52.576],[14.125,52.851],[14.164,52.895],[14.143,52.959],[14.344,53.049],[14.442,53.252],[14.305,53.508],[14.265,53.701],[14.294,53.75],[14.589,53.598],[14.625,53.653],[14.546,53.704],[14.575,53.77],[14.625,53.77],[14.632,53.851],[14.586,53.812],[14.575,53.854],[14.442,53.87],[14.431,53.907],[14.362,53.88],[14.416,53.853],[14.33,53.817],[14.175,53.907],[14.406,53.922],[15.86,54.249],[16.18,54.263],[16.216,54.3],[16.137,54.29],[16.324,54.349],[16.281,54.359],[16.501,54.533],[16.94,54.606],[17.336,54.749],[18.315,54.839],[18.816,54.643],[18.819,54.597],[18.708,54.702],[18.448,54.79],[18.412,54.732],[18.488,54.631],[18.524,54.646],[18.589,54.434],[18.888,54.351],[19.377,54.378],[19.611,54.457],[22.7,54.342],[22.837,54.401],[22.963,54.381],[23.049,54.295],[23.316,54.236],[23.449,54.155],[23.496,54.045],[23.46,53.981],[23.589,53.611],[23.895,53.152],[23.859,53.067],[23.91,53.013],[23.91,52.699],[23.391,52.51],[23.164,52.289],[23.211,52.232],[23.488,52.181],[23.514,52.125],[23.643,52.073],[23.676,51.994],[23.593,51.843],[23.618,51.786],[23.553,51.737],[23.542,51.593],[23.697,51.404],[23.636,51.305],[23.863,51.148],[23.978,50.938],[24.144,50.857],[23.956,50.808],[24.082,50.714],[24.108,50.538],[24.01,50.492],[23.982,50.405],[23.697,50.378],[23.103,49.957],[22.668,49.567],[22.642,49.528],[22.736,49.275],[22.682,49.162],[22.855,49.084],[22.855,48.995],[22.041,49.197],[21.93,49.331],[21.818,49.378],[21.757,49.349],[21.602,49.427],[21.069,49.418],[21.033,49.4],[21.073,49.358],[20.918,49.29],[20.691,49.4],[20.317,49.391],[20.284,49.339],[20.13,49.304],[20.05,49.174],[19.939,49.224],[19.762,49.194],[19.809,49.272],[19.77,49.393],[19.626,49.402],[19.636,49.442],[19.557,49.454],[19.449,49.601],[19.233,49.508],[19.143,49.395],[18.963,49.39],[18.96,49.493],[18.834,49.51]]]};
+// map component: inline SVG, equirectangular with cos(mid-latitude) x-scaling, drawn at the container's pixel width
+function geoMap(el,o){
+ var NS='http://www.w3.org/2000/svg',tip=document.createElement('div'),lastW=0,ctx=document.createElement('canvas').getContext('2d');
+ el.classList.add('gm');tip.className='gm-tip';tip.hidden=true;el.appendChild(tip);
+ function mk(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e}
+ function tw(s){ctx.font='12px '+getComputedStyle(document.body).fontFamily;return ctx.measureText(s).width}
+ function hit(a,b){return a[0]<b[2]&&a[2]>b[0]&&a[1]<b[3]&&a[3]>b[1]}
+ function hide(){tip.hidden=true}
+ function draw(force){
+  var W=Math.round(el.clientWidth);if(!W||(W===lastW&&!force))return;lastW=W;
+  var pts=o.pts||[],route=o.route||[],b=[180,90,-180,-90];
+  function add(l,a){b=[Math.min(b[0],l),Math.min(b[1],a),Math.max(b[2],l),Math.max(b[3],a)]}
+  if(o.fit==='land')o.rings.forEach(function(r){r.forEach(function(p){add(p[0],p[1])})});
+  else{pts.forEach(function(p){if(!p.off)add(p.lon,p.lat)});route.forEach(function(p){add(p[0],p[1])});}
+  if(b[0]>b[2])b=o.empty||[0,0,1,1];
+  var pd=o.padDeg||0,ms=o.minSpan||0;b=[b[0]-pd,b[1]-pd,b[2]+pd,b[3]+pd];
+  if(b[2]-b[0]<ms){var c0=(b[0]+b[2])/2;b[0]=c0-ms/2;b[2]=c0+ms/2}
+  if(b[3]-b[1]<ms*.7){var c1=(b[1]+b[3])/2;b[1]=c1-ms*.35;b[3]=c1+ms*.35}
+  var k=Math.cos((b[1]+b[3])/2*Math.PI/180),dx=(b[2]-b[0])*k,dy=b[3]-b[1],p=o.pad==null?28:o.pad;
+  var H=typeof o.h==='function'?o.h(W):o.h;
+  if(!H)H=Math.max(o.minH||160,Math.min(o.maxH||420,Math.round(dy/dx*(W-2*p)+2*p)));
+  var s=Math.min((W-2*p)/dx,(H-2*p)/dy),lc=(b[0]+b[2])/2,ac=(b[1]+b[3])/2;
+  function X(l){return W/2+(l-lc)*k*s}function Y(a){return H/2-(a-ac)*s}
+  var svg=mk('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label||'Map'});
+  // land
+  var d='';
+  o.rings.forEach(function(r){
+   var q=r.map(function(c){return [X(c[0]),Y(c[1])]}),x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+   q.forEach(function(c){x0=Math.min(x0,c[0]);y0=Math.min(y0,c[1]);x1=Math.max(x1,c[0]);y1=Math.max(y1,c[1])});
+   if(x1<-50||y1<-50||x0>W+50||y0>H+50||(x1-x0<1.5&&y1-y0<1.5))return;
+   var lx=null,ly=null;
+   q.forEach(function(c,i){if(i&&Math.abs(c[0]-lx)<.8&&Math.abs(c[1]-ly)<.8)return;d+=(i?'L':'M')+c[0].toFixed(1)+' '+c[1].toFixed(1);lx=c[0];ly=c[1]});d+='Z';});
+  svg.appendChild(mk('path',{d:d,fill:o.land||'var(--card)',stroke:'var(--rule)','stroke-width':1,'stroke-linejoin':'round'}));
+  // route
+  var obs=[];
+  if(route.length>1){
+   svg.appendChild(mk('polyline',{points:route.map(function(c){return X(c[0]).toFixed(1)+','+Y(c[1]).toFixed(1)}).join(' '),fill:'none',stroke:o.routeColor||'var(--ink-3)','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+   for(var i=1;i<route.length;i++){var ax=X(route[i-1][0]),ay=Y(route[i-1][1]),bx=X(route[i][0]),by=Y(route[i][1]),n=Math.ceil(Math.hypot(bx-ax,by-ay)/6);
+    for(var j=0;j<=n;j++){var t=j/n,px=ax+(bx-ax)*t,py=ay+(by-ay)*t;obs.push([px-2,py-2,px+2,py+2])}}
+  }
+  // pins
+  var P=pts.map(function(q){var x=X(q.lon),y=Y(q.lat),r=q.r||4.5;
+   if(q.off){var e=14,cx=W/2,cy=H/2,vx=x-cx,vy=y-cy,f=Math.min(Math.abs((W/2-e)/(vx||1e-9)),Math.abs((H/2-e)/(vy||1e-9)),1);x=cx+vx*f;y=cy+vy*f}
+   return {q:q,x:x,y:y,r:r,box:[x-r-2,y-r-2,x+r+2,y+r+2]}});
+  var G=mk('g',{});svg.appendChild(G);
+  P.slice().sort(function(a,b){return (a.q.pri||0)-(b.q.pri||0)}).forEach(function(P1){var q=P1.q;
+   G.appendChild(mk('circle',{cx:P1.x,cy:P1.y,r:P1.r,fill:q.off?'var(--card)':q.c,stroke:q.off?q.c:'var(--card)','stroke-width':2}));
+   var h=mk('circle',{cx:P1.x,cy:P1.y,r:Math.max(12,P1.r+6),fill:'transparent','class':'gm-hit',tabindex:0,role:'button','aria-label':q.aria||q.lab||q.name||''});
+   function show(){if(!q.tip)return;tip.innerHTML=q.tip;tip.hidden=false;var w=tip.offsetWidth,hh=tip.offsetHeight,l=P1.x+14,t=P1.y-hh/2;
+    if(l+w>W-4)l=P1.x-14-w;if(l<4)l=Math.max(4,Math.min(W-w-4,P1.x-w/2));t=Math.max(4,Math.min(H-hh-4,t));
+    if(l<P1.x+14&&l+w>P1.x-14&&t<P1.y+14&&t+hh>P1.y-14)t=P1.y-hh-16<4?P1.y+16:P1.y-hh-16;
+    tip.style.left=l+'px';tip.style.top=t+'px'}
+   h.addEventListener('pointerenter',show);h.addEventListener('focus',show);
+   h.addEventListener('pointerleave',hide);h.addEventListener('blur',hide);
+   h.addEventListener('click',function(e){e.stopPropagation();show();if(o.onPin)o.onPin(q)});
+   h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(o.onPin)o.onPin(q)}});
+   G.appendChild(h);});
+  // labels, greedy: try 8 offsets, skip a label that does not fit (the tooltip still has it)
+  var placed=[],LB=mk('g',{'font-size':12});svg.insertBefore(LB,G);
+  P.slice().sort(function(a,b){return (b.q.pri||0)-(a.q.pri||0)}).forEach(function(P1){var q=P1.q;if(!q.lab)return;
+   var lines=[q.lab].concat(q.sub?[q.sub]:[]),w=Math.max.apply(null,lines.map(tw))+2,lh=15,h=lines.length*lh,g=P1.r+4,x=P1.x,y=P1.y;
+   var C=[[x+g,y-h/2,'start'],[x-g-w,y-h/2,'end'],[x-w/2,y-g-h,'middle'],[x-w/2,y+g,'middle'],[x+g-2,y-g-h+4,'start'],[x+g-2,y+g-4,'start'],[x-g-w+2,y-g-h+4,'end'],[x-g-w+2,y+g-4,'end']];
+   var pick=null;
+   // pass 0: avoid labels, pins and the route; pass 1 (must-label pins only): may cross the route and slide inside the frame
+   for(var ps=0;ps<(q.must?2:1)&&!pick;ps++)for(var i=0;i<C.length&&!pick;i++){var cx0=C[i][0],cy0=C[i][1];
+    if(ps){cx0=Math.max(2,Math.min(W-2-w,cx0));cy0=Math.max(2,Math.min(H-2-h,cy0))}
+    var bx=[cx0,cy0,cx0+w,cy0+h];
+    if(bx[0]<2||bx[1]<2||bx[2]>W-2||bx[3]>H-2)continue;
+    if(placed.some(function(z){return hit(z,bx)})||P.some(function(z){return z!==P1&&!(ps&&Math.hypot(z.x-P1.x,z.y-P1.y)<P1.r+z.r+2)&&hit(z.box,bx)})||(!ps&&obs.some(function(z){return hit(z,bx)})))continue;
+    pick=[cx0,cy0,C[i][2]];placed.push(bx);}
+   if(!pick)return;
+   var tx=pick[2]==='start'?pick[0]:pick[2]==='end'?pick[0]+w:pick[0]+w/2;
+   lines.forEach(function(s,i){var t=mk('text',{x:tx.toFixed(1),y:(pick[1]+11+i*lh).toFixed(1),'text-anchor':pick[2],fill:i?'var(--ink-3)':'var(--ink-2)'});t.textContent=s;LB.appendChild(t)});
+  });
+  svg.addEventListener('click',hide);
+  var old=el.querySelector('svg');if(old)el.replaceChild(svg,old);else el.insertBefore(svg,tip);
+  tip.hidden=true;
+ }
+ if(window.ResizeObserver)new ResizeObserver(function(){draw()}).observe(el);
+ window.addEventListener('resize',function(){draw()});
+ draw();
+ return {set:function(n){for(var key in n)o[key]=n[key];draw(true)},redraw:function(){draw(true)}};
+}
+</script>
+<script>
+function $(id){return document.getElementById(id)}
+var K={de:'var(--c-diy)',fr:'var(--c-new)',pl:'var(--c-used)'};
+var S=[null,
+ ['rheinbote.example','wasserspeicher-71-prozent','de'],['rheinbote.example','regionalbahn-fahrpreise','de'],['rheinbote.example','postwerk-nord-60-millionen','de'],['elbe-courier.example','frischkorb-kassenausfall','de'],
+ ['rheinbote.example','stromleitung-wien-treffen','de'],['rheinbote.example','faehrstreik-grenze','de'],
+ ['courrier-lumiere.example','orla-zone-sinistree','fr','Condensed'],['courrier-lumiere.example','evacuations-ecoles','fr','Condensed'],['le-phare-du-soir.example','listes-communes-regionales','fr','Condensed'],
+ ['courrier-lumiere.example','loyers-pauvrete','fr','Condensed'],['le-phare-du-soir.example','patronat-greve-logement-…','fr','Paywalled'],
+ ['dziennik-wisla.example','budzet-nowego-gabinetu','pl'],['dziennik-wisla.example','minister-finansow-oszczednosci','pl'],['kurier-nadodrza.example','zwiazki-podwyzka-10-proc','pl','Condensed'],['dziennik-wisla.example','festiwal-portowy-gdansk','pl']];
+// [country, group, topic, summary, citations, flag]
+var N=[
+ ['de','Home','Reservoirs at 71%','Reservoir levels in the Elbe system reached 71%, above the seasonal minimum. Officials lifted a water-use advisory in two districts.',[1]],
+ ['de','Home','Regional rail fares up 3.9%','Regional rail fares rise 3.9% on average next year. Season-ticket discounts grow.',[2]],
+ ['de','Home','Postwerk Nord asks for €60 million','Postwerk Nord asks the state for €60 million to keep rural parcel delivery going.',[3]],
+ ['de','Home','Frischkorb after the payment outage','Frischkorb AG filed a report over a payment-system outage. Stores are open again, and online orders should restart on Thursday.',[4]],
+ ['de','Abroad','Ministers meet on a cross-border power link','Energy ministers from three countries meet in Vienna. A funding decision is not expected before summer.',[5]],
+ ['de','Abroad','Ferry crew strike in Denmark','Ferry crews in Denmark strike for two days, and freight queues build at the border.',[6]],
+ ['fr','Storm','Storm "Orla" kills 3','2 people died near Albi and 1 in Nantes. Albi recorded over 210 mm of rain in 24 hours.',[7,8],'The first outlet placed all three deaths around Albi. The second outlet\'s breakdown contradicts that.'],
+ ['fr','Storm','Evacuations and closed schools','More than 1,600 people were evacuated, and schools are closed in five towns. The prime minister visits Albi today.',[7,8],'Open: a fourth body found today in the river valley is still under investigation.'],
+ ['fr','Regional election, 14 June','Two parties in joint list talks','Two centre parties confirmed they negotiate joint lists. The aim is a majority in the regional council.',[9]],
+ ['fr','Regional election, 14 June','A quarter of working renters in poverty','Housing dominates the campaign. A charity reports that 540,000 working renters fall below the poverty line after rent.',[10]],
+ ['fr','Regional election, 14 June','Employers to challenge the housing strike','The employers\' federation will challenge the 3 June housing general strike in court.',[11],'Paywalled. Only the headline and first paragraph were read.'],
+ ['pl','Budget 2028','First budget of the new cabinet','The finance ministry presented a 2028 budget that resets taxes and welfare. The deficit target is 3.8% of GDP.',[12],'The article puts this year\'s deficit at both 5.9% and 6.4%.'],
+ ['pl','Budget 2028','Pensions, child benefit, tax','The child benefit rises by half. The minimum pension rises from 1,800 to 2,600 PLN, income tax on the minimum wage drops to 8%, and the bread price cap ends.',[12]],
+ ['pl','Budget 2028','Savings and the EU funds','The finance minister claims about 42bn PLN in savings. She expects the EU to release withheld regional funds.',[13]],
+ ['pl','Budget 2028','Unions call 10% rise disappointing','Teacher and nurse unions called the planned 10% pay rise disappointing.',[14]],
+ ['pl','Harbour festival','Gdańsk expects 300,000 visitors','The city expects 300,000 visitors to the harbour festival on 20 June. Extra trams will run.',[15]]];
+
+function chips(c){return c.map(function(n){return '<button type="button" class="chip cite" data-s="'+n+'"><b>'+n+'</b>'+S[n][0]+'</button>'}).join('')}
+
+// image slot: no article images were captured, so a generic line drawing stands in
+function thumb(t){return '<span class="thumb" role="img" aria-label="No image captured for: '+t.replace(/"/g,'&quot;')+'"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="22" height="18" rx="2"/><path d="M3 19l6-6 5 5 3-3 8 8"/><circle cx="19" cy="10.5" r="2"/></svg></span>'}
+
+// country tabs
+['de','fr','pl'].forEach(function(k){
+ var h='',g=null;
+ N.forEach(function(r,i){if(r[0]!==k)return;
+  if(r[1]!==g){if(g!==null)h+='</div>';h+='<h3 class="gh">'+r[1]+'</h3><div class="rows hl glist">';g=r[1];}
+  h+='<div class="row" id="h'+i+'">'+thumb(r[2])+'<div class="bd"><span class="tp"><span class="dot" style="background:'+K[k]+'"></span>'+r[2]+'</span><p class="sm">'+r[3]+'</p><span class="cs">'+chips(r[4])+'</span>'+(r[5]?'<div class="flag">'+r[5]+'</div>':'')+'</div></div>';});
+ $('c-'+k).innerHTML=h+'</div>';
+});
+
+// overview list
+$('all').innerHTML=N.map(function(r,i){return '<div class="row" id="a'+i+'">'+thumb(r[2])+'<span class="tp"><span class="dot" style="background:'+K[r[0]]+'"></span>'+r[2]+'</span><span class="cs">'+chips(r[4])+'</span></div>'}).join('');
+
+// maps: places the README names, city-centre coordinates [name, lat, lon, country, headline indexes in N, outside the country]
+var PL=[['Albi',43.93,2.15,'fr',[6,7]],['Nantes',47.22,-1.55,'fr',[6]],['Lyon',45.76,4.84,'fr',[6]],
+ ['Gdańsk',54.35,18.65,'pl',[15]],['Vienna',48.21,16.37,'de',[4],1]];
+function mark(pre,items){
+ document.querySelectorAll('.hl .row.hit').forEach(function(r){r.classList.remove('hit')});
+ items.forEach(function(i){$(pre+i).classList.add('hit')});
+ $(pre+items[0]).scrollIntoView({block:'center',behavior:'smooth'});}
+function pins(k,pre){return PL.filter(function(p){return p[3]===k}).map(function(p){
+ return {lat:p[1],lon:p[2],c:K[k],off:!!p[5],r:p[5]?4:5,lab:p[0],sub:p[5]?'off map':'',pri:p[4].length,items:p[4],pre:pre,
+  aria:p[0]+': '+p[4].map(function(i){return N[i][2]}).join(', '),
+  tip:'<b>'+p[0]+'</b>'+p[4].map(function(i){return N[i][2]}).join('<br>')}})}
+function onPin(q){mark(q.pre,q.items)}
+['de','fr','pl'].forEach(function(k){
+ geoMap($('m-'+k),{rings:GEO[k],fit:'land',pts:pins(k,'h'),pad:20,maxH:340,minH:180,onPin:onPin,label:'Map of places in the '+k.toUpperCase()+' stories'});
+ geoMap($('mm-'+k),{rings:GEO[k],fit:'land',pts:pins(k,'a'),pad:16,h:function(W){return Math.round(Math.max(180,Math.min(240,W*.7)))},onPin:onPin,label:'Small map, '+k.toUpperCase()});
+});
+
+// citations per country, stacked by site (counted from the citation list)
+(function(){
+ var c={};S.slice(1).forEach(function(s){c[s[2]]=c[s[2]]||{};c[s[2]][s[0]]=(c[s[2]][s[0]]||0)+1;});
+ var nm={de:'Germany',fr:'France',pl:'Poland'},h='';
+ ['de','fr','pl'].forEach(function(k){var sites=Object.keys(c[k]).sort(function(a,b){return c[k][b]-c[k][a]}),t=0;
+  h+='<span class="nm">'+nm[k]+'<br><span class="muted">'+sites.map(function(s){t+=c[k][s];return s+' '+c[k][s]}).join(' · ')+'</span></span><div class="tr">';
+  sites.forEach(function(s,i){h+='<span class="s" style="width:'+(c[k][s]/8*100)+'%;background:'+K[k]+';opacity:'+(i?.45:1)+'"></span>'});
+  h+='<span class="v">'+t+'</span></div>';});
+ $('cites').innerHTML=h;
+})();
+
+// sources table
+$('src').innerHTML=S.slice(1).map(function(s,i){return '<tr id="src-'+(i+1)+'"><td>'+(i+1)+'</td><td><span class="dot" style="background:'+K[s[2]]+'"></span>'+s[0]+'</td><td>'+s[1]+'</td><td class="r muted">'+(s[3]||'Full text')+'</td></tr>'}).join('')+
+ '<tr><td></td><td>Map outlines: Natural Earth</td><td>1:10m, simplified, world-atlas 2.0.2</td><td class="r muted">Map data</td></tr>';
+
+// chip → Sources tab, highlight the row
+document.addEventListener('click',function(e){var b=e.target.closest('.cite');if(!b)return;
+ document.getElementById('t-src').click();
+ document.querySelectorAll('tr.hit').forEach(function(r){r.classList.remove('hit')});
+ var r=document.getElementById('src-'+b.dataset.s);r.classList.add('hit');r.scrollIntoView({block:'center'});});
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>

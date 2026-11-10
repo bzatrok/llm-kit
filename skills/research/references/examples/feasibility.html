@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Camper van import check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+</style>
+<style>
+/* added components, built from the base tokens */
+.top>div:first-child{min-width:0}
+.panel{grid-template-columns:minmax(0,1fr)}
+.two>*,.grid>*{min-width:0}
+.nw td{white-space:nowrap}
+.wr1 td:first-child{white-space:normal;min-width:220px}
+.ptxt{margin:0;color:var(--ink-2)}
+
+/* histogram with markers */
+.hist{position:relative;padding-top:28px}
+.hist .bars{display:flex;align-items:flex-end;gap:3px;height:160px}
+.hist .bin{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;font-size:var(--fs-s);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.hist .bin span{position:relative;z-index:1;background:var(--card);padding:0 2px;line-height:16px}
+.hist .col{width:100%;background:var(--c-mute)}
+.hist .ax{display:flex;gap:3px;border-top:1px solid var(--rule);padding-top:6px}
+.hist .ax span{flex:1;min-width:0;text-align:center;font-size:var(--fs-s);color:var(--ink-3);white-space:nowrap}
+.hist .mk{position:absolute;top:0;bottom:24px;width:0;border-left:2px solid}
+.hist .mk span{position:absolute;top:0;left:0;transform:translateX(-50%);font-size:var(--fs-s);line-height:18px;white-space:nowrap;background:var(--card);padding:0 4px}
+
+/* lanes: one row per value on a shared horizontal scale */
+.ln{display:grid;grid-template-columns:150px 1fr;gap:12px 14px;align-items:center;font-size:var(--fs-s)}
+.ln .nm{color:var(--ink-2)}
+.ln .tk{position:relative;height:18px}
+.ln .tk:before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;background:var(--soft);border-radius:var(--r-pill)}
+.ln .rg{position:absolute;top:5px;height:8px;border-radius:var(--r-pill);opacity:.35}
+.ln .pt{position:absolute;top:4px;width:10px;height:10px;border-radius:50%;transform:translateX(-50%)}
+.ln .lb{position:absolute;top:0;line-height:18px;white-space:nowrap;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ln .lb.st{font-weight:500;color:var(--ink)}
+.ln .ax{position:relative;height:18px;color:var(--ink-3)}
+.ln .ax span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.ln .ax span:first-child{transform:none}
+.ln .ax span:last-child{transform:translateX(-100%)}
+
+/* diverging bars */
+.dv{display:grid;grid-template-columns:150px 1fr 64px;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.dv .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv .tr{position:relative;height:18px}
+.dv .tr:before{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px solid var(--rule)}
+.dv .b{position:absolute;top:3px;height:12px;border-radius:var(--r-pill)}
+.dv .v{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dv .nm.pk,.dv .v.pk{color:var(--ink);font-weight:500}
+
+/* verdict rows */
+.vr .row{grid-template-columns:1fr auto;gap:16px;padding:12px 0;align-items:start}
+.vr .q{font-weight:500}
+.vr .d{display:block;color:var(--ink-2);font-size:var(--fs-s);margin-top:2px}
+.vr .rt{display:grid;justify-items:end;gap:4px;font-size:var(--fs-s);color:var(--ink-3);white-space:nowrap}
+
+/* range-waterfall */
+.wf{display:grid;gap:8px;font-size:var(--fs-s)}
+.wf .wr{display:grid;grid-template-columns:170px 1fr 120px;gap:14px;align-items:center}
+.wf .nm{color:var(--ink-2)}
+.wf .tr{position:relative;height:18px}
+.wf .s{position:absolute;top:3px;height:12px;border-radius:var(--r-pill);background:var(--c-used);min-width:3px}
+.wf .x{position:absolute;top:3px;height:12px;border-radius:var(--r-pill);background:var(--c-used);opacity:.3}
+.wf .bud{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.wf .v{text-align:right;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.wf .wr.tot .nm,.wf .wr.tot .v{color:var(--ink);font-weight:500}
+.wf .wr.tot{border-top:1px solid var(--rule);padding-top:8px}
+.wf .ax{position:relative;height:18px;color:var(--ink-3)}
+.wf .ax span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.ax span.e0{transform:none}.ax span.e1{transform:translateX(-100%)}
+.wfh{font-size:var(--fs-m);font-weight:500;margin:22px 0 10px}
+.wfh:first-of-type{margin-top:0}
+
+/* range rows: name, track, value */
+.rr{display:grid;grid-template-columns:150px 1fr 96px;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.rr .nm{color:var(--ink-2)}
+.rr .gh{grid-column:1/-1;margin:10px 0 0}
+.rr .gh:first-child{margin-top:0}
+.rr .tr{position:relative;height:18px}
+.rr .tr:before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;background:var(--soft)}
+.rr .b{position:absolute;top:4px;height:10px;border-radius:var(--r-pill);opacity:.45;min-width:10px}
+.rr .m{position:absolute;top:3px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%);border:2px solid var(--card)}
+.rr .bud{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.rr .v{text-align:right;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.rr .ax{position:relative;height:18px;color:var(--ink-3)}
+.rr .ax span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+
+/* process steps */
+.flow{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:var(--fs-s);color:var(--ink-3)}
+.steps .step{display:grid;grid-template-columns:32px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--rule)}
+.steps .step:last-child{border-bottom:0;padding-bottom:0}
+.steps .n{width:32px;height:32px;border-radius:50%;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-weight:500}
+.steps h3{font-size:var(--fs-m);font-weight:500;margin:5px 0 8px}
+.kv{display:grid;grid-template-columns:4.5em 1fr;gap:6px 12px;font-size:var(--fs-s);color:var(--ink-2)}
+.kv .k{color:var(--ink-3)}
+
+@media (max-width:720px){
+  .ln{grid-template-columns:96px 1fr}
+  .dv{grid-template-columns:104px 1fr 52px;gap:8px 10px}
+  .hist .ax span.alt{visibility:hidden}
+  .top{align-items:flex-start}
+  .wf .wr{grid-template-columns:1fr auto;gap:4px 10px}
+  .wf .wr .tr{grid-column:1/-1;grid-row:2}
+  .wf .wr.axr>span{display:none}
+  .wf .wr.axr .ax{grid-column:1/-1}
+  .rr{grid-template-columns:96px 1fr 70px;gap:8px 10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 19 May 2026</div>
+    <h1>Camper van import check</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Probably no.</mark> The <a class="ref" data-src="2">registration rules</a> ask for a regional emissions certificate (a type-plate sticker). All three variants fail on that rule.</p>
+  <p>If the authority accepts the Japanese certificate, the Hybrid 2.0 is the best budget case. Even then, <a class="ref" data-src="5">net registration tax</a> on the authority formula is €3,190–€5,420.</p>
+  <p>First ask the registration authority, <a class="ref" data-src="4">Customs</a> and a Japanese exporter for evidence. <mark>Do not buy a van yet.</mark></p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-rt" id="t-rt">Route</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Priced cost lines per variant</h2>
+    <p class="sub">Euro. Japanese van via exporter. This is not a landed total.</p>
+    <div id="wfs"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Low case</span>
+      <span><span class="dot" style="background:var(--c-used);opacity:.3"></span>Extra in high case</span>
+      <span>Dashed line = budget €28,000</span>
+    </div>
+    <p class="sub" style="margin:12px 0 0">Not priced: freight, port, marine insurance, duty (0% or 8% of CIF), VAT (19%), conversion, plates, road tax. Registration tax uses Japanese CO₂.</p>
+  </div>
+
+  <div class="card">
+    <h2>Asking prices found</h2>
+    <p class="sub">Euro. Bar = cheapest to dearest ask, dot = median. Value = median.</p>
+    <div class="rr" id="asks"></div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>CO₂ by basis</h2>
+      <p class="sub">g/km. The authority does not accept Japanese figures for these vans.</p>
+      <div class="rr" id="co2"></div>
+      <div class="legend" style="margin-top:16px">
+        <span><span class="dot" style="background:var(--c-pi)"></span>Japanese figure</span>
+        <span><span class="dot" style="background:var(--c-diy)"></span>Authority formula</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Net registration tax by CO₂ basis</h2>
+      <p class="sub">Current tariff, after depreciation.</p>
+      <div class="rr" id="bpm"></div>
+      <div class="legend" style="margin-top:16px">
+        <span><span class="dot" style="background:var(--c-pi)"></span>Japanese CO₂</span>
+        <span><span class="dot" style="background:var(--c-diy)"></span>Authority formula, 12–30 months</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>VanLister listings kept</h2>
+      <p class="sub">Model year 2023 or newer, Japan.</p>
+      <div class="donut">
+        <svg id="d1" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="VanLister listings by variant"></svg>
+        <div class="leg" id="l1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Lithuanian ads screened</h2>
+      <p class="sub">CampMart, production 2023 or later.</p>
+      <div class="donut">
+        <svg id="d2" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="CampMart ads by variant"></svg>
+        <div class="leg" id="l2"></div>
+      </div>
+    </div>
+  </div>
+  <p class="ptxt">Next step: an evidence check with the registration authority, Customs and a Japanese exporter. Do not buy a van yet.</p>
+</section>
+
+<!-- OPTIONS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="car"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>Best budget case</span><span class="nm">Hybrid 2.0</span></div><span class="pr">€18,340</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Exporter asks</span><span>68 vans, €14,210–€25,880</span></div>
+        <div class="row"><span class="f">CO₂</span><span>78–96 Japanese, 120–131 authority formula</span></div>
+        <div class="row"><span class="f">Priced lines</span><span>€16,272–€30,982 <span class="chip one">Not landed</span></span></div>
+        <div class="row"><span class="f">Verdict</span><span><span class="chip unv">No on published rules</span></span></div>
+      </div>
+      <div class="flag">Battery registration and fee may apply. Chemistry and weight are not known.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="car"></div><div><span class="route"><span class="dot" style="background:var(--c-new)"></span>Most listings</span><span class="nm">Petrol 2.0</span></div><span class="pr">€18,120</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Exporter asks</span><span>161 vans, €13,480–€27,960</span></div>
+        <div class="row"><span class="f">CO₂</span><span>129–139 Japanese, 155–161 authority formula</span></div>
+        <div class="row"><span class="f">Priced lines</span><span>€18,582–€40,792 <span class="chip one">Not landed</span></span></div>
+        <div class="row"><span class="f">Verdict</span><span><span class="chip unv">No on published rules</span></span></div>
+      </div>
+      <div class="flag">On the authority formula, net registration tax is €7,960–€12,740. Budget is tight or over.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="car"></div><div><span class="route"><span class="dot" style="background:var(--c-diy)"></span>Weakest budget case</span><span class="nm">Summit 2.5T</span></div><span class="pr">€19,870</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Exporter asks</span><span>4 vans, €19,150–€21,040</span></div>
+        <div class="row"><span class="f">CO₂</span><span>148 Japanese, 176–184 authority formula</span></div>
+        <div class="row"><span class="f">Priced lines</span><span>€26,622–€30,342 <span class="chip one">Not landed</span></span></div>
+        <div class="row"><span class="f">Verdict</span><span><span class="chip unv">No on published rules</span></span></div>
+      </div>
+      <div class="flag">Only 4 listings. On the authority formula, net registration tax is €14,120–€21,480.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="car"></div><div><span class="route"><span class="dot" style="background:var(--c-pi)"></span>Other route</span><span class="nm">Van already in Lithuania</span></div><span class="pr">€14,900+</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Ads</span><span>102 candidates, mostly still in Japan or North America</span></div>
+        <div class="row"><span class="f">Registered</span><span>1 ad says so</span></div>
+        <div class="row"><span class="f">Duty</span><span>None expected inside the EU</span></div>
+        <div class="row"><span class="f">Verdict</span><span><span class="chip unv">Not a proven shortcut</span></span></div>
+      </div>
+      <div class="flag">A Lithuanian national approval is not valid in the home country for this van.</div>
+    </article>
+  </div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Channel</th><th>Found</th><th class="r">Price</th><th>Catch</th></tr></thead>
+      <tbody>
+        <tr><td>Japan, VanLister via exporter</td><td>233 vans, 2023+</td><td class="r">€13,480–€27,960</td><td>Needs individual approval from the registration authority</td></tr>
+        <tr><td>Lithuania, CampMart</td><td>102 ads</td><td class="r">€14,500–€34,900</td><td>Few vans in Lithuania</td></tr>
+        <tr><td>Poland, VanBazaar</td><td>5 used, 2023</td><td class="r">€22,400–€27,900</td><td>US vans, all with accident flags</td></tr>
+        <tr><td>Czechia, AutoCamp CZ</td><td>1 hybrid, 2022</td><td class="r">€24,100</td><td>Pre-facelift, US market</td></tr>
+        <tr><td>Serbia, Halden price list</td><td>2.5 GDi, new</td><td class="r">RSD 3,150,000</td><td>No reference rate, not Summit</td></tr>
+        <tr><td>Türkiye, Halden site</td><td>2.5 GDI, 2.0 hybrid, new</td><td class="r">₺1,890,000–₺2,150,000</td><td>No reference rate, stock unknown</td></tr>
+        <tr><td>Chile, press report</td><td>2.0 hybrid, new, 2023</td><td class="r">€58,300–€63,900</td><td>Old prices, outside Europe</td></tr>
+        <tr><td>Morocco, Halden site</td><td>Trekker, spec unknown</td><td class="r">MAD 645,000</td><td>Facelift not shown</td></tr>
+        <tr><td>Home-market and EU portals, Croatia</td><td>No match</td><td class="r">–</td><td>Snapshot only</td></tr>
+        <tr><td>Brazil, Georgia, Albania</td><td>Not in line-up</td><td class="r">–</td><td>Private imports not checked</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Variant</th><th class="c">Published rules</th><th class="c">If authority accepts Japanese certificate</th><th class="c">FA before 4 Sep 2023</th><th class="c">FA from 4 Sep 2023</th><th>Fits €30,000</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:var(--c-used)"></span>Hybrid 2.0</td><td class="c"><span class="chip unv">No</span></td><td class="c"><span class="chip one">Yes with conditions</span></td><td class="c sq">~</td><td class="c sq">~ higher risk</td><td>Best chance, not proven</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-new)"></span>Petrol 2.0</td><td class="c"><span class="chip unv">No</span></td><td class="c"><span class="chip one">Yes with conditions</span></td><td class="c sq">~</td><td class="c sq">~ higher risk</td><td>Tight or over</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-diy)"></span>Summit 2.5T</td><td class="c"><span class="chip unv">No</span></td><td class="c"><span class="chip one">Yes with conditions</span></td><td class="c sq">~</td><td class="c sq">~ higher risk</td><td>Least likely</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sq">~</b> passes only if the conditions below are met</span><span>FA = date of first admission</span></div>
+
+  <div class="card tw">
+    <table class="wr1">
+      <thead><tr><th>Blocker</th><th class="c">Hybrid 2.0</th><th class="c">Petrol 2.0</th><th class="c">Summit 2.5T</th><th>Who decides</th></tr></thead>
+      <tbody>
+        <tr><td>Emissions: rule asks for a regional certificate (type-plate sticker)</td><td class="c sn">✗</td><td class="c sn">✗</td><td class="c sn">✗</td><td>Registration authority</td></tr>
+        <tr><td>Emergency braking and lane keeping, FA from 4 Sep 2023</td><td class="c sq">~</td><td class="c sq">~</td><td class="c sq">~</td><td>Registration authority</td></tr>
+        <tr><td>ESC proof</td><td class="c sq">~</td><td class="c sq">~</td><td class="c sq">~</td><td>Registration authority</td></tr>
+        <tr><td>eCall, FA from 4 Mar 2026</td><td class="c sq">~</td><td class="c sq">~</td><td class="c sq">~</td><td>Registration authority</td></tr>
+        <tr><td>Lights, mirrors, horn, tyres, noise</td><td class="c sq">~</td><td class="c sq">~</td><td class="c sq">~</td><td>Registration authority</td></tr>
+        <tr><td>Origin proof for 0% duty, else 8%</td><td class="c sq">~</td><td class="c sq">~</td><td class="c sq">~</td><td>Customs, exporter</td></tr>
+        <tr><td>Battery registration and fee</td><td class="c sq">~</td><td class="c muted">–</td><td class="c muted">–</td><td>Waste agency</td></tr>
+        <tr><td>Net registration tax on authority formula</td><td class="c" style="white-space:nowrap">€3,190–€5,420</td><td class="c" style="white-space:nowrap">€7,960–€12,740</td><td class="c" style="white-space:nowrap">€14,120–€21,480</td><td>Registration authority, tax authority</td></tr>
+        <tr><td>Thin price sample</td><td class="c muted">–</td><td class="c muted">–</td><td class="c sq">~ 4 vans</td><td>Market</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sn">✗</b> blocks on published rules</span><span><b class="sq">~</b> open condition</span><span><b class="muted">–</b> does not apply</span></div>
+</section>
+
+<!-- ROUTE -->
+<section class="panel" id="p-rt" role="tabpanel" aria-labelledby="t-rt" hidden>
+  <div class="card">
+    <h2>Route from Japan</h2>
+    <p class="sub">Parties, time and cost where the sources give them.</p>
+    <div class="flow"><span class="chip">Buy</span>→<span class="chip">Ship</span>→<span class="chip">Customs</span>→<span class="chip">Approval</span>→<span class="chip">Tax</span>→<span class="chip">Plates</span></div>
+    <div class="steps" style="margin-top:8px">
+      <div class="step"><span class="n">1</span><div><h3>Buy in Japan</h3><div class="kv">
+        <span class="k">Who</span><span>Japanese exporter, VanLister dealer</span>
+        <span class="k">Time</span><span>Not given</span>
+        <span class="k">Cost</span><span>Van €13,480–€27,960. Dealer fee €240–€310. Deposit €290–€380. Deregistration €12. Export logistics €150–€290.</span>
+        <span class="k">Papers</span><span>Registration and export papers, invoice, emissions evidence per VIN, origin statement.</span></div></div></div>
+      <div class="step"><span class="n">2</span><div><h3>Ship</h3><div class="kv">
+        <span class="k">Who</span><span>Exporter, shipping line</span>
+        <span class="k">Time</span><span>RoRo about 30 days at sea, up to 50 with handling. Container about 60, up to 80. Figures for Japan to Lithuania.</span>
+        <span class="k">Cost</span><span><span class="chip unv">No quote</span> Insurance benchmark: 1.1% of FOB.</span></div></div></div>
+      <div class="step"><span class="n">3</span><div><h3>Customs</h3><div class="kv">
+        <span class="k">Who</span><span>Customs</span>
+        <span class="k">Time</span><span>Not given</span>
+        <span class="k">Cost</span><span>Duty 0% with origin statement, else 8% of CIF. VAT 19% of CIF plus duty.</span>
+        <span class="k">Rule</span><span>Above €7,500 the exporter needs a registered exporter number.</span></div></div></div>
+      <div class="step"><span class="n">4</span><div><h3>Approval</h3><div class="kv">
+        <span class="k">Who</span><span>Registration authority, national test centre</span>
+        <span class="k">Time</span><span>Not given. The authority says tests can take time.</span>
+        <span class="k">Cost</span><span>€1,180–€1,980 with registration, card and inspection. You pay if the van fails.</span>
+        <span class="k">Rule</span><span>Decision per car. No precedent for the next van.</span></div></div></div>
+      <div class="step"><span class="n">5</span><div><h3>Registration tax</h3><div class="kv">
+        <span class="k">Who</span><span>Tax authority, on the authority CO₂ figure</span>
+        <span class="k">Time</span><span>Not given</span>
+        <span class="k">Cost</span><span>Net €3,190–€21,480 on the authority formula, by variant and age.</span></div></div></div>
+      <div class="step"><span class="n">6</span><div><h3>Plates and road tax</h3><div class="kv">
+        <span class="k">Who</span><span>Registration authority, insurer, tax authority</span>
+        <span class="k">Time</span><span>Not given</span>
+        <span class="k">Cost</span><span><span class="chip unv">Not priced</span> Plates, insurance, road tax.</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Route via Lithuania</h2>
+    <p class="sub">Buy a van that is already registered in the EU.</p>
+    <div class="rows glist">
+      <div class="row"><span>Lithuanian national approval is valid in Lithuania only (EU type-approval rules).</span><span class="who"><span class="chip unv">Not portable</span></span></div>
+      <div class="row"><span>The authority intake takes the original registration certificate. A fresh approval may still apply.</span><span class="who">Ask authority in writing</span></div>
+      <div class="row"><span>Test fee if the authority wants a new approval, vans built from 1 Mar 2023.</span><span class="who">€1,840</span></div>
+      <div class="row"><span>Import duty on a car already released in the EU.</span><span class="who">None expected</span></div>
+      <div class="row"><span>VAT or margin scheme on the Lithuanian invoice.</span><span class="who"><span class="chip unv">Unknown</span></span></div>
+      <div class="row"><span>Registration tax is still due at home.</span><span class="who">Same as Japan route</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">13 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could make it a no</h3>
+    <div class="rows glist">
+      <div class="row"><span>Will the authority accept Japanese emissions certification under its foreign-standard clause?</span><span class="who">Ask authority</span></div>
+      <div class="row"><span>Do Japanese emergency braking and lane keeping pass the assist rules? If not, will Halden disable them per VIN?</span><span class="who">Ask authority, Halden</span></div>
+      <div class="row"><span>Does Japanese eCall meet the rule for a FA from 4 Mar 2026?</span><span class="who">Ask authority</span></div>
+      <div class="row"><span>Will the authority transfer a Lithuanian registration without a new approval?</span><span class="who">Ask authority</span></div>
+    </div>
+    <h3 class="gh">Could change the cost</h3>
+    <div class="rows glist">
+      <div class="row"><span>Freight to the home port, marine insurance, port and clearance.</span><span class="who">Ask the exporter</span></div>
+      <div class="row"><span>Origin statement and registered exporter number for 0% duty.</span><span class="who">Ask Customs, exporter</span></div>
+      <div class="row"><span>Which CO₂ figure counts for registration tax. With no figure, petrol counts as 500 g/km: gross tax about €231,400.</span><span class="who">Ask authority</span></div>
+      <div class="row"><span>Authority mass for the formula. Japanese curb weight used as floor, +90 kg as test. Cylinder count not verified.</span><span class="who">Ask authority</span></div>
+      <div class="row"><span>Hybrid battery fee. Chemistry and weight not known.</span><span class="who">Waste agency</span></div>
+      <div class="row"><span>Which lamps, mirrors, horn, tyres or noise items need changes.</span><span class="who">Ask authority</span></div>
+      <div class="row"><span>VAT scheme on a Lithuanian dealer invoice.</span><span class="who">Ask the dealer</span></div>
+    </div>
+    <h3 class="gh">After import</h3>
+    <div class="rows glist">
+      <div class="row"><span>Parts, Halden dealer service, diagnostics, insurance and resale at home.</span><span class="who">No source found</span></div>
+    </div>
+    <h3 class="gh">Not searched</h3>
+    <div class="rows glist">
+      <div class="row"><span>Two EU portals, a regional forum, Halden sites for three more markets.</span><span class="who">Sites unreachable</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Registration authority: approval of a van from outside the EU, fees</td><td class="r muted">19 May</td></tr>
+        <tr id="src-2"><td>2</td><td>Authority rulebooks 2023–2026: emissions, assists, eCall</td><td class="r muted">19 May</td></tr>
+        <tr id="src-3"><td>3</td><td>Registration authority: import from inside the EU</td><td class="r muted">19 May</td></tr>
+        <tr id="src-4"><td>4</td><td>Customs notice: EU–Japan origin</td><td class="r muted">19 May</td></tr>
+        <tr id="src-5"><td>5</td><td>Tax authority: registration tax tariff, depreciation table</td><td class="r muted">19 May</td></tr>
+        <tr id="src-6"><td>6</td><td>VanLister raw listings: hybrid and petrol</td><td class="r muted">19 May</td></tr>
+        <tr id="src-7"><td>7</td><td>Spec database, Japanese market: mass, power, CO₂</td><td class="r muted">19 May</td></tr>
+        <tr id="src-8"><td>8</td><td>Exporter fee pages: three exporters</td><td class="r muted">19 May</td></tr>
+        <tr id="src-9"><td>9</td><td>Port agent: import and shipping pages</td><td class="r muted">19 May</td></tr>
+        <tr id="src-10"><td>10</td><td>CampMart, 6 pages, 118 ads; one importer site</td><td class="r muted">19 May</td></tr>
+        <tr id="src-11"><td>11</td><td>VanBazaar, AutoCamp CZ, two EU portals</td><td class="r muted">19 May</td></tr>
+        <tr id="src-12"><td>12</td><td>Halden sites: RS, TR, MA, CL, GE, EU</td><td class="r muted">19 May</td></tr>
+        <tr id="src-13"><td>13</td><td>EU type-approval, emissions and battery regulations</td><td class="r muted">19 May</td></tr>
+        <tr id="src-14"><td>14</td><td>Recycling scheme and waste agency: battery rules</td><td class="r muted">19 May</td></tr>
+        <tr id="src-15"><td>15</td><td>Central bank reference rates</td><td class="r muted">17 May</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">3 variants, 2 routes. Ranked on legal feasibility, then landed cost. Lead review changed the headline to probably no.</p>
+</div>
+
+<script>
+var ILL={car:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 28v-4l6-2 6-6h12l6 6 8 1.5V28"/><path d="M3 28h4M16 28h11M36 28h5"/><circle cx="11.5" cy="28.5" r="3.5"/><circle cx="31.5" cy="28.5" r="3.5"/><path d="M15 21.5l4-4h4v4zM25 17.5h2l4 4h-6z"/></svg>'};
+document.querySelectorAll('[data-ill]').forEach(function(e){e.innerHTML=ILL[e.dataset.ill].replace(/width="44" height="44"/,'width="34" height="34"')});
+function fm(v){var d=v%1?2:0;return '€'+v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function k(v){return (v/1000).toFixed(1).replace('.0','')+'k'}
+
+// range waterfalls
+(function(){
+ var V=[['Hybrid 2.0',14210,25880,480,2510,16272,30982],['Petrol 2.0',13480,27960,3520,10240,18582,40792],['Summit 2.5T',19150,21040,5890,6710,26622,30342]];
+ var MX=42000;function x(v){return v/MX*100}
+ var out='';
+ V.forEach(function(r){
+  var lines=[['Van, exporter ask',r[1],r[2]],['Dealer fee',240,310],['Deregistration',12,12],['Export logistics',150,290],['Reg. tax, Japanese CO₂',r[3],r[4]],['Authority fees',1180,1980]];
+  var lo=0,hi=0,h='<h3 class="wfh">'+r[0]+'</h3><div class="wf">';
+  lines.forEach(function(l){var a=lo;lo+=l[1];var sp=l[2]-l[1];hi+=l[2];
+   h+='<div class="wr"><span class="nm">'+l[0]+'</span><div class="tr"><span class="s" style="left:'+x(a)+'%;width:'+(x(lo)-x(a))+'%"></span>'+(sp>0?'<span class="x" style="left:'+x(lo)+'%;width:'+x(sp)+'%"></span>':'')+'<span class="bud" style="left:'+x(28000)+'%"></span></div><span class="v">'+(l[1]===l[2]?fm(l[1]):fm(l[1])+'–'+fm(l[2]))+'</span></div>';});
+  h+='<div class="wr tot"><span class="nm">Priced subtotal</span><div class="tr"><span class="s" style="left:0;width:'+x(r[5])+'%"></span><span class="x" style="left:'+x(r[5])+'%;width:'+(x(r[6])-x(r[5]))+'%"></span><span class="bud" style="left:'+x(28000)+'%"></span></div><span class="v">'+fm(r[5])+'–'+fm(r[6])+'</span></div>';
+  h+='<div class="wr axr"><span></span><div class="ax">';[0,10000,20000,30000,40000].forEach(function(t){h+='<span'+(t==0?' class="e0"':'')+' style="left:'+x(t)+'%">€'+k(t)+'</span>';});h+='</div><span></span></div></div>';
+  out+=h;});
+ document.getElementById('wfs').innerHTML=out;
+})();
+
+// range rows helper: rows [name, lo, hi, median|null, colour, valueText] or ['#Group']
+function rr(id,rows,min,max,ticks,tf,bud){
+ var h='';function x(v){return (v-min)/(max-min)*100}
+ rows.forEach(function(r){
+  if(typeof r==='string'){h+='<h3 class="gh">'+r+'</h3>';return;}
+  h+='<span class="nm">'+r[0]+'</span><div class="tr"><span class="b" style="left:'+x(r[1])+'%;width:'+(x(r[2])-x(r[1]))+'%;background:'+r[4]+'"></span>';
+  if(r[3]!=null)h+='<span class="m" style="left:'+x(r[3])+'%;background:'+r[4]+'"></span>';
+  if(bud)h+='<span class="bud" style="left:'+x(bud)+'%"></span>';
+  h+='</div><span class="v">'+r[5]+'</span>';});
+ h+='<span></span><div class="ax">';ticks.forEach(function(t){h+='<span class="'+(t==min?'e0':t==max?'e1':'')+'" style="left:'+x(t)+'%">'+tf(t)+'</span>';});
+ document.getElementById(id).innerHTML=h+'</div><span></span>';
+}
+var U='var(--c-used)',N='var(--c-new)',D='var(--c-diy)',P='var(--c-pi)',G='var(--ink-3)';
+rr('asks',['Japan, VanLister',
+ ['Hybrid 2.0 · 68',14210,25880,18340,U,'€18,340'],['Petrol 2.0 · 161',13480,27960,18120,N,'€18,120'],['Summit 2.5T · 4',19150,21040,19870,D,'€19,870'],
+ 'Lithuania, CampMart',
+ ['2.0 LPG · 88',15200,34900,20100,G,'€20,100'],['Hybrid 2.0 · 6',14500,28900,22800,U,'€22,800'],['1.6T · 5',19100,23400,19900,G,'€19,900'],['Petrol 2.0 · 2',19900,25800,22850,N,'€22,850'],['Summit 2.5 · 1',24400,24400,24400,D,'€24,400'],
+ 'Poland, VanBazaar, US vans',
+ ['2023, used · 5',22400,27900,24800,G,'€24,800']],10000,40000,[10000,20000,30000,40000],function(t){return '€'+k(t)},28000);
+rr('co2',[['Hybrid, Japanese',78,96,null,P,'78–96'],['Hybrid, authority',120,131,null,D,'120–131'],['Petrol, Japanese',129,139,null,P,'129–139'],['Petrol, authority',155,161,null,D,'155–161'],['Summit, Japanese',148,148,null,P,'148'],['Summit, authority',176,184,null,D,'176–184']],60,200,[60,100,150,200],function(t){return t});
+rr('bpm',[['Hybrid, Japanese',480,2510,null,P,'€0.5–2.5k'],['Hybrid, authority',3190,5420,null,D,'€3.2–5.4k'],['Petrol, Japanese',3520,10240,null,P,'€3.5–10.2k'],['Petrol, authority',7960,12740,null,D,'€8.0–12.7k'],['Summit, Japanese',5890,6710,null,P,'€5.9–6.7k'],['Summit, authority',14120,21480,null,D,'€14.1–21.5k']],0,25000,[0,10000,20000],function(t){return '€'+k(t)});
+
+// donuts
+function donut(id,lid,d,label){
+ var s=document.getElementById(id),tot=0,r=56,circ=2*Math.PI*r,off=0,h='',l='';d.forEach(function(x){tot+=x[1]});
+ d.forEach(function(x){var len=x[1]/tot*circ,gap=Math.min(3,len*.4);
+  h+='<circle cx="75" cy="75" r="'+r+'" fill="none" stroke="'+x[2]+'" stroke-width="18" stroke-dasharray="'+(len-gap)+' '+(circ-len+gap)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;
+  l+='<span><span class="dot" style="background:'+x[2]+'"></span>'+x[0]+'<b>'+x[1]+'</b></span>';});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">'+label+'</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">'+tot+'</text>';
+ s.innerHTML=h;document.getElementById(lid).innerHTML=l;
+}
+donut('d1','l1',[['Petrol 2.0',161,N],['Hybrid 2.0',68,U],['Summit 2.5T',4,D]],'listings');
+donut('d2','l2',[['2.0 LPG',88,G],['Hybrid 2.0',6,U],['1.6T',5,P],['Petrol 2.0',2,N],['Summit 2.5',1,D]],'ads');
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Used hatchback shortlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+
+/* ---- added components (built from the tokens above) ---- */
+.hb .v{white-space:nowrap}
+.end-note{margin:20px 0 0;color:var(--ink-2)}
+.card h3{font-size:var(--fs-m);font-weight:500;margin:0 0 10px}
+
+/* test result bars: one small hbar per discipline */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.three .hb{grid-template-columns:92px 1fr}
+
+/* dense matrix */
+table.dense th,table.dense td{padding:12px 12px;white-space:nowrap}
+table.dense th:first-child,table.dense td:first-child{padding-left:20px}
+
+/* shop table */
+td .chip{margin-left:8px}
+.tw .note td{font-size:var(--fs-s);color:var(--ink-3);text-align:center}
+
+/* cost breakdown */
+.bill{display:grid;grid-template-columns:150px 1fr 90px;gap:12px 14px;align-items:center;font-size:var(--fs-s)}
+.bill .nm{color:var(--ink-2)}
+.bill .stk{display:flex;gap:3px;height:14px}
+.bill .stk span{border-radius:4px;flex:none}
+.bill .tot{text-align:right;font-size:var(--fs-m);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bill .tot.pk{color:var(--teal)}
+.lines{margin-top:18px;border-top:1px solid var(--rule)}
+.lines .row{grid-template-columns:1fr auto}
+.lines .row .a{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lines .row.sum span{font-weight:500}
+
+/* checklist */
+.ck{border-top:1px solid var(--rule)}
+.ck label{display:grid;grid-template-columns:20px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);cursor:pointer;align-items:start}
+.ck label:last-child{border-bottom:0}
+.ck input{accent-color:var(--teal);width:16px;height:16px;margin:4px 0 0}
+.ck input:checked+span{color:var(--ink-3);text-decoration:line-through}
+.ck .w{display:block;font-size:var(--fs-s);color:var(--ink-3);text-decoration:none}
+
+/* option card extras */
+.opt .ask{margin:0 16px 16px;font-size:var(--fs-s);color:var(--ink-2)}
+.opt .ask h3{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:12px 0 4px}
+.opt .ask ol{margin:0;padding-left:18px}
+.opt .ask li{padding:2px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* km record track */
+.km{display:grid;grid-template-columns:90px 1fr 64px;gap:14px 14px;align-items:center;font-size:var(--fs-s)}
+.km .nm{color:var(--ink-2)}
+.km .nm.pk{color:var(--teal);font-weight:500}
+.km .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.km .seg2{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.km .tk{position:absolute;top:-3px;width:2px;height:16px;margin-left:-1px;border-radius:1px;background:var(--ink)}
+.km .tk.miss{background:var(--red)}
+.km .tk.insp{background:var(--ink-3)}
+.km .v{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.km .ax{position:relative;height:18px;color:var(--ink-3)}
+.km .ax span{position:absolute;transform:translateX(-50%)}
+.tkl{display:inline-block;width:2px;height:12px;border-radius:1px;background:var(--ink)}
+
+/* message blocks */
+.msg{padding:0;overflow:hidden}
+.msg .mh{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--rule)}
+.msg .mh .sp{flex:1}
+.msg .mh .t{font-weight:500}
+.msg .mh .muted{font-size:var(--fs-s);display:block}
+.msg .mb{margin:16px;padding:14px 16px;background:var(--soft);border-radius:var(--r-md);white-space:pre-wrap;line-height:1.6}
+.btn.done{color:var(--teal);border-color:var(--teal)}
+
+@media (max-width:720px){
+  .three{grid-template-columns:1fr}
+  .hb.wr .nm{white-space:normal;line-height:1.3}
+  .bill{grid-template-columns:96px 1fr 76px}
+  .km{grid-template-columns:70px 1fr 48px;gap:14px 10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 14 Mar 2027</div>
+    <h1>Used hatchback shortlist</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Buy NX-482-RT in Oakmere, €13,090 with 12 months trade-association warranty.</mark> The <a class="ref" data-src="3">origin-country register</a> shows a full dealer history and a consistent odometer.</p>
+  <p>Nobody has checked the timing chain on a cold start or the brakes yet. The <a class="ref" data-src="1">inspection</a> expired, so put a new inspection in the contract.</p>
+  <p>First decide on boot space: <mark>regular petrol has 340 L, the <a class="ref" data-src="7">mild hybrid</a> 255 L.</mark> Then book a test drive.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-msg" id="t-msg">Messages</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Asking price and mileage</h2>
+    <p class="sub">6 cars. Asking price without extra warranty. Ring = pick.</p>
+    <svg id="scat" width="100%" height="270" role="img" aria-label="Asking price against km"></svg>
+    <div class="legend" style="margin-top:12px">
+      <span><span class="dot" style="background:var(--c-pi)"></span>Regular petrol</span>
+      <span><span class="dot" style="background:var(--c-new)"></span>Mild hybrid</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Service record by km</h2>
+    <p class="sub">From the paperwork. Right column = km in the listing.</p>
+    <div class="km" id="km"></div>
+    <div class="legend" style="margin-top:16px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Documented</span>
+      <span><span class="dot" style="background:var(--red)"></span>No record</span>
+      <span><span class="dot" style="background:var(--c-mute)"></span>Since last record</span>
+      <span><span class="tkl"></span>Service or reading</span>
+      <span><span class="tkl" style="background:var(--red)"></span>Service missing</span>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Price with warranty</h2>
+      <p class="sub">Dot = asking price. End = with the dealer's warranty offer.</p>
+      <svg id="dumb" width="100%" height="250" role="img" aria-label="Asking price and price with warranty"></svg>
+    </div>
+    <div class="card">
+      <h2>Engine type</h2>
+      <p class="sub">Per the vehicle register, not per listing.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Engine type"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-pi)"></span>Regular petrol<b>3</b></span>
+          <span><span class="dot" style="background:var(--c-new)"></span>Mild hybrid<b>3</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="end-note">Next step: decide how much boot space you need, then book a test drive for NX-482-RT.</p>
+</section>
+
+<!-- OPTIONS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid" id="opts"></div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table class="dense">
+      <thead><tr><th>Car</th><th class="r">Asking</th><th class="r">km</th><th class="c">Full history</th><th class="c">Odometer checks out</th><th class="c">No rental use</th><th class="c">Chain and brakes</th><th class="c">Warranty</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> yes</span><span><b class="sq">~</b> partly</span><span><b class="sq">?</b> not found</span><span><b class="sn">✗</b> no, or a known problem</span></div>
+
+  <div class="card tw">
+    <div style="padding:16px 20px 4px"><h2 style="font-size:18px;font-weight:500;margin:0">Vehicle register data</h2><p class="sub" style="margin:2px 0 0">Captured 4 Mar 2027. NVD-63-H on 13 Mar.</p></div>
+    <table class="dense">
+      <thead><tr><th>Plate</th><th>First registration</th><th>First in country</th><th>Inspection expiry</th><th class="r">Catalogue price</th><th class="c">Open recall</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td><b>NX-482-RT</b></td><td>12 Apr 2021</td><td>18 Nov 2026</td><td><span class="chip unv">Expired 12 Apr 2025</span></td><td class="r">€19,880</td><td class="c sy">None</td></tr>
+        <tr><td>T-715-LK</td><td>14 Aug 2023</td><td>14 Aug 2023</td><td>14 Aug 2027</td><td class="r">€20,640</td><td class="c sy">None</td></tr>
+        <tr><td>T-208-WB</td><td>2 Jul 2022</td><td>2 Jul 2022</td><td>2 Jul 2028</td><td class="r">€22,110</td><td class="c sq">None, see Gaps</td></tr>
+        <tr><td>K-946-SD</td><td>19 Sep 2021</td><td>19 Sep 2021</td><td>30 Apr 2028</td><td class="r">€20,370</td><td class="c sy">None</td></tr>
+        <tr><td>PZR-27-F</td><td>11 Feb 2023</td><td>3 Sep 2025</td><td>17 Nov 2028</td><td class="r">€24,260</td><td class="c sy">None</td></tr>
+        <tr><td>NVD-63-H</td><td>6 Apr 2021</td><td>22 Jan 2025</td><td><span class="chip one">28 Mar 2027</span></td><td class="r muted">Not captured</td><td class="c sy">None</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="margin:0;font-size:12px">An import keeps its inspection cycle from the first registration abroad. NX-482-RT gets a new inspection at delivery.</p>
+
+  <div class="card tw">
+    <div style="padding:16px 20px 4px"><h2 style="font-size:18px;font-weight:500;margin:0">Regular petrol or mild hybrid</h2><p class="sub" style="margin:2px 0 0">1.0 turbo manual. Not a deciding factor.</p></div>
+    <table class="dense">
+      <thead><tr><th></th><th>Regular petrol</th><th>Mild hybrid</th></tr></thead>
+      <tbody>
+        <tr><td>Power</td><td>70 kW (95 hp)</td><td>70 kW, plus 10.5 kW starter-generator</td></tr>
+        <tr><td>Torque, 0–100 km/h</td><td>165 Nm, 10.9 s</td><td>165 Nm, 10.9 s</td></tr>
+        <tr><td>Gearbox</td><td>6-speed manual, cable clutch</td><td>6-speed e-clutch, electronic clutch</td></tr>
+        <tr><td>WLTP fuel use</td><td>5.4 L/100 km</td><td>5.3 L/100 km</td></tr>
+        <tr><td>WLTP CO2</td><td>123–124 g/km</td><td>120 g/km</td></tr>
+        <tr><td>Empty weight</td><td>1,030 kg</td><td>1,052 kg</td></tr>
+        <tr class="pick"><td><b>Boot</b></td><td><b>340 L</b></td><td>255 L, battery under the floor</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MESSAGES -->
+<section class="panel" id="p-msg" role="tabpanel" aria-labelledby="t-msg" hidden>
+  <article class="card msg">
+    <div class="mh"><div><span class="t">Shortlist update</span><span class="muted">To Sam · 4 Mar</span></div><span class="sp"></span><button class="btn cp" type="button">Copy</button></div>
+<div class="mb">Best pick: the Oakmere car (NX-482-RT). 2021, 68,000 km. It came from abroad, where it was always serviced at a Kestrel dealer. I checked the origin-country records: it passed its last inspection with no faults, and the mileage adds up. €13,090 with a 1-year warranty.
+
+Second: the Brenford car (T-715-LK). 2023, about 94,000 km. A former lease car with most of its service history.
+
+Third: the Hallow Cross car (T-208-WB). 2022, 87,000 km. It has had a few owners, and the seller shows no service history. We'd need to ask for it.
+
+No: the 2023 car from Marlow Motors (PZR-27-F). It was a rental car abroad and has had a lot of repairs.</div>
+  </article>
+  <article class="card msg">
+    <div class="mh"><div><span class="t">Mild hybrid or normal petrol</span><span class="muted">To Sam · 4 Mar</span></div><span class="sp"></span><button class="btn cp" type="button">Copy</button></div>
+<div class="mb">The mild hybrid has a small extra battery and a small electric motor. It's not a "real" hybrid: it can't drive on electricity. It only helps the petrol engine a little when you pull away, and lets the engine switch off for a moment when you take your foot off the gas.
+
+Driving: you won't notice a difference. Same power, same speed, same 0–100 time.
+
+Fuel: the hybrid saves very little, about 12 litres a year for normal driving.
+
+Downsides of the hybrid:
+- The battery sits under the boot floor, so the boot is about a quarter smaller (255 litres instead of 340).
+- More parts that can break once the car is out of warranty: the battery, the electric motor and the clutch, which is worked by electronics on the hybrid.
+
+Conclusion: the hybrid isn't worth choosing a car for. If boot space matters to us, normal petrol is better.</div>
+  </article>
+  <article class="card msg">
+    <div class="mh"><div><span class="t">Dealer questions</span><span class="muted">For any new listing</span></div><span class="sp"></span><button class="btn cp" type="button">Copy</button></div>
+<div class="mb">1. Can you send the full service history (Kestrel service passport or invoices) and the mileage-check report?
+2. What is the VIN?
+3. How many owners, and was the car ever a rental or lease car?
+4. Does the price include a new inspection, a service and trade-association warranty? What is the price with that warranty?
+5. When were the brakes and the timing chain last done?</div>
+  </article>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">12 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the pick</h3>
+    <div class="rows glist">
+      <div class="row"><span>NX-482-RT: chain noise on a cold start, and the brakes.</span><span class="who">Test drive</span></div>
+      <div class="row"><span>T-208-WB: service history. None in the listing.</span><span class="who">Ask the dealer</span></div>
+      <div class="row"><span>NVD-63-H: maintenance between 13,800 and 49,200 km. No invoices, 14 Mar.</span><span class="who">Stays unknown</span></div>
+      <div class="row"><span>NVD-63-H: cold start. The engine was warm on the test drive.</span><span class="who">Test drive</span></div>
+      <div class="row"><span>NVD-63-H: does the overdue service affect the warranty? Claim cap and own risk.</span><span class="who">Read the terms</span></div>
+    </div>
+    <h3 class="gh">Could change another option</h3>
+    <div class="rows glist">
+      <div class="row"><span>K-946-SD: warranty options and price.</span><span class="who">Ask the dealer</span></div>
+      <div class="row"><span>T-208-WB: PlateCheck shows 1 open recall, the register shows none.</span><span class="who">Check by VIN</span></div>
+      <div class="row"><span>Does the register's owner count include foreign owners?</span><span class="who">No source found</span></div>
+      <div class="row"><span>Are the listings still for sale?</span><span class="who">Not checked</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>Warranty and price of the mild-hybrid battery locally.</span><span class="who">No source found</span></div>
+      <div class="row"><span>Is every local mild hybrid an e-clutch? Based on variant names only.</span><span class="who">Per car papers</span></div>
+      <div class="row"><span>Market price for a 2023 Sport: from about €13,900 at 40k km.</span><span class="who">Not captured</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>National vehicle register open data per plate: vehicle, fuel, inspection, defects</td><td class="r muted">4 Mar, 13 Mar</td></tr>
+        <tr id="src-2"><td>2</td><td>Listing and paperwork photos from chat</td><td class="r muted">Not stored yet</td></tr>
+        <tr id="src-3"><td>3</td><td>Origin-country plate register, NX-482-RT and NVD-63-H</td><td class="r muted">4 Mar, 13 Mar</td></tr>
+        <tr id="src-4"><td>4</td><td>PlateCheck and AutoRegister, T-208-WB</td><td class="r muted">4 Mar</td></tr>
+        <tr id="src-5"><td>5</td><td>Stanbridge Motors listing, NVD-63-H</td><td class="r muted">13 Mar</td></tr>
+        <tr id="src-6"><td>6</td><td>Kestrel service passport, NVD-63-H</td><td class="r muted">14 Mar</td></tr>
+        <tr id="src-7"><td>7</td><td>Mild hybrid vs petrol: vehicle register, Kestrel, two motoring sites</td><td class="r muted">4 Mar</td></tr>
+        <tr id="src-8"><td>8</td><td>Market prices and model facts</td><td class="r muted">Not captured</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">6 cars, 5 ranked. Ranked on history, then mechanical risk, then total price. NVD-63-H added 13 Mar, not ranked yet.</p>
+</div>
+
+<script>
+var C={p:'var(--c-pi)',m:'var(--c-new)'};
+var ILL={car:'<svg width="34" height="34" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 28v-5l4-2 6-6h13l7 6h4l2 3v4h-3"/><path d="M14 28h15"/><circle cx="10" cy="29" r="3.5"/><circle cx="33" cy="29" r="3.5"/><path d="M16 16v5h9v-5M28 21h-3" stroke-linecap="round"/></svg>'};
+function fmt(n){return n.toLocaleString('en-US')}
+
+// cars: plate, place, engine, km, asking, with-warranty [lo,hi], rank
+var CARS=[['NX-482-RT','Oakmere','p',68412,12450,[13090],1],['T-715-LK','Brenford','m',94380,12100,null,2],['T-208-WB','Hallow Cross','m',87215,12300,[12850,13150],3],
+ ['K-946-SD','Ferndale','m',99870,12450,null,4],['PZR-27-F','Marlow Motors','p',104560,13400,[14300],5],['NVD-63-H','Stanbridge','p',61930,12900,null,0]];
+
+// scatter
+function drawScat(){var s=document.getElementById('scat'),W=s.parentNode.clientWidth-44;if(W<=0)return;s.setAttribute('viewBox','0 0 '+W+' 270');var x0=66,x1=W-14,y0=226,y1=14;
+ function X(v){return x0+(v-60000)/(115000-60000)*(x1-x0)}function Y(v){return y0-(v-11750)/(13750-11750)*(y0-y1)}
+ var h='';
+ [12000,12500,13000,13500].forEach(function(v){h+='<line x1="'+x0+'" x2="'+x1+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--rule)"/><text x="'+(x0-10)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="12" fill="var(--ink-3)">€'+fmt(v)+'</text>';});
+ (W<500?[60000,80000,100000]:[60000,70000,80000,90000,100000,110000]).forEach(function(v){h+='<text x="'+X(v)+'" y="'+(y0+28)+'" text-anchor="middle" font-size="12" fill="var(--ink-3)">'+(v/1000)+'k km</text>';});
+ var lab={'NX-482-RT':[0,-18,'middle'],'T-715-LK':[0,22,'middle'],'T-208-WB':[-12,4,'end'],'K-946-SD':[0,-14,'middle'],'PZR-27-F':[-12,4,'end'],'NVD-63-H':[0,-14,'middle']};
+ CARS.forEach(function(c){var x=X(c[3]),y=Y(c[4]),l=lab[c[0]];
+  if(c[6]===1)h+='<circle cx="'+x+'" cy="'+y+'" r="11" fill="none" stroke="var(--teal)" stroke-width="2"/>';
+  h+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="'+C[c[2]]+'"/>';
+  h+='<text x="'+(x+l[0])+'" y="'+(y+l[1])+'" text-anchor="'+l[2]+'" font-size="12" fill="'+(c[6]===1?'var(--teal)':'var(--ink-2)')+'"'+(c[6]===1?' font-weight="500"':'')+'>'+c[0]+'</text>';});
+ s.innerHTML=h;}
+
+// km record
+(function(){var M=115000;function p(v){return (v/M*100)+'%'}
+ // segments: [from,to,type] type d=documented, n=no record, s=since last; ticks [km,cls]
+ var R=[['NX-482-RT',68412,[[0,65300,'d'],[65300,68412,'s']],[[14210],[27350],[39880],[53100],[65300]],1],
+  ['NVD-63-H',61930,[[0,13800,'d'],[13800,49200,'n'],[49200,61930,'s']],[[13800],[34000,'insp'],[49200]]],
+  ['T-715-LK',94380,[[0,85000,'d'],[85000,94380,'s']],[[28000,'miss'],[70000,'miss']]],
+  ['T-208-WB',87215,[[0,87215,'n']],[]],
+  ['K-946-SD',99870,[[0,42000,'d'],[42000,99870,'n']],[]],
+  ['PZR-27-F',104560,[[0,104560,'s']],[[27800],[43100],[86000]]]];
+ var col={d:'var(--c-used)',n:'var(--red)',s:'var(--c-mute)'},h='';
+ R.forEach(function(r){h+='<span class="nm'+(r[4]?' pk':'')+'">'+r[0]+'</span><div class="track">';
+  r[2].forEach(function(g){h+='<span class="seg2" style="left:'+p(g[0])+';width:'+p(g[1]-g[0])+';background:'+col[g[2]]+(g[2]==='n'?';opacity:.55':'')+'"></span>';});
+  r[3].forEach(function(t){h+='<span class="tk'+(t[1]?' '+t[1]:'')+'" style="left:'+p(t[0])+'" title="'+fmt(t[0])+' km"></span>';});
+  h+='</div><span class="v">'+Math.round(r[1]/1000)+'k</span>';});
+ h+='<span></span><div class="ax">';[0,25000,50000,75000,100000].forEach(function(v){h+='<span style="left:'+p(v)+'">'+(v/1000)+'k</span>';});
+ document.getElementById('km').innerHTML=h+'</div><span></span>';})();
+
+// dumbbell asking -> with warranty
+function drawDumb(){var s=document.getElementById('dumb'),W=s.parentNode.clientWidth-44;if(W<=0)return;s.setAttribute('viewBox','0 0 '+W+' 250');var x0=84,x1=W-104;function X(v){return x0+(v-11500)/(14500-11500)*(x1-x0)}
+ var info={'NX-482-RT':'12 mo trade body','T-715-LK':'3 mo incl.','T-208-WB':'12 mo dealer','K-946-SD':'unknown','PZR-27-F':'12 mo trade body','NVD-63-H':'24 mo incl.'};
+ var h='';[11500,12500,13500,14500].forEach(function(v){h+='<line x1="'+X(v)+'" x2="'+X(v)+'" y1="6" y2="214" stroke="var(--rule)"/><text x="'+X(v)+'" y="236" text-anchor="middle" font-size="12" fill="var(--ink-3)">€'+(v/1000)+'k</text>';});
+ CARS.forEach(function(c,i){var y=20+i*36,col=C[c[2]],w=c[5];
+  h+='<text x="0" y="'+(y+4)+'" font-size="12" fill="'+(c[6]===1?'var(--teal)':'var(--ink-2)')+'">'+c[0]+'</text>';
+  if(w){var e=w[w.length-1];h+='<line x1="'+X(c[4])+'" x2="'+X(e)+'" y1="'+y+'" y2="'+y+'" stroke="'+col+'" stroke-width="6" stroke-linecap="round" opacity=".35"/>';
+   w.forEach(function(v){h+='<circle cx="'+X(v)+'" cy="'+y+'" r="5" fill="'+col+'"/>';});}
+  h+='<circle cx="'+X(c[4])+'" cy="'+y+'" r="5" fill="'+col+'"/>';
+  if(c[6]===1)h+='<circle cx="'+X(w[0])+'" cy="'+y+'" r="8" fill="none" stroke="var(--teal)" stroke-width="2"/>';
+  h+='<text x="'+(W)+'" y="'+(y+4)+'" text-anchor="end" font-size="12" fill="var(--ink-3)">'+info[c[0]]+'</text>';});
+ s.innerHTML=h;}
+function redraw(){drawScat();drawDumb();}redraw();
+window.addEventListener('resize',redraw);document.querySelectorAll('.seg button').forEach(function(b){b.addEventListener('click',function(){setTimeout(redraw,0)})});
+
+// donut
+(function(){var s=document.getElementById('donut'),d=[[3,'p'],[3,'m']],tot=6,r=56,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="75" cy="75" r="'+r+'" fill="none" stroke="'+C[x[1]]+'" stroke-width="18" stroke-dasharray="'+(len-3)+' '+(circ-len+3)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">cars</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">6</text>';
+ s.innerHTML=h;})();
+
+// listing cards
+(function(){
+ var O=[
+  ['1 · Best pick','NX-482-RT · Oakmere','€12,450','p',1,[['Car','2021, ex-lease import, Sport'],['km','68,412'],['Dealer','Marcus Hallbery, trade-association member'],['With warranty','€13,090, 12 mo trade-association'],['Inspection','Expired. New inspection at delivery.']],
+   [['ok','Complete, one dealer'],['ok','Consistent'],['ok','Lease, private use']],'Chain on a cold start and the brakes are not checked yet.',
+   ['Put the new inspection and the pre-delivery service in the contract.','When were the brakes and the timing chain last done?','Can we start it cold, after a night standing?']],
+  ['2 · Good option','T-715-LK · Brenford','€12,100','m',0,[['Car','2023, local ex-lease (a leasing company), Sport'],['km','94,380'],['Dealer','Corbin Auto'],['With warranty','3 mo engine and gearbox, included'],['Inspection','14 Aug 2027']],
+   [['one','To 85k, 2 missing'],['','No data'],['ok','Ex-lease, one user']],'No brake work in about 94,000 km. Original chain. Both near due.',
+   ['Can you include a new inspection?','Can you send the 28k and 70k service records?','What is the price with trade-association warranty?']],
+  ['3 · Ask for history','T-208-WB · Hallow Cross','€12,300','m',0,[['Car','2022, local from new, Sport Plus'],['km','87,215'],['Dealer','Pellman Cars'],['With warranty','€12,850–€13,150, dealer\'s own 12 mo'],['Inspection','2 Jul 2028']],
+   [['unv','None shown'],['ok','Register: plausible'],['','3 registrations, VAT car']],'No service history in the listing. PlateCheck shows 1 open recall, the register none.',
+   ['Can you send the Kestrel service passport and the mileage-check report?','What is the VIN? We want to confirm no recall is open.','Was it a lease or business car?']],
+  ['4 · Loud engine','K-946-SD · Ferndale','€12,450','m',0,[['Car','2021, local from new, Sport Plus'],['km','99,870'],['Dealer','Not named'],['With warranty','Unknown'],['Inspection','30 Apr 2028']],
+   [['one','To 42k, then none'],['ok','Consistent'],['','No data']],'Louder than PZR-27-F, also from cold. Likely the original chain. A chain cost €870.50 on PZR-27-F.',
+   ['Which warranty do you offer, and at what price?','Are there service records after 42,000 km?','When was the timing chain last done?']],
+  ['5 · Skip','PZR-27-F · Marlow Motors','€13,400','p',0,[['Car','2023, ex-rental abroad, Sport Plus'],['km','104,560'],['Dealer','Marlow Motors'],['With warranty','€14,300, 12 mo trade-association'],['Inspection','17 Nov 2028']],
+   [['','Not stated'],['','No data'],['unv','Rental fleet']],'€2,940.75 in repairs in 6 months. Front discs warped, pulls right. Trade-in value €9,800 in Jan.',
+   null,'Our ceiling: about €11,500 with warranty and a brake fix.'],
+  ['Not ranked yet','NVD-63-H · Stanbridge','€12,900','p',0,[['Car','2021, ex-lease import, Premium'],['km','61,930'],['Dealer','Fenwick Motorhouse'],['With warranty','24 mo included, terms on request'],['Inspection','Expires 28 Mar 2027']],
+   [['one','Gap 13,800–49,200 km'],['one','Rises, register gives no verdict'],['ok','None found']],'Service due 8 Nov 2026, now overdue. Cold start not heard.',
+   ['Put the new inspection and the 5-year service in the purchase agreement.','Does the overdue service affect the warranty? What is the claim cap and own risk?','What changed on 2 Feb 2027?']]];
+ var lbl=['Service','Odometer','Rental use'],h='';
+ O.forEach(function(o){h+='<article class="card opt'+(o[4]?' pick':'')+'"><div class="oh"><div class="img">'+ILL.car+'</div><div><span class="route"><span class="dot" style="background:'+C[o[3]]+'"></span>'+o[0]+'</span><span class="nm">'+o[1]+'</span></div><span class="pr">'+o[2]+'</span></div><div class="rows">';
+  o[5].forEach(function(r){h+='<div class="row"><span class="f">'+r[0]+'</span><span>'+r[1]+'</span></div>';});
+  o[6].forEach(function(c,i){h+='<div class="row"><span class="f">'+lbl[i]+'</span><span><span class="chip '+c[0]+'">'+c[1]+'</span></span></div>';});
+  h+='</div><div class="flag" style="margin:12px 16px 0">'+o[7]+'</div><div class="ask">';
+  if(o[8]){h+='<h3>Ask the dealer</h3><ol>';o[8].forEach(function(q){h+='<li>'+q+'</li>';});h+='</ol>';}else h+='<h3>Ask the dealer</h3><p style="margin:0">Nothing. '+o[9]+'</p>';
+  h+='</div></article>';});
+ document.getElementById('opts').innerHTML=h;})();
+
+// matrix
+(function(){var S={y:'<td class="c sy">✓</td>',p:'<td class="c sq">~</td>',q:'<td class="c sq">?</td>',n:'<td class="c sn">✗</td>'};
+ var d=[['NX-482-RT','€12,450','68,412','p','yyyqy',1],['T-715-LK','€12,100','94,380','m','pqynp'],['T-208-WB','€12,300','87,215','m','qyqqp'],
+  ['K-946-SD','€12,450','99,870','m','pyqnq'],['PZR-27-F','€13,400','104,560','p','qqnny'],['NVD-63-H','€12,900','61,930','p','ppypy']];
+ var h='';d.forEach(function(r){h+='<tr'+(r[5]?' class="pick"':'')+'><td><span class="dot" style="background:'+C[r[3]]+'"></span>'+(r[5]?'<b>'+r[0]+'</b>':r[0])+'</td><td class="r">'+r[1]+'</td><td class="r">'+r[2]+'</td>'+r[4].split('').map(function(c){return S[c]}).join('')+'</tr>';});
+ document.getElementById('mx').innerHTML=h;})();
+
+// copy buttons
+document.querySelectorAll('.cp').forEach(function(b){b.addEventListener('click',function(){
+ var t=b.closest('.msg').querySelector('.mb').innerText;
+ function ok(){b.textContent='Copied';b.classList.add('done');setTimeout(function(){b.textContent='Copy';b.classList.remove('done')},1600)}
+ function fb(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}document.body.removeChild(a)}
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,fb);else fb();});});
+</script>
+<script>
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>

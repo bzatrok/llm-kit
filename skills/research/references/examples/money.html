@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inflation hedge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+/* ---- additions for this report type (built from the tokens above) ---- */
+/* range and diverging bars: label | track | value */
+.rg{display:grid;grid-template-columns:var(--lw,120px) minmax(0,1fr) auto;gap:8px 12px;align-items:center;font-size:var(--fs-s)}
+.rg .nm{color:var(--ink-2);line-height:1.3}
+.rg .nm.pk{color:var(--teal);font-weight:500}
+.rg .tr{position:relative;height:18px}
+.rg .s{position:absolute;top:5px;height:8px;min-width:3px;border-radius:var(--r-pill)}
+.rg .pt{position:absolute;top:4px;width:10px;height:10px;margin-left:-5px;border-radius:50%}
+.rg .z{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px solid var(--ink-3)}
+.rg .bg{position:absolute;top:5px;left:0;right:0;height:8px;border-radius:var(--r-pill);background:var(--soft)}
+.rg .v{color:var(--ink-2);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rg .v.pk{color:var(--teal);font-weight:500}
+.rg .m{grid-column:2/-1;margin:-4px 0 6px;color:var(--ink-3);display:flex;justify-content:space-between;gap:8px}
+.rg .ax{position:relative;height:18px;color:var(--ink-3)}
+.rg .ax span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.hb .v{white-space:nowrap}
+
+/* date list: vertical timeline */
+.dl{display:grid}
+.dl .it{display:grid;grid-template-columns:120px 20px minmax(0,1fr);column-gap:12px}
+.dl .d{font-size:var(--fs-s);color:var(--ink-3);text-align:right;padding-top:1px;line-height:1.5}
+.dl .it.k .d{color:var(--ink);font-weight:500}
+.dl .ln{position:relative}
+.dl .ln:before{content:"";position:absolute;left:9px;top:0;bottom:0;width:2px;background:var(--rule)}
+.dl .it:first-child .ln:before{top:8px}
+.dl .it:last-child .ln:before{bottom:auto;height:8px}
+.dl .ln:after{content:"";position:absolute;left:4px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--card);border:2px solid var(--c-mute)}
+.dl .it.k .ln:after{border-color:var(--teal);background:var(--teal)}
+.dl .tx{padding-bottom:16px;line-height:1.5}
+.dl .it:last-child .tx{padding-bottom:0}
+.dl .tx .m{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+
+.glist .row>span:first-child .m{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+td .m{display:block;font-size:var(--fs-s);color:var(--ink-3);white-space:normal}
+.mx td{vertical-align:top}
+.mx td.c{text-align:left}
+.mx td.r{white-space:nowrap}
+.next{margin:4px 2px 0;color:var(--ink-2)}
+@media (max-width:720px){
+  .dl .it{grid-template-columns:84px 20px minmax(0,1fr);column-gap:8px}
+  .rg{--lw:92px;gap:8px 8px}
+  .stk .row{grid-template-columns:1fr}
+  .stk .row .who{text-align:left}
+}
+/* time-series charts */
+.ch-h{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.ch-h>div:first-child{flex:1;min-width:0}
+.ch-h .sub{margin-bottom:0}
+.rng{display:inline-flex;gap:2px;background:var(--soft);border-radius:var(--r-pill);padding:2px}
+.rng button{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:0;border-radius:var(--r-pill);padding:3px 10px;cursor:pointer}
+.rng button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.rng button:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.ts{position:relative;min-height:220px;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.ts svg{display:block}
+.ts .halo{paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-sm);box-shadow:var(--shadow);padding:6px 10px;font-size:var(--fs-s);line-height:1.6;white-space:nowrap;z-index:2}
+.tip[hidden]{display:none}
+.tip b{display:block;color:var(--ink)}
+.tip span{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.tip i{font-style:normal;margin-left:auto;padding-left:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.rg.gs{grid-template-columns:var(--lw,120px) minmax(0,1fr) auto 112px}
+.spk{height:28px;min-width:0;overflow:hidden}
+@media (max-width:720px){
+  .rg.gs{grid-template-columns:var(--lw) minmax(0,1fr) auto}
+  .rg.gs .spk{grid-column:2/-1;margin:-2px 0 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 15 Oct 2026</div>
+    <h1>Inflation hedge</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Put €6,000 in an inflation-linked bond ETF, a floating-rate note ETF and a commodity ETC.</mark> No leverage.</p>
+  <p>Risk: <mark>a rate shock cuts the price of the inflation-linked ETF</mark> despite the CPI link (<a class="ref" data-src="1">red team</a>).</p>
+  <p>First buy the <a class="ref" data-src="4">inflation-linked ETF</a> and the FRN ETF on <a class="ref" data-src="3">Quillfolio</a>. Then buy the ETC.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-trg" id="t-trg">Triggers</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="two">
+    <div class="card">
+      <h2>Hedge slice</h2>
+      <p class="sub">€6,000, 10% of the portfolio. Revised 15 Oct, no leverage.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Hedge slice by instrument"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-used)"></span>Inflation-linked ETF<b>€3,200</b></span>
+          <span><span class="dot" style="background:var(--c-pi)"></span>FRN ETF<b>€1,700</b></span>
+          <span><span class="dot" style="background:var(--c-diy)"></span>Commodity ETC<b>€1,100</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Portfolio</h2>
+      <p class="sub">Euro. The slice is 10% of the ~€60.0k total. The core stays invested.</p>
+      <div class="hb" id="pf"></div>
+      <p class="sub" style="margin:16px 0 0">Outside the slice: €2,000–3,000 term-deposit ladder and ~€2–3k in an indexed savings certificate.</p>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Annual carry</h2>
+      <p class="sub">Euro per year if inflation never arrives. Right = you earn.</p>
+      <div class="rg" id="carry"></div>
+    </div>
+    <div class="card">
+      <h2>One-off and regret cost</h2>
+      <p class="sub">Euro. Light part = range.</p>
+      <div class="rg" id="oneoff"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Coverage per scenario</h2>
+    <p class="sub">6 legs, counted from the payoff matrix on the Compare tab.</p>
+    <div id="stack"></div>
+    <div class="legend" style="margin-top:16px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Pays</span>
+      <span><span class="dot" style="background:var(--c-diy)"></span>Partly</span>
+      <span><span class="dot" style="background:var(--c-mute)"></span>Not stated</span>
+      <span><span class="dot" style="background:var(--red)"></span>No</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch-h"><div><h2>Inflation, breakeven and policy rate</h2><p class="sub">Percent, monthly average, to Sep 2026. Breakeven to Aug. Rings: flash estimates of 15 Oct.<span class="src">2, 15–17</span></p></div>
+    <div class="rng" data-for="ch-y" role="group" aria-label="Range"><button type="button" data-r="1y" aria-pressed="false">1y</button><button type="button" data-r="3y" aria-pressed="false">3y</button><button type="button" data-r="all" aria-pressed="true">All</button></div></div>
+    <div class="ts" id="ch-y" aria-label="Inflation, 5-year breakeven and policy rate, monthly, Jan 2019 to Sep 2026"></div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <div class="ch-h"><div><h2>Inflation minus policy rate</h2><p class="sub">Basis points, headline inflation minus policy rate, monthly. Rings: flash estimates.<span class="src">2, 15, 16</span></p></div>
+      <div class="rng" data-for="ch-s" role="group" aria-label="Range"><button type="button" data-r="1y" aria-pressed="false">1y</button><button type="button" data-r="3y" aria-pressed="false">3y</button><button type="button" data-r="all" aria-pressed="true">All</button></div></div>
+      <div class="ts" id="ch-s" aria-label="Inflation minus policy rate in basis points, monthly, Jan 2019 to Sep 2026, with the 200 bp trigger"></div>
+    </div>
+    <div class="card">
+      <div class="ch-h"><div><h2>10-year real yield</h2><p class="sub">Percent, monthly average. Ring: 15 Oct quote.<span class="src">2, 18</span></p></div>
+      <div class="rng" data-for="ch-f" role="group" aria-label="Range"><button type="button" data-r="1y" aria-pressed="false">1y</button><button type="button" data-r="3y" aria-pressed="false">3y</button><button type="button" data-r="all" aria-pressed="true">All</button></div></div>
+      <div class="ts" id="ch-f" aria-label="10-year real yield in percent, monthly average, Jan 2019 to Sep 2026, with the 0.5% trigger"></div>
+    </div>
+  </div>
+
+  <p class="next">Next step: buy the inflation-linked ETF and the FRN ETF on Quillfolio, then the commodity ETC. Open the term-deposit ladder and the savings certificate. The plan was to finish before the vote on 22 Oct 2026.</p>
+</section>
+
+<!-- OPTIONS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="bar"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>Slice · market leg</span><span class="nm">Aldermoor Euro Inflation-Linked 1-10y ETF (ALIL) or Brightwater (BWIL)</span></div><span class="pr">€3,200</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">ISIN</span><span>IE9900456789 / IE9900567890</span></div>
+        <div class="row"><span class="f">Cost</span><span>TER 0.10%, €1 commission<span class="src">3</span></span></div>
+        <div class="row"><span class="f">Holds</span><span>Index-linked government bonds, audited<span class="src">4</span></span></div>
+        <div class="row"><span class="f">Access</span><span>Quillfolio core list <span class="chip ok">Verified</span></span></div>
+      </div>
+      <div class="flag">Red team: in a rate shock the price falls despite the CPI link. It hedges A and mild B.</div>
+    </article>
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="bill"></div><div><span class="route"><span class="dot" style="background:var(--c-pi)"></span>Slice · market leg</span><span class="nm">EUR floating-rate note ETF</span></div><span class="pr">€1,700</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Fund</span><span>Brightwater BFRN IE9900678901 or Aldermoor AFRN IE9900789012</span></div>
+        <div class="row"><span class="f">Cost</span><span>TER 0.09%</span></div>
+        <div class="row"><span class="f">Yield</span><span>~2.9% <span class="chip unv">From fund page, check at order</span></span></div>
+        <div class="row"><span class="f">Credit</span><span>Spread widening of 0.3–0.6% in B <span class="chip unv">Not costed</span></span></div>
+      </div>
+      <div class="flag">Red team: not stagflation-proof in B. Floating coupons do not protect principal when credit spreads widen.</div>
+    </article>
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="coin"></div><div><span class="route"><span class="dot" style="background:var(--c-diy)"></span>Slice · market leg</span><span class="nm">Tessel Diversified Commodity ETC (TDCX)</span></div><span class="pr">~€1,100</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">ISIN</span><span>IE9900890123</span></div>
+        <div class="row"><span class="f">Round trip</span><span>0.4–1.0% spread <span class="chip one">Check live</span></span></div>
+        <div class="row"><span class="f">Roll cost</span><span>0–3% per year, bad in a flat curve<span class="src">11</span></span></div>
+        <div class="row"><span class="f">Basket</span><span>Energy, metals and farm goods, equal weight</span></div>
+        <div class="row"><span class="f">Selling</span><span>Daily on the exchange, settles in 2 days</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="cash"></div><div><span class="route"><span class="dot" style="background:var(--c-new)"></span>Outside slice</span><span class="nm">12-month term-deposit ladder, 4 rungs of 3 months</span></div><span class="pr">€2,000–3,000</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Why</span><span>One rung rolls every quarter into the current rate<span class="src">7</span></span></div>
+        <div class="row"><span class="f">Rate</span><span>~2.6% <span class="chip unv">Check at order</span></span></div>
+        <div class="row"><span class="f">Legal</span><span>Deposit guarantee €100k per person per bank</span></div>
+        <div class="row"><span class="f">In B</span><span><span class="chip one">Fixed rate loses real value</span></span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="card"></div><div><span class="route"><span class="dot" style="background:var(--c-new)"></span>Outside slice</span><span class="nm">Inflation-indexed savings certificate, state issuer</span></div><span class="pr">~€2–3k</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Issuer</span><span>State savings office (fictional)</span></div>
+        <div class="row"><span class="f">Cost</span><span>~€0</span></div>
+        <div class="row"><span class="f">Index</span><span>Principal follows CPI with a 3-month lag<span class="src">8</span></span></div>
+        <div class="row"><span class="f">Limit</span><span>€10k per person per year<span class="src">9</span></span></div>
+      </div>
+      <div class="flag">Red team: a lag hedge, not a spike hedge. Early redemption forfeits one quarter of index.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="globe"></div><div><span class="route"><span class="dot" style="background:var(--ink-3)"></span>Existing · no action</span><span class="nm">GWEQ and €13k EUR cash</span></div><span class="pr">€54.0k</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">GWEQ</span><span>~60% US, unhedged. Pricing power helps in A</span></div>
+        <div class="row"><span class="f">In B</span><span>Irish UCITS, segregated. Risk is the earnings drop<span class="src">10</span></span></div>
+        <div class="row"><span class="f">Cash</span><span>DGS €100k per person per bank covers €13k<span class="src">9</span></span></div>
+        <div class="row"><span class="f">2022 shock</span><span>In the fictional case, cash lost 9% in real terms in one year</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+  </div>
+
+  <div class="card">
+    <h2>Rejected instruments</h2>
+    <p class="sub">Sorted, not filtered. 11 options, ordered by the criterion that decided.</p>
+    <div class="rows glist stk">
+      <div class="row"><span>Northgate Euro Short -1x ETP (LU9900123456)<span class="m">Short product. Struck by your decision on 15 Oct.</span></span><span class="who">Decision</span></div>
+      <div class="row"><span>Cryptex Bitcoin ETP (DE9900234567)<span class="m">Tail leg. Struck with the shorts.</span></span><span class="who">Decision</span></div>
+      <div class="row"><span>Aldermoor Euro Govt Bond -2x inverse (FR9900345678)<span class="m">Wrong direction. Short-dated bonds were the safe haven: the 2y yield fell to 2.10%. AUM €12.4m.</span></span><span class="who">1 · Payoff</span></div>
+      <div class="row"><span>EUR-hedged commodity ETC (HCMX, HGCT)<span class="m">The hedge removes the currency payoff you buy.</span></span><span class="who">1 · Payoff</span></div>
+      <div class="row"><span>Second unhedged US equity ETF<span class="m">Duplicates the ~60% unhedged US part of GWEQ.</span></span><span class="who">1 · Payoff</span></div>
+      <div class="row"><span>CHF exposure (Swiss govt funds)<span class="m">Swiss govt 3–7y yields 0.31%: negative real carry. Only non-UCITS. Access unconfirmed.</span></span><span class="who">2 · Carry</span></div>
+      <div class="row"><span>Long-dated index-linked bond ETF, 15y+<span class="m">Pays only in A. High duration, TER 0.15%.</span></span><span class="who">2 · Carry</span></div>
+      <div class="row"><span>Direct bitcoin at the broker<span class="m">Available since Mar 2025, fee 0.31%. Volatility fits a tail, not the core.</span></span><span class="who">Optional</span></div>
+      <div class="row"><span>1 kg platinum bar<span class="m">€31.8k, 5 times the slice.</span></span><span class="who">Budget</span></div>
+      <div class="row"><span>Vaultex Gold Notes<span class="m">0.03% per month custody plus VAT. The ETC costs 0.19% per year.</span></span><span class="who">5 · Fees</span></div>
+      <div class="row"><span>Silver coins<span class="m">21% VAT.</span></span><span class="who">5 · Fees</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table class="mx" style="min-width:760px">
+      <thead><tr><th>Leg</th><th class="r">Amount</th><th>A: inflation runs at 4–5%</th><th>B: stagflation</th><th>C: rate shock</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> pays</span><span><b class="sq">~</b> partly</span><span><b class="sq">?</b> not stated in the sources</span><span><b class="sn">✗</b> no</span></div>
+
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Leg</th><th class="r">Amount</th><th>Cost</th><th class="r">Per year</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:var(--c-used)"></span>Inflation-linked ETF</td><td class="r">€3,200</td><td>TER 0.10%, real yield ~0.9%</td><td class="r sy">≈ +€26</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-pi)"></span>FRN ETF</td><td class="r">€1,700</td><td>TER 0.09%, yield ~2.9%</td><td class="r sy">≈ +€48</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-diy)"></span>Commodity ETC</td><td class="r">€1,100</td><td>TER 0.19%, roll cost 0–3%</td><td class="r">≈ −€2, or −€33 in a bad roll year</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-new)"></span>Term-deposit ladder</td><td class="r">€2,000–3,000</td><td>Early exit costs 1–2%</td><td class="r">≈ +€65</td></tr>
+        <tr><td><span class="dot" style="background:var(--c-new)"></span>Savings certificate</td><td class="r">~€2–3k</td><td>~€0</td><td class="r">≈ CPI</td></tr>
+        <tr class="pick"><td><b>Market legs, net</b></td><td class="r">€6,000</td><td>Yield and coupon minus ~€7 TERs</td><td class="r"><b>≈ +€71</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend"><span>Per-leg values computed from TER, yield and amount. Net from the no-leverage revision.</span></div>
+</section>
+
+<!-- TRIGGERS -->
+<section class="panel" id="p-trg" role="tabpanel" aria-labelledby="t-trg" hidden>
+  <div class="card">
+    <h2>Level triggers</h2>
+    <p class="sub">Levels from 15 Oct 2026. Line = trigger. Cross any line: go to full positioning. Central bank hike signal: de-escalate. Sparklines: last 3 years, monthly.</p>
+    <div class="rg gs" id="gauge" style="--lw:120px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Calendar</h2>
+    <p class="sub">Dates and the signal each one gives. Full dot = key date.</p>
+    <div class="dl">
+      <div class="it k"><span class="d">22 Oct 2026</span><span class="ln"></span><span class="tx">Parliament vote, wage-indexation bill<span class="m">Passing locks in wage-price pass-through: expect breakevens to rise. Finish the hedge before this date.</span></span></div>
+      <div class="it"><span class="d">26 Oct 2026</span><span class="ln"></span><span class="tx">Ratingen review, AA stable<span class="m">Outlook cut to negative: escalation.</span></span></div>
+      <div class="it"><span class="d">4 Nov, 16 Dec 2026</span><span class="ln"></span><span class="tx">Central bank meetings<span class="m">Hold with a hawkish tone: de-escalation. Cuts into rising wage growth: escalation.</span></span></div>
+      <div class="it k"><span class="d">24 Nov 2026</span><span class="ln"></span><span class="tx">Final budget vote, confidence moment<span class="m">Government falls: 2027 indexation is unfunded into €210bn of issuance.</span></span></div>
+      <div class="it"><span class="d">Dec 2026</span><span class="ln"></span><span class="tx">Budget paralysis window, stopgap law<span class="m">Stopgap adds ≥0.4 pp to the deficit: escalation.</span></span></div>
+      <div class="it"><span class="d">Early Jan 2027</span><span class="ln"></span><span class="tx">Treasury 2027 auction calendar<span class="m">First depth test of €210bn at ~3.6%.</span></span></div>
+      <div class="it"><span class="d">Spring 2027</span><span class="ln"></span><span class="tx">Fiscal-rules assessment of the Union<span class="m">"No effective action" ends backstop eligibility. The market leans on that backstop.</span></span></div>
+      <div class="it k"><span class="d">11 Apr, 25 Apr 2027</span><span class="ln"></span><span class="tx">National elections, two rounds<span class="m">Populist against centrist in the runoff. The populist proposes full wage-price indexation.</span></span></div>
+      <div class="it"><span class="d">Late winter to mid summer 2027</span><span class="ln"></span><span class="tx">Energy price cap expires<span class="m">Scenario B clock starts. Pass-through ~Q4 2027 to H1 2028.</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">9 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the pick</h3>
+    <div class="rows glist">
+      <div class="row"><span>Yield of the FRN ETF on the order date. The ~2.9% came from the fund page on 2 Oct.</span><span class="who">Check at order</span></div>
+      <div class="row"><span>Quillfolio fee for ETC orders under €1,500.</span><span class="who">Check tariff sheet</span></div>
+      <div class="row"><span>Whether the savings certificate counts toward the €100k deposit guarantee.</span><span class="who">Not documented</span></div>
+    </div>
+    <h3 class="gh">Could change the sizing</h3>
+    <div class="rows glist">
+      <div class="row"><span>ETC spread between small orders (0.4%) and large ones (1.0%).</span><span class="who">Check live at the broker</span></div>
+      <div class="row"><span>The 1-in-12 chance of a rate shock. Derived from a 62bp swaption price, page captured as a snippet only.</span><span class="who">Order of magnitude</span></div>
+      <div class="row"><span>The 200bp spread and 5.5% wage-growth triggers.</span><span class="who">Judgment call</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>Sovereign exposure of the two largest local banks. Only the central bank total is known: €410bn, domestic and Union ≈ ⅓.</span><span class="who">Not published</span></div>
+      <div class="row"><span>Crypto ETP TERs and a suitability gate on inverse ETFs.</span><span class="who">Moot after no leverage</span></div>
+      <div class="row"><span>Think-tank report of 5 Oct and agency note of 9 Oct.</span><span class="who">Capture pending</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Instrument ranking, practical prep, red team, no-leverage revision</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-2"><td>2</td><td>Market: inflation 3.4, policy rate 2.0, 2y yield 2.10, real 10y 0.92, breakeven 2.31</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-3"><td>3</td><td>Quillfolio core list, €1 commission</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-4"><td>4</td><td>Inflation-linked ETF structure, custodian, audits</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-5"><td>5</td><td>Rate-shock swaption price 62bp</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-6"><td>6</td><td>Trigger dates: statistics office, Ratingen, fiscal watchdog, central bank schedule</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-7"><td>7</td><td>Fictional 2022 price shock: cash lost 9% real, deposit rates lagged by 2 quarters</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-8"><td>8</td><td>Indexed-savings and stagflation precedents (invented summary)</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-9"><td>9</td><td>Regulator: €100k deposit guarantee, certificate limits</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-10"><td>10</td><td>GWEQ depositary protection, issuer exit paper</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-11"><td>11</td><td>ETC spreads, roll cost, VAT rules</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-12"><td>12</td><td>Video check: local banks hold 38.4% of domestic sovereign debt, stability fund €210bn</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-13"><td>13</td><td>Rejected: Aldermoor Euro Govt Bond -2x, Swiss govt 3–7</td><td class="r muted">15 Oct</td></tr>
+        <tr id="src-14"><td>14</td><td>Think-tank and agency notes on inflation</td><td class="r muted">5–9 Oct</td></tr>
+        <tr id="src-15"><td>15</td><td>Central bank data (invented): headline inflation, monthly, Jan 2019 to Sep 2026</td><td class="r muted">invented</td></tr>
+        <tr id="src-16"><td>16</td><td>Central bank data (invented): policy rate, monthly, Jan 2019 to Sep 2026</td><td class="r muted">invented</td></tr>
+        <tr id="src-17"><td>17</td><td>Central bank data (invented): 5-year breakeven, monthly, Jan 2019 to Aug 2026</td><td class="r muted">invented</td></tr>
+        <tr id="src-18"><td>18</td><td>Central bank data (invented): 10-year real yield, monthly, Jan 2019 to Sep 2026</td><td class="r muted">invented</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">36 captures. Ranked on inflation payoff, then carry, access, robustness and fees. Red-team pass: weakened, nothing fatal. All names, figures and series in this example are invented.</p>
+</div>
+
+<script>
+var C={u:'var(--c-used)',n:'var(--c-new)',d:'var(--c-diy)',p:'var(--c-pi)',g:'var(--ink-3)'};
+
+// generic line drawings for the image slots
+var ILL={
+ bar:'<path d="M8 32l5-14h18l5 14z"/><path d="M15 23h14" stroke-linecap="round"/>',
+ bill:'<rect x="9" y="6" width="26" height="32" rx="3"/><path d="M14 13h16M14 19h16M14 25h10" stroke-linecap="round"/>',
+ coin:'<circle cx="22" cy="22" r="14"/><circle cx="22" cy="22" r="9"/>',
+ cash:'<rect x="5" y="12" width="34" height="20" rx="3"/><circle cx="22" cy="22" r="4"/><path d="M10 17v10M34 17v10" stroke-linecap="round"/>',
+ card:'<rect x="5" y="10" width="34" height="24" rx="3"/><path d="M5 17h34M10 27h8" stroke-linecap="round"/>',
+ globe:'<circle cx="22" cy="22" r="14"/><path d="M8 22h28M22 8c-5 4-5 24 0 28M22 8c5 4 5 24 0 28"/>'};
+document.querySelectorAll('[data-ill]').forEach(function(e){e.innerHTML='<svg width="34" height="34" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">'+ILL[e.dataset.ill]+'</svg>'});
+
+// donut
+(function(){
+ var s=document.getElementById('donut'),d=[[3200,'u'],[1700,'p'],[1100,'d']],tot=6000,r=56,cx=75,cy=75,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+C[x[1]]+'" stroke-width="18" stroke-dasharray="'+(len-3)+' '+(circ-len+3)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">slice</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">€6.0k</text>';
+ s.innerHTML=h;
+})();
+
+// hbar (reference)
+function hb(id,d,max){var h='';d.forEach(function(r){var w=r[1]/max*100,pk=r[3]?' pk':'';
+ h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="b" style="width:'+w+'%;background:'+r[2]+'"></span><span class="v'+pk+'" style="left:'+w+'%">'+r[4]+'</span></div>';});
+ document.getElementById(id).innerHTML=h;}
+hb('pf',[['GWEQ',41000,C.g,0,'€41,000'],['EUR cash',13000,C.g,0,'~€13,000'],['Hedge slice',6000,C.u,1,'€6,000 · 10%']],68000);
+
+// range / diverging bars
+function rg(id,o){
+ var el=document.getElementById(id),h='',X=function(v){return (v-o.min)/(o.max-o.min)*100};
+ o.rows.forEach(function(r){
+  h+='<span class="nm'+(r.pk?' pk':'')+'">'+r.l+'</span><div class="tr">';
+  (o.marks||[]).forEach(function(m){h+='<span class="z" style="left:'+X(m)+'%"></span>'});
+  r.s.forEach(function(s){var a=Math.min(s.a,s.b),b=Math.max(s.a,s.b);h+='<span class="s" style="left:'+X(a)+'%;width:'+(X(b)-X(a))+'%;background:'+s.c+(s.op?';opacity:'+s.op:'')+'"></span>'});
+  h+='</div><span class="v'+(r.pk?' pk':'')+'">'+r.v+'</span>';
+ });
+ var tk=(window.innerWidth<720&&o.tm)?o.tm:o.ticks;
+ if(tk){h+='<span></span><div class="ax">';tk.forEach(function(t){h+='<span style="left:'+X(t[0])+'%">'+t[1]+'</span>'});h+='</div><span></span>'}
+ el.innerHTML=h;
+}
+function drawRg(){
+ rg('carry',{min:-50,max:70,marks:[0],ticks:[[-50,'−€50'],[0,'€0'],[50,'€50']],tm:[[-50,'−€50'],[0,'€0'],[50,'€50']],rows:[
+  {l:'Inflation-linked ETF',s:[{a:0,b:25.6,c:C.u}],v:'≈ +€26'},
+  {l:'FRN ETF',s:[{a:0,b:47.8,c:C.u}],v:'≈ +€48'},
+  {l:'Commodity ETC',s:[{a:0,b:-2.1,c:'var(--red)'}],v:'≈ −€2'},
+  {l:'ETC, bad roll year',s:[{a:0,b:-33,c:'var(--red)'}],v:'−€33'},
+  {l:'Net, market legs',s:[{a:0,b:71,c:C.u}],v:'≈ +€71',pk:1}]});
+ rg('oneoff',{min:0,max:700,ticks:[[0,'€0'],[200,'€200'],[400,'€400'],[600,'€600']],tm:[[0,'€0'],[300,'€300'],[600,'€600']],rows:[
+  {l:'Spread, ETF buys',s:[{a:0,b:2.5,c:C.p},{a:2.5,b:7.4,c:C.p,op:.35}],v:'€2–7'},
+  {l:'Spread, ETC buy',s:[{a:0,b:4.4,c:C.d},{a:4.4,b:11,c:C.d,op:.35}],v:'€4–11'},
+  {l:'Deposit early exit',s:[{a:0,b:25,c:C.d},{a:25,b:50,c:C.d,op:.35}],v:'€25–50'},
+  {l:'Prices fall 10%',s:[{a:0,b:600,c:'var(--red)'}],v:'~€600'}]});
+ gauge();
+ if(window.drawTS)drawTS();
+}
+
+// payoff matrix (sources: 01, 02, 03, 04)
+var MX=[
+ ['Inflation-linked ETF','€3,200','u',[['y','Coupons and principal track CPI'],['p','Real yield holds, equity drag offset'],['p','Duration loss, short maturities limit it']]],
+ ['FRN ETF','€1,700','p',[['y','Coupon resets up with rates'],['p','Credit spreads widen'],['y','Floating coupon rises with rates']]],
+ ['Commodity ETC','€1,100','d',[['y','Commodities lead CPI'],['y','Energy and food rise first'],['p','Mixed, demand falls']]],
+ ['Term-deposit ladder','€2,000–3,000','n',[['p','Rolls into higher rates, lags CPI'],['n','Fixed rate falls behind CPI'],['y','Principal fixed, no price loss']]],
+ ['Savings certificate','~€2–3k','n',[['y','Principal indexed to CPI'],['p','Index lags a fast spike'],['q','']]],
+ ['GWEQ (existing)','€41,000','g',[['p','~60% US unhedged, pricing power helps'],['n','Earnings fall with demand'],['p','Valuations fall as yields rise']]]];
+(function(){
+ var S={y:'<b class="sy">✓</b> ',p:'<b class="sq">~</b> ',q:'<b class="sq">?</b> ',n:'<b class="sn">✗</b> '},h='';
+ MX.forEach(function(r){h+='<tr><td><span class="dot" style="background:'+C[r[2]]+'"></span>'+r[0]+'</td><td class="r">'+r[1]+'</td>'+r[3].map(function(c){return '<td>'+S[c[0]]+(c[1]?'<span class="m" style="display:inline">'+c[1]+'</span>':'<span class="m" style="display:inline">not stated</span>')+'</td>'}).join('')+'</tr>';});
+ document.getElementById('mx').innerHTML=h;
+})();
+
+// stacked coverage bars, counted from MX
+(function(){
+ var names=['A: inflation runs','B: stagflation','C: rate shock'],ord='ypqn',col=['var(--c-used)','var(--c-diy)','var(--c-mute)','var(--red)'],h='';
+ names.forEach(function(nm,k){var cnt=[0,0,0,0];MX.forEach(function(r){cnt[ord.indexOf(r[3][k][0])]++});
+  h+='<div style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;margin-bottom:12px;font-size:12px"><span style="color:var(--ink-2)">'+nm+'</span><div style="display:flex;gap:3px;height:16px">';
+  cnt.forEach(function(c,i){if(c)h+='<span style="flex:'+c+';background:'+col[i]+';border-radius:4px;color:'+(i==2?'var(--ink)':'#fff')+';font-size:12px;line-height:16px;text-align:center">'+c+'</span>'});
+  h+='</div></div>';});
+ document.getElementById('stack').innerHTML=h;
+})();
+
+// level gauges: each row has its own scale, oriented so the trigger is to the right
+function gauge(){
+ var mob=window.innerWidth<720;
+ var d=[
+  {l:'Inflation minus rate',s:'spread',a:0,b:250,now:[131,148],t:200,v:mob?'131–148 / >200bp':'131–148bp, trigger >200bp'},
+  {l:'Wage growth',a:0,b:8,now:[4.1],t:5.5,v:mob?'4.1% / >5.5%':'4.1%, trigger >5.5%'},
+  {l:'10y real yield',s:'ry',a:1.5,b:0,now:[0.92],t:0.5,v:mob?'0.92% / <0.5%':'0.92%, trigger <0.5%'}],h='';
+ d.forEach(function(r){function X(v){return (v-r.a)/(r.b-r.a)*100}
+  h+='<span class="nm">'+r.l+'</span><div class="tr"><span class="bg"></span>';
+  if(r.now.length>1)h+='<span class="s" style="left:'+X(r.now[0])+'%;width:'+(X(r.now[1])-X(r.now[0]))+'%;background:var(--teal)"></span>';
+  else h+='<span class="pt" style="left:'+X(r.now[0])+'%;background:var(--teal)"></span>';
+  h+='<span class="z" style="left:'+X(r.t)+'%;border-color:var(--red);top:0;bottom:0"></span></div><span class="v">'+(mob?'':r.v)+'</span>'+(mob?'<span class="m"><span>Now '+r.v.split(' / ')[0]+'</span><span>Trigger '+r.v.split(' / ')[1]+'</span></span>':'')+(r.s?'<span class="spk" data-s="'+r.s+'"></span>':(mob?'':'<span></span>'));});
+ document.getElementById('gauge').innerHTML=h;
+}
+
+drawRg();window.addEventListener('resize',drawRg);
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});drawRg();});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+<script>
+// Invented monthly series (not real data; central bank data style, invented)
+var SERIES={INF:{s:"2019-01",v:[1.2531,1.3481,1.4755,1.3674,1.2009,1.2491,1.3395,1.4646,1.2583,1.1217,1.2759,1.337,1.3396,1.2083,0.9328,0.6801,0.8032,0.4673,0.2228,0.0004,-0.0183,-0.0569,-0.1722,-0.2408,0.1583,0.5881,1.0345,1.3359,1.4167,1.9043,2.1155,2.5454,2.8004,3.2838,3.6335,4.1158,5.0788,5.4681,6.022,6.3077,6.8167,7.4495,7.8186,8.2556,8.6457,8.9067,8.8117,8.5096,8.3037,7.7083,7.3073,6.798,6.4197,5.8196,5.5316,5.0641,4.7901,4.3889,3.9303,3.3846,3.3329,3.2059,3.2106,2.9111,2.7832,2.6409,2.5852,2.5294,2.4795,2.3426,2.1971,2.1707,2.26,2.4107,2.4237,2.4272,2.383,2.3336,2.3122,2.3899,2.5768,2.4567,2.3608,2.6417,2.6744,2.8211,2.9375,2.8062,3.1958,3.3906,3.1333,3.2667,3.4]},
+ RATE:{s:"2019-01",v:[-0.0088,-0.0064,-0.0001,0.0111,0.0137,0.0088,0.0189,0.0037,0.0102,0.0172,0.0074,-0.0135,-0.0171,-0.0079,0.0005,0.0158,-0.0006,-0.0003,0.0063,0.0022,-0.0224,-0.0054,0.0199,0.022,0.004,-0.0017,0.0012,0.0256,0.0215,0.0141,0.024,0.0136,0.0268,0.0092,0.0008,0.0077,0.0188,0.0178,0.0137,-0.01,-0.0131,-0.014,0.3863,0.7976,1.1952,1.4717,1.7372,1.999,2.3339,2.6713,3.0114,3.202,3.3989,3.5857,3.7408,3.8857,4.0096,4.0676,4.1216,4.1946,4.1822,4.1878,4.1651,4.1346,4.093,4.0999,3.9352,3.7517,3.5928,3.3796,3.2226,3.0247,2.8872,2.7439,2.585,2.4564,2.3116,2.1929,2.141,2.1089,2.0975,2.0816,2.0305,1.983,1.9986,2.0077,1.9947,1.9899,1.987,1.9803,2.0,2.0,2.0]},
+ BE:{s:"2019-01",v:[1.5823,1.5186,1.4676,1.3922,1.3703,1.2988,1.2264,1.271,1.3165,1.3089,1.3132,1.2616,1.0082,0.8084,0.5901,0.5829,0.5687,0.5819,0.6623,0.7301,0.759,0.8659,0.8934,0.9393,1.1057,1.1773,1.2276,1.42,1.5311,1.7311,1.8322,1.9596,2.0663,2.0565,2.2027,2.2747,2.3212,2.3887,2.5039,2.6044,2.6964,2.6715,2.6093,2.4805,2.4742,2.4786,2.4441,2.4587,2.462,2.49,2.4286,2.3865,2.3589,2.4379,2.4331,2.3682,2.33,2.2892,2.255,2.2046,2.1811,2.1267,2.1154,2.1969,2.1979,2.1764,2.1489,2.1402,2.1432,2.1018,2.1073,2.109,2.0838,2.0704,2.0573,2.0502,2.1274,2.047,2.0859,2.0987,2.1095,2.1479,2.2155,2.2174,2.2131,2.1951,2.2069,2.2589,2.2413,2.25,2.28,2.31]},
+ RY:{s:"2019-01",v:[0.0583,0.0491,-0.0022,-0.0743,-0.0902,-0.1868,-0.226,-0.2716,-0.3928,-0.4895,-0.5521,-0.5582,-0.5737,-0.6822,-0.7026,-0.7813,-0.8523,-0.9232,-0.9403,-1.0021,-1.0213,-1.0465,-1.0165,-0.9572,-0.8757,-0.9122,-0.969,-0.9569,-0.959,-0.8659,-0.8457,-0.866,-0.8215,-0.8002,-0.8455,-0.8333,-0.6938,-0.549,-0.4055,-0.2801,-0.1357,-0.019,0.1617,0.4225,0.6243,0.8277,0.8438,0.9263,1.0353,1.0675,1.1884,1.2464,1.3349,1.4019,1.3911,1.4074,1.3623,1.3877,1.3258,1.2775,1.2745,1.2061,1.1725,1.1774,1.1761,1.0724,1.082,1.1224,1.1193,1.0677,1.0193,0.9927,0.9527,0.952,0.9506,0.9476,0.9824,0.9575,0.9025,0.9413,0.8976,0.8868,0.8864,0.8765,0.858,0.8705,0.9518,0.9178,0.9123,0.9478,0.9156,0.9178,0.92]}};
+
+// ---- time-series charts (invented monthly data) ----
+(function(){
+ var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ var NS='http://www.w3.org/2000/svg';
+ function ut(y,m,d){return Date.UTC(y,m,d||1)}
+ function ser(o){var p=o.s.split('-'),y=+p[0],m=+p[1]-1;return o.v.map(function(v,i){return [ut(y,m+i),v]})}
+ var INF=ser(SERIES.INF),RATE=ser(SERIES.RATE),BE=ser(SERIES.BE),RY=ser(SERIES.RY);
+ var RATEm={};RATE.forEach(function(p){RATEm[p[0]]=p[1]});
+ var SP=INF.filter(function(p){return p[0] in RATEm}).map(function(p){return [p[0],Math.round((p[1]-RATEm[p[0]])*1000)/10]});
+ var END=ut(2026,10,1),START=ut(2019,0,1);
+ // events named in the sources
+ var EV=[{t:ut(2026,9,15),l:'Report 15 Oct'},{t:ut(2026,9,22),l:'Votes 22, 29 Oct',nx:1},{t:ut(2026,9,29),l:'',nx:1}];
+ function fd(t){var d=new Date(t);return MON[d.getUTCMonth()]+' '+d.getUTCFullYear()}
+ var mc=document.createElement('canvas').getContext('2d');
+ function tw(s){mc.font='400 12px '+getComputedStyle(document.body).fontFamily;return Math.ceil(mc.measureText(s).width)}
+ // gridlines: the nice step whose tick count inside [a,b] is closest to 5
+ // snap: widen the domain to whole steps (used when the inner ticks would be too few)
+ function nice(a,b,snap){var best=null,base=Math.pow(10,Math.floor(Math.log10(b-a))-1);
+  [1,2,2.5,5,10,20,25,50].forEach(function(m){var st=base*m,t=[],lo=snap?Math.floor(a/st+1e-9)*st:a,hi=snap?Math.ceil(b/st-1e-9)*st:b;for(var v=Math.ceil(lo/st-1e-9)*st;v<=hi+1e-9;v+=st)t.push(Math.round(v/st)*st);
+   var sc=Math.abs(t.length-5)+(t.length>5?0.5:0);if(!best||sc<best.sc)best={t:t,st:st,sc:sc}});return best}
+ function el(tag,at,txt){var e=document.createElementNS(NS,tag);for(var k in at)e.setAttribute(k,at[k]);if(txt!=null)e.textContent=txt;return e}
+ function dec(st){return st>=1?0:st>=0.1?1:2}
+
+ var CH=[
+  {id:'ch-y',h:240,unit:'%',snap:1,fmt:function(v){return v.toFixed(2)+'%'},
+   series:[{n:'Inflation',s:'Infl.',c:'var(--c-pi)',d:INF},{n:'Breakeven',s:'BE',c:'var(--c-diy)',d:BE},{n:'Policy rate',s:'Rate',c:'var(--c-new)',d:RATE}],
+   quotes:[{t:ut(2026,9,15),v:3.31,c:'var(--c-pi)',ti:'Inflation flash 3.31%, 15 Oct'},{t:ut(2026,9,15),v:2.0,c:'var(--c-new)',ti:'Policy rate 2.00%, 15 Oct'}]},
+  {id:'ch-s',h:220,fmt:function(v){return Math.round(v)+' bp'},area:1,
+   series:[{n:'Inflation − rate',s:'Spread',c:'var(--c-pi)',d:SP,val:1}],
+   extra:function(t){return [['Inflation',INF],['Policy rate',RATE]].map(function(x){var p=x[1].filter(function(q){return q[0]===t})[0];return p?[x[0],p[1].toFixed(2)+'%']:null}).filter(Boolean)},
+   zone:{v:200,up:1,l:'Trigger above 200 bp'},
+   quotes:[{t:ut(2026,9,2),v:148,c:'var(--c-pi)',l:'148 bp, 2 Oct peak'},{t:ut(2026,9,15),v:131,c:'var(--c-pi)',l:'131 bp, 15 Oct'}]},
+  {id:'ch-f',h:220,fmt:function(v){return v.toFixed(2)+'%'},
+   series:[{n:'Real yield',s:'Real yield',c:'var(--c-used)',d:RY,val:1}],
+   zone:{v:0.5,up:0,l:'Trigger below 0.5%'},
+   quotes:[{t:ut(2026,9,15),v:0.88,c:'var(--c-used)',l:'0.88%, 15 Oct'}]}
+ ];
+
+ function draw(c){
+  var box=document.getElementById(c.id);if(!box)return;box.innerHTML='';if(!box.clientWidth)return;
+  var W=box.clientWidth,H=c.h,narrow=W<520,r=c.range||'all';
+  var x0=r==='1y'?ut(2025,10,1):r==='3y'?ut(2023,10,1):START,x1=END;
+  // y domain from visible data, quotes and trigger
+  var lo=Infinity,hi=-Infinity;
+  c.series.forEach(function(s){s.vis=s.d.filter(function(p){return p[0]>=x0});s.vis.forEach(function(p){lo=Math.min(lo,p[1]);hi=Math.max(hi,p[1])})});
+  (c.quotes||[]).forEach(function(q){lo=Math.min(lo,q.v);hi=Math.max(hi,q.v)});
+  if(c.zone){lo=Math.min(lo,c.zone.v);hi=Math.max(hi,c.zone.v)}
+  if(c.yMin!=null)lo=c.yMin;
+  var pad=(hi-lo)*0.08,y0=c.yMin!=null?lo:lo-pad,y1=hi+pad,nk=nice(y0,y1,c.snap),tk=nk.t,dp=dec(nk.st);
+  if(c.snap){y0=Math.min(y0,tk[0]);y1=Math.max(y1,tk[tk.length-1])}
+  var tl=function(v){return v.toFixed(dp)+(c.unit||'')};
+  // event label rows
+  var labs=[];c.series.forEach(function(s){var p=s.vis[s.vis.length-1];if(!p)return;
+   var txt=s.val?c.fmt(p[1]):(narrow?s.s:s.n)+' '+p[1].toFixed(2);labs.push({s:s,p:p,txt:txt,w:tw(txt)})});
+  var pr=Math.max.apply(null,labs.map(function(l){return l.w}))+16;
+  var pl=Math.max.apply(null,tk.map(function(v){return tw(tl(v))}))+10;
+  var pw=W-pl-pr,X=function(t){return pl+(t-x0)/(x1-x0)*pw};
+  var rows=[],evs=EV.filter(function(e){return e.t>=x0}).map(function(e){var w=e.l?tw(e.l):0,x=X(e.t),a=x+4+w>W?'end':'start';
+   var b=a==='end'?[x-4-w,x-4]:[x+4,x+4+w];var row=0;
+   if(e.l){while(rows[row]&&rows[row].some(function(q){return b[0]<q[1]+8&&b[1]>q[0]-8}))row++;(rows[row]=rows[row]||[]).push(b)}
+   return {e:e,x:x,a:a,row:row,b:b}});
+  var pt=rows.length*16+8,pb=24,ph=H-pt-pb,Y=function(v){return pt+(y1-v)/(y1-y0)*ph};
+  var svg=el('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':box.getAttribute('aria-label')||''});
+  // trigger zone
+  if(c.zone){var zy=Y(c.zone.v);
+   svg.appendChild(el('rect',{x:pl,width:pw,y:c.zone.up?pt:zy,height:c.zone.up?zy-pt:pt+ph-zy,fill:'var(--red-soft)'}));
+   svg.appendChild(el('line',{x1:pl,x2:pl+pw,y1:zy,y2:zy,stroke:'var(--red)','stroke-width':1}));
+   svg.appendChild(el('text',{x:pl+6,y:c.zone.up?zy-6:zy+16,'font-size':12,fill:'var(--red)',class:'halo'},c.zone.l))}
+  // grid + y labels
+  tk.forEach(function(v){var y=Y(v);
+   svg.appendChild(el('line',{x1:pl,x2:pl+pw,y1:y,y2:y,stroke:'var(--rule)','stroke-width':1}));
+   svg.appendChild(el('text',{x:pl-8,y:y+4,'text-anchor':'end','font-size':12,fill:'var(--ink-3)'},tl(v)))});
+  // x ticks: years, or quarters for 1y
+  var xt=[];if(r==='1y'){for(var m=-3;m<12;m+=3){var t=ut(2026,m,1);if(t>=x0&&t<=x1)xt.push([t,new Date(t).getUTCMonth()===0?'Jan '+new Date(t).getUTCFullYear():MON[new Date(t).getUTCMonth()]])}}
+  else{for(var yy=2019;yy<=2026;yy++){var t2=ut(yy,0,1);if(t2>=x0)xt.push([t2,''+yy])}}
+  var step=1,need=Math.max.apply(null,xt.map(function(q){return tw(q[1])}))+12;if(xt.length>1)step=Math.max(1,Math.ceil(need/(X(xt[1][0])-X(xt[0][0]))));
+  var lastR=-1e9;xt.forEach(function(q,i){if(i%step)return;var w=tw(q[1]),x=Math.max(w/2,Math.min(pl+pw-w/2,X(q[0])));
+   if(x-w/2<lastR+10)return;lastR=x+w/2;
+   svg.appendChild(el('text',{x:x,y:H-6,'text-anchor':'middle','font-size':12,fill:'var(--ink-3)'},q[1]))});
+  // events
+  evs.forEach(function(v){var col=v.e.nx?'var(--orange)':'var(--ink-3)';
+   svg.appendChild(el('line',{x1:v.x,x2:v.x,y1:v.e.l?12+v.row*16+4:pt,y2:pt+ph,stroke:col,'stroke-width':1,opacity:v.e.nx?.8:.6}));
+   if(v.e.l)svg.appendChild(el('text',{x:v.a==='end'?v.x-4:v.x+4,y:12+v.row*16,'text-anchor':v.a,'font-size':12,fill:col},v.e.l))});
+  // lines
+  c.series.forEach(function(s){if(!s.vis.length)return;var d='M'+s.vis.map(function(p){return X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)}).join('L');
+   if(c.area){svg.appendChild(el('path',{d:d+'L'+X(s.vis[s.vis.length-1][0]).toFixed(1)+','+Y(Math.max(y0,0))+'L'+X(s.vis[0][0]).toFixed(1)+','+Y(Math.max(y0,0))+'Z',fill:s.c,'fill-opacity':.1}))}
+   svg.appendChild(el('path',{d:d,fill:'none',stroke:s.c,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}))});
+  // direct labels at the right end, spread apart
+  labs.sort(function(a,b){return Y(a.p[1])-Y(b.p[1])});var lastY=-1e9;
+  labs.forEach(function(l){l.y=Math.max(Y(l.p[1])+4,lastY+14);lastY=l.y});
+  var over=lastY-(pt+ph+4);if(over>0)labs.forEach(function(l){l.y-=over});
+  labs.forEach(function(l){svg.appendChild(el('text',{x:pl+pw+8,y:l.y,'font-size':12,fill:'var(--ink-2)'},l.txt))});
+  // daily quotes: rings, labels to the left
+  var ql=[];(c.quotes||[]).forEach(function(q){if(q.t<x0)return;var g=el('circle',{cx:X(q.t),cy:Y(q.v),r:4,fill:'var(--card)',stroke:q.c,'stroke-width':2});
+   g.appendChild(el('title',{},q.ti||q.l));svg.appendChild(g);if(q.l)ql.push({q:q,y:Y(q.v)+4})});
+  ql.sort(function(a,b){return a.y-b.y});for(var i=1;i<ql.length;i++)if(ql[i].y-ql[i-1].y<14)ql[i].y=ql[i-1].y+14;
+  ql.forEach(function(o){svg.appendChild(el('text',{x:X(o.q.t)-9,y:o.y,'text-anchor':'end','font-size':12,fill:'var(--ink-2)',class:'halo'},o.q.l))});
+  // hover layer
+  var cross=el('line',{y1:pt,y2:pt+ph,stroke:'var(--ink-3)','stroke-width':1,visibility:'hidden'});svg.appendChild(cross);
+  var dots=c.series.map(function(s){var d=el('circle',{r:4,fill:s.c,stroke:'var(--card)','stroke-width':2,visibility:'hidden'});svg.appendChild(d);return d});
+  var hit=el('rect',{x:pl,y:pt,width:pw,height:ph,fill:'transparent'});svg.appendChild(hit);
+  box.innerHTML='';box.appendChild(svg);
+  var tip=document.createElement('div');tip.className='tip';tip.hidden=true;box.appendChild(tip);
+  var dates=[];c.series.forEach(function(s){s.vis.forEach(function(p){if(dates.indexOf(p[0])<0)dates.push(p[0])})});dates.sort();
+  function show(ev){var bb=svg.getBoundingClientRect(),mx=ev.clientX-bb.left,best=dates[0];
+   dates.forEach(function(t){if(Math.abs(X(t)-mx)<Math.abs(X(best)-mx))best=t});
+   var x=X(best),h='<b>'+fd(best)+'</b>';cross.setAttribute('x1',x);cross.setAttribute('x2',x);cross.setAttribute('visibility','visible');
+   c.series.forEach(function(s,i){var p=s.d.filter(function(q){return q[0]===best})[0];
+    if(p){dots[i].setAttribute('cx',x);dots[i].setAttribute('cy',Y(p[1]));dots[i].setAttribute('visibility','visible');
+     h+='<span><span class="dot" style="background:'+s.c+'"></span>'+s.n+'<i>'+c.fmt(p[1])+'</i></span>'}
+    else dots[i].setAttribute('visibility','hidden')});
+   if(c.extra)c.extra(best).forEach(function(e){h+='<span>'+e[0]+'<i>'+e[1]+'</i></span>'});
+   tip.innerHTML=h;tip.hidden=false;var w=tip.offsetWidth,left=x+12;if(left+w>W)left=x-12-w;tip.style.left=Math.max(0,left)+'px';tip.style.top=pt+'px'}
+  function hide(){tip.hidden=true;cross.setAttribute('visibility','hidden');dots.forEach(function(d){d.setAttribute('visibility','hidden')})}
+  hit.addEventListener('pointermove',show);hit.addEventListener('pointerdown',show);hit.addEventListener('pointerleave',hide);
+ }
+
+ // sparklines on the Triggers tab: last 3 years, monthly, with the trigger line
+ var SPK={spread:{d:SP,t:200,c:'var(--c-pi)',n:'Inflation minus policy rate, bp'},ry:{d:RY,t:0.5,c:'var(--c-used)',n:'10y real yield'}};
+ function spark(e){e.innerHTML='';var o=SPK[e.dataset.s],W=e.clientWidth,H=28;if(!W)return;
+  var d=o.d.slice(-36),lo=Math.min(o.t,Math.min.apply(null,d.map(function(p){return p[1]}))),hi=Math.max(o.t,Math.max.apply(null,d.map(function(p){return p[1]})));
+  var X=function(i){return 3+i/(d.length-1)*(W-6)},Y=function(v){return 3+(hi-v)/(hi-lo)*(H-6)};
+  var svg=el('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.n+', '+fd(d[0][0])+' to '+fd(d[d.length-1][0])+', last '+(o.t>10?Math.round(d[d.length-1][1]):d[d.length-1][1].toFixed(3))});
+  svg.appendChild(el('line',{x1:0,x2:W,y1:Y(o.t),y2:Y(o.t),stroke:'var(--red)','stroke-width':1}));
+  svg.appendChild(el('path',{d:'M'+d.map(function(p,i){return X(i).toFixed(1)+','+Y(p[1]).toFixed(1)}).join('L'),fill:'none',stroke:o.c,'stroke-width':2,'stroke-linejoin':'round'}));
+  svg.appendChild(el('circle',{cx:X(d.length-1),cy:Y(d[d.length-1][1]),r:3,fill:o.c}));
+  svg.appendChild(el('title',{},o.n+', monthly, '+fd(d[0][0])+' to '+fd(d[d.length-1][0])));
+  e.innerHTML='';e.appendChild(svg)}
+
+ window.drawTS=function(){CH.forEach(draw);document.querySelectorAll('.spk[data-s]').forEach(spark)};
+ document.querySelectorAll('.rng').forEach(function(g){var c=CH.filter(function(x){return x.id===g.dataset.for})[0];
+  g.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){
+   g.querySelectorAll('button').forEach(function(o){o.setAttribute('aria-pressed',o===b)});c.range=b.dataset.r;draw(c)})})});
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawTS);
+ drawTS();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coffee Subscription Venture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+
+/* ---- added components, built from the tokens above ---- */
+/* hbar: shaded band behind the bars */
+.hb .band{position:absolute;top:0;bottom:0;background:var(--red-soft);border-radius:var(--r-sm)}
+/* option card: status chip in the header, image slot with drawing */
+.opt .oh .chip{align-self:start}
+.opt .photo{display:block;width:100%;height:220px;object-fit:cover;background:var(--soft)}
+.opt .slot{height:220px;background:var(--soft);display:grid;place-items:center;align-content:center;gap:8px;color:var(--ink-3);font-size:var(--fs-s)}
+.opt .row>span:last-child{min-width:0}
+/* step list: verdict history */
+.steps{display:grid}
+.step{display:grid;grid-template-columns:20px 1fr;gap:12px;position:relative;padding-bottom:18px}
+.step:last-child{padding-bottom:0}
+.step::before{content:"";position:absolute;left:9px;top:16px;bottom:0;width:1px;background:var(--rule)}
+.step:last-child::before{display:none}
+.step .k{width:10px;height:10px;border-radius:50%;margin:6px 0 0 5px;background:var(--red)}
+.step .k.ok{background:var(--teal)}.step .k.mu{background:var(--c-mute)}
+.step .t{font-size:var(--fs-s);color:var(--ink-3)}
+.step .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.step p{margin:2px 0 0;color:var(--ink-2)}
+/* checklist */
+.ck .row{grid-template-columns:18px 1fr auto;gap:12px;padding:10px 0;align-items:start}
+.ck .box{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-3);margin-top:4px}
+.ck .box.ok{border-color:var(--teal);background:var(--teal)}
+.ck .box.bl{border-color:var(--red)}
+.ck .d{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+/* ranked list */
+.rk .row{grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:10px 0}
+.rk .n{width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--ink-2);display:grid;place-items:center;font-size:var(--fs-s);font-weight:500}
+.rk .n.top{background:var(--teal-soft);color:var(--teal)}
+.rk .d{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+/* old belief to finding */
+.fix .row{grid-template-columns:1fr 18px 1fr;gap:12px;align-items:start;padding:10px 0}
+.fix .was{color:var(--ink-3)}
+.fix .ar{color:var(--ink-3);text-align:center}
+/* small dot matrix */
+.dm{width:100%;border-collapse:collapse;font-size:var(--fs-s);min-width:0}
+.dm th,.dm td{padding:6px 8px;border-bottom:1px solid var(--rule)}
+.dm td:first-child{white-space:normal;color:var(--ink-2)}
+.dm .c{text-align:center}
+.dm .on{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--teal)}
+.dm .off{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--c-mute)}
+/* call card and price cells */
+.q{color:var(--ink-2)}
+td .pn{display:block;font-size:var(--fs-s);color:var(--ink-3);white-space:normal}
+td.best{color:var(--teal);font-weight:500}
+td.best .pn{font-weight:400}
+.wrapc td:first-child{white-space:normal}
+.note{margin:0;color:var(--ink-2)}
+@media (max-width:720px){
+  .fix .row{grid-template-columns:1fr}
+  .fix .ar{display:none}
+  .fix .was::after{content:" →"}
+  .opt .oh .chip{grid-column:2;justify-self:start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 9 Mar 2027</div>
+    <h1>Coffee subscription venture</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>No market yet.</mark> Access to a buyer decides. Each of three <a class="ref" data-src="5">red-team rounds</a> falsified the pick.</p>
+  <p>The Irish 50% office tier survives at €64 gross per sale. Risk: the incumbent already gives office suppliers the same 50%.</p>
+  <p>First send two emails and make three <a class="ref" data-src="6">calls</a>. They cost €0. <mark>Do them before 2 Apr 2027.</mark></p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-call" id="t-call">Calls</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Method</button>
+</div>
+
+<!-- OVERVIEW -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Gross per sale vs cost per customer</h2>
+    <p class="sub">Euro per sale. Shaded = cost to win one customer, €18–60.</p>
+    <div class="hb" id="hbar"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-new)"></span>Denmark, 20% wholesale discount</span>
+      <span><span class="dot" style="background:var(--c-pi)"></span>Ireland, affiliate 10%</span>
+      <span><span class="dot" style="background:var(--c-used)"></span>Ireland, office tier 50%</span>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Price gap per country</h2>
+      <p class="sub">Out-of-pocket route vs a €24 box. From 03, later falsified.</p>
+      <svg id="gap" width="100%" viewBox="0 0 400 200" role="img" aria-label="Price gap per country"></svg>
+    </div>
+    <div class="card">
+      <h2>Options by status</h2>
+      <p class="sub">10 options after three red-team rounds.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Options by status"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-used)"></span>Survives<b>3</b></span>
+          <span><span class="dot" style="background:var(--red)"></span>Dead<b>6</b></span>
+          <span><span class="dot" style="background:var(--c-diy)"></span>Unexamined<b>1</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Origins per curated box</h2>
+      <p class="sub">Cupside states 8 as its ceiling.</p>
+      <div class="hb" id="mk"></div>
+    </div>
+    <div class="card">
+      <h2>What the starter registration covers</h2>
+      <p class="sub">Small roaster selling online.</p>
+      <table class="dm">
+        <thead><tr><th style="text-align:left;font-weight:400;color:var(--ink-3)">Activity</th><th class="c" style="font-weight:400;color:var(--ink-3)">Ireland</th><th class="c" style="font-weight:400;color:var(--ink-3)">Denmark</th></tr></thead>
+        <tbody id="dm"></tbody>
+      </table>
+      <div class="legend" style="margin-top:14px">
+        <span><span class="dot" style="background:var(--teal)"></span>Covered</span>
+        <span><span class="dot" style="border:1.5px solid var(--c-mute)"></span>Extra licence</span>
+        <span><b class="sq">?</b> not stated</span>
+      </div>
+    </div>
+  </div>
+  <p class="note">Next step: two emails and three calls, €0, before 2 Apr 2027. See Calls.</p>
+</section>
+
+<!-- OPTIONS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="people"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>Ireland</span><span class="nm">Office wholesale, 50% tier</span></div><span class="chip ok">Survives</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€64 ex VAT per order to us, €128 retail</span></div>
+        <div class="row"><span class="f">Gross per sale</span><span>€64, survives almost any acquisition cost</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Reseller in the trade group. Gate: an account and one message</span></div>
+      </div>
+      <div class="flag">Bites: the incumbent already gives office suppliers 50%, free delivery and 400 drop points. A one-person reseller has nothing to add.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="brief"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>Ireland, Denmark</span><span class="nm">Staff-perk programme</span></div><span class="chip ok">Survives</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€48–89, beans only</span></div>
+        <div class="row"><span class="f">Price gap</span><span>Nobody in Europe posts an office-depth origin list</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Voluntary perk. Legal in IE with no health claims</span></div>
+      </div>
+      <div class="flag">Bites: no B2B network. Tax budgets in IE and DK exclude a bare coffee perk. Facilities can veto.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="kit"></div><div><span class="route"><span class="dot" style="background:var(--c-diy)"></span>Sweden</span><span class="nm">Curated box, posted</span></div><span class="chip one">Unexamined</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€32.00, Nordbönan, 12 origins</span></div>
+        <div class="row"><span class="f">Price gap</span><span>+€8 vs a €24 box. The only clean gap</span></div>
+        <div class="row"><span class="f">Legal posture</span><span><span class="chip unv">Never researched</span></span></div>
+      </div>
+      <div class="flag">Bites: the gap is postage, not margin. Boxes over 2 kg cost more to send than they earn.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="pause"></div><div><span class="route"><span class="dot" style="background:var(--c-used)"></span>Any</span><span class="nm">Do nothing</span></div><span class="chip ok">Survives</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€0, keeps the €6,000</span></div>
+        <div class="row"><span class="f">Price gap</span><span>Not applicable</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>None needed</span></div>
+      </div>
+      <div class="flag">Bites: shelving before the €0 calls is a learning bet abandoned, not concluded.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="kit"></div><div><span class="route"><span class="dot" style="background:var(--red)"></span>Denmark, Czechia</span><span class="nm">Single-origin bag, €15–25</span></div><span class="chip unv">Dead</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€19.50–24.90 at Kaffeklar DK</span></div>
+        <div class="row"><span class="f">Price gap</span><span>−€4 to −€12. Supermarket range gives 5 origins. Rare lots, decaf and cold brew are extra</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Distributor, €0 only if the roaster labels in the local language</span></div>
+      </div>
+      <div class="flag">Bites: 20% discount gives €3.90 per €19.50 box against €18–60 per customer. 12 incumbents.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="tube"></div><div><span class="route"><span class="dot" style="background:var(--red)"></span>Ireland</span><span class="nm">Roast-to-order subscription</span></div><span class="chip unv">Dead</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€14–19 at two Irish roasters</span></div>
+        <div class="row"><span class="f">Price gap</span><span>Supermarket route €5.10–8.40</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Not examined</span></div>
+      </div>
+      <div class="flag">Bites: the local roaster already ships fresh beans. 30% of new subscribers cancel before the second box.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="link"></div><div><span class="route"><span class="dot" style="background:var(--red)"></span>Ireland</span><span class="nm">Affiliate only</span></div><span class="chip unv">Dead</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>10% of a €72 box = €7.20</span></div>
+        <div class="row"><span class="f">Price gap</span><span>Not applicable</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>No registration duty. €0, or €3.60 on a network</span></div>
+      </div>
+      <div class="flag">Bites: €18 of ad spend per order against €7.20 of commission.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="kit"></div><div><span class="route"><span class="dot" style="background:var(--red)"></span>Ireland</span><span class="nm">Curated box, posted</span></div><span class="chip unv">Dead</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€27.50 Brewmark</span></div>
+        <div class="row"><span class="f">Price gap</span><span>−€3.50</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Distributor of a locally labelled box, €0 fixed, €250–540 a year</span></div>
+      </div>
+      <div class="flag">Bites: Brewmark holds the roastery, the food-safety approval and the consumer brand.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="kit"></div><div><span class="route"><span class="dot" style="background:var(--red)"></span>Austria</span><span class="nm">Corporate gift-card lever</span></div><span class="chip unv">Dead</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€49.40 Kaffeplatz. Walk-in tasting €8.50</span></div>
+        <div class="row"><span class="f">Price gap</span><span>−€4 to −€9</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Licensed roaster only</span></div>
+      </div>
+      <div class="flag">Bites: licence, lot reporting and a contract with every gift platform. One platform takes 3% + VAT of turnover.</div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="kit"></div><div><span class="route"><span class="dot" style="background:var(--red)"></span>Poland</span><span class="nm">Curated box, posted</span></div><span class="chip unv">Dead</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Price</span><span>€15 cheapest cash route</span></div>
+        <div class="row"><span class="f">Price gap</span><span>−€5 to −€11</span></div>
+        <div class="row"><span class="f">Legal posture</span><span>Small-food-business distributor registration</span></div>
+      </div>
+      <div class="flag">Bites: the postal operator will not carry parcels over 2 kg at letter rate. Opened bags cannot go back by post.</div>
+    </article>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Option</th><th class="c">0 Buyer</th><th class="c">1 Cheap test</th><th class="c">2 Price gap</th><th class="c">3 Retail entry</th><th class="c">4 Room vs incumbents</th><th class="c">5 Logistics</th><th class="c">6 Can run it</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> yes</span><span><b class="sq">~</b> partly, or with a condition</span><span><b class="sq">?</b> not found</span><span><b class="sn">✗</b> no</span><span>Columns follow the ranked criteria.</span></div>
+
+  <div class="card">
+    <h2>How the answer changed</h2>
+    <p class="sub">Each pick, and the round that tested it.</p>
+    <div class="steps">
+      <div class="step"><span class="k"></span><div><div class="h"><b>Poland is a poor market</b><span class="chip unv">Corrected</span></div><span class="t">00 desk scan · 8 Mar</span><p>The premise that local roasters gatekeep wholesale was wrong. Ireland needs no introduction. The market became an output.</p></div></div>
+      <div class="step"><span class="k"></span><div><div class="h"><b>Austria first</b><span class="chip unv">Falsified</span></div><span class="t">01 ranking, red team 1 · 9 Mar</span><p>Wrong benchmark. Against the cheapest legal route, Austria falls to near last.</p></div></div>
+      <div class="step"><span class="k"></span><div><div class="h"><b>Shelve it</b><span class="chip unv">Falsified</span></div><span class="t">03 answer, red team 2 · 9 Mar</span><p>A 9-origin box sits above both market flagships. A €15–25 single-origin bag into DK and CZ survives.</p></div></div>
+      <div class="step"><span class="k"></span><div><div class="h"><b>Roast-to-order subscription first, box as fallback</b><span class="chip unv">Falsified</span></div><span class="t">05 shapes, 06 supplier check · 9 Mar</span><p>Local roasters already ship roast-to-order. The bag becomes the answer.</p></div></div>
+      <div class="step"><span class="k"></span><div><div class="h"><b>The DK and CZ bag is the answer</b><span class="chip unv">Falsified</span></div><span class="t">06, red team 3 · 9 Mar</span><p>The discount was on file: 20%. The first order loses €9 to €56.</p></div></div>
+      <div class="step"><span class="k ok"></span><div><div class="h"><b>Can the user reach someone else's office managers for less than the margin?</b><span class="chip one">Open</span></div><span class="t">Now</span><p>Criterion 0 as arithmetic. Two emails and three calls answer it.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">14 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the answer</h3>
+    <div class="rows glist">
+      <div class="row"><span>Is the 50% office tier open to a buyer with no registered company?</span><span class="who">One email</span></div>
+      <div class="row"><span>Will office managers route coffee orders through a third party?</span><span class="who">Three calls</span></div>
+      <div class="row"><span>What does a click cost for these search terms?</span><span class="who">Keyword Planner</span></div>
+      <div class="row"><span>Can a retailer sell in Sweden? Never researched.</span><span class="who">Not searched yet</span></div>
+      <div class="row"><span>Does the micro-roaster exemption hold? Only a trade-body guide says so.</span><span class="who">Lawyer</span></div>
+      <div class="row"><span>Must a limited company carry the liability, not a sole trader?</span><span class="who">Lawyer</span></div>
+    </div>
+    <h3 class="gh">Could change another option</h3>
+    <div class="rows glist">
+      <div class="row"><span>Does a branded box of third-party beans make the user the food business operator of record?</span><span class="who">Lawyer</span></div>
+      <div class="row"><span>Will a local roaster pack a mixed box on request?</span><span class="who">No rule found</span></div>
+      <div class="row"><span>Do UK roasters ship to EU consumers? How do customs work?</span><span class="who">Ask Harbour Roast, Northfield</span></div>
+      <div class="row"><span>Corvina reseller margin, and the pack languages.</span><span class="who">Call Corvina</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>Denmark packaging deposit. Bounded at €0–1.20, not fixed.</span><span class="who">No source found</span></div>
+      <div class="row"><span>Poland small-roaster rules. Austria labelling update.</span><span class="who">Unchecked</span></div>
+      <div class="row"><span>Is the Brewmark organic certificate current?</span><span class="who">Ask Brewmark</span></div>
+      <div class="row"><span>Liability insurance. €120–550 is a general sole-trader band, not a quote.</span><span class="who">Ask an insurer</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CALLS -->
+<section class="panel" id="p-call" role="tabpanel" aria-labelledby="t-call" hidden>
+  <div class="grid">
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="mail"></div><div><span class="route">Email · 10 minutes · €0</span><span class="nm">Officebean webshop</span></div><span class="chip one">To do</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Ask</span><span class="q">"Can you add me to the trade group so the discount becomes active?"</span></div>
+        <div class="row"><span class="f">Good answer</span><span>The discount goes live with no company registration asked</span></div>
+        <div class="row"><span class="f">Changes</span><span>Open: the 50% route is real. Registration asked: the route closes.</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+    <article class="card opt pick">
+      <div class="oh"><div class="img" data-ill="phone"></div><div><span class="route">3 calls · one evening · €0</span><span class="nm">Office managers</span></div><span class="chip one">To do</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Who</span><span>Office managers, co-working hosts, café owners</span></div>
+        <div class="row"><span class="f">Ask</span><span class="q">"Would you route your coffee orders through a third party? And what would that have to be worth to you?"</span></div>
+        <div class="row"><span class="f">Good answer</span><span>A number, or a named frustration with the current supplier</span></div>
+        <div class="row"><span class="f">Changes</span><span>All three say no: the file closes on criterion 0.</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="phone"></div><div><span class="route">Call · Kilcarra · €0</span><span class="nm">Corvina Coffee Ltd. (corvina.example)</span></div><span class="chip one">To do</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Ask</span><span class="q">"What is the reseller margin against list price, and is there a minimum order quantity?"</span></div>
+        <div class="row"><span class="f">Then ask</span><span>Which languages are on the pack and the label?</span></div>
+        <div class="row"><span class="f">Changes</span><span>Under 20%: worse than the Danish route. Under 40%: no room for ad spend.</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+    <article class="card opt">
+      <div class="oh"><div class="img" data-ill="search"></div><div><span class="route">Desk · 20 minutes · free</span><span class="nm">Ad keyword planner</span></div><span class="chip one">To do</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">Ask</span><span>Cost per click for the box search terms</span></div>
+        <div class="row"><span class="f">Good answer</span><span>Clicks price like e-commerce, not like gourmet gifts</span></div>
+        <div class="row"><span class="f">Changes</span><span>Gives the real cost per customer. Named as decisive twice, never done.</span></div>
+      </div>
+      <div class="spacer"></div>
+    </article>
+  </div>
+
+  <div class="card tw">
+    <table class="wrapc">
+      <thead><tr><th>#</th><th>Roaster to call</th><th>Why this one</th><th>Ask first</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Harbour Roast, UK</td><td>Only published terms: 15% of net revenue, zero minimums</td><td>Do you serve outside the UK?</td></tr>
+        <tr><td>2</td><td>Rostwerk, DE/AT/CH</td><td>Whole-bean pouches and drip bags, about 2 weeks to a first box, no customs</td><td>Origin list, setup fee</td></tr>
+        <tr><td>3</td><td>Northfield Coffee, UK</td><td>14 single origins and 6 blends, roasted to order, food-safety audited</td><td>Wholesale list, minimum order</td></tr>
+        <tr><td>4</td><td>Verdant Rösterei, DE</td><td>White-label, not limited to cafés</td><td>Purchase quantity, lot list</td></tr>
+        <tr><td>5</td><td>BeanBridge, DE</td><td>Claims partner roasters in every EU country</td><td>Does a one-person company qualify?</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Already answered</h2>
+      <p class="sub">Published. No call needed.</p>
+      <div class="rows glist" style="margin:0">
+        <div class="row"><span>Kaffeklar B2B: 20% off, no minimum. Denmark only.</span><span class="who">FAQ</span></div>
+        <div class="row"><span>Officebean office buyers: 50%.</span><span class="who">Web page</span></div>
+        <div class="row"><span>Harbour Roast Launch tier: 15% of net revenue.</span><span class="who">Web page</span></div>
+        <div class="row"><span>Rostwerk drip-bag menu. No reseller channel.</span><span class="who">Order form</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Watch for on every roaster call</h2>
+      <p class="sub">Each one can end the call.</p>
+      <div class="rows glist" style="margin:0">
+        <div class="row"><span>Who ships the box? In Denmark only a registered food business can.</span><span class="who">Food act, per country</span></div>
+        <div class="row"><span>Who holds the carrier account?</span><span class="who">Per country</span></div>
+        <div class="row"><span>UK roaster: a customs border for each parcel.</span><span class="who">Unverified</span></div>
+        <div class="row"><span>A 50-origin box claim. Ask for the cupping sheet.</span><span class="who">Ceiling 8–12</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="two">
+    <div class="card">
+      <h2>Ranked criteria</h2>
+      <p class="sub">The order breaks ties.</p>
+      <div class="rows rk" style="margin:0;border-top:0">
+        <div class="row"><span class="n top">0</span><span>Access to a buyer<span class="d">Survivors own an audience first. Added 9 Mar.</span></span></div>
+        <div class="row"><span class="n">1</span><span>Cost of the experiment<span class="d">Cash and weeks to a first paying customer.</span></span></div>
+        <div class="row"><span class="n">2</span><span>Size of the price gap<span class="d">Against the cheapest legal route.</span></span></div>
+        <div class="row"><span class="n">3</span><span>Regulatory entry cost<span class="d">Can a pure retailer sell without a food licence?</span></span></div>
+        <div class="row"><span class="n">4</span><span>Incumbency<span class="d">Does someone own the niche already?</span></span></div>
+        <div class="row"><span class="n">5</span><span>Logistics<span class="d">Letterbox post, transit, roast freshness.</span></span></div>
+        <div class="row"><span class="n">6</span><span>Operable there<span class="d">Language, entity, residence, payment.</span></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Constraints</h2>
+      <p class="sub">Set by the user, 8 and 9 Mar.</p>
+      <div class="rows" style="margin:0">
+        <div class="row"><span class="f">Budget</span><span>Under €6,000 before it must earn</span></div>
+        <div class="row"><span class="f">Time</span><span>Evenings</span></div>
+        <div class="row"><span class="f">Bar</span><span>A learning bet. Rank on the cost of finding out</span></div>
+        <div class="row"><span class="f">Go/no-go</span><span>2 Apr 2027</span></div>
+        <div class="row"><span class="f">Vehicle</span><span>Sole trader, or a new small limited company</span></div>
+        <div class="row"><span class="f">Roaster</span><span>Third party, already licensed</span></div>
+        <div class="row"><span class="f">Audience</span><span>None. Cold start</span></div>
+        <div class="row"><span class="f">Buyer</span><span>Employers, changed from consumers on 9 Mar</span></div>
+        <div class="row"><span class="f">Currency</span><span>Euro, ex VAT unless marked</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">File</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Brief: question, criteria, constraints</td><td class="r muted">BRIEF.md</td></tr>
+        <tr id="src-2"><td>2</td><td>Short answer and 9 dated corrections</td><td class="r muted">README.md</td></tr>
+        <tr id="src-3"><td>3</td><td>"Shelve it", falsified. Price gaps, registration costs</td><td class="r muted">03-the-answer.md</td></tr>
+        <tr id="src-4"><td>4</td><td>Shapes A, B, C side by side. C falsified</td><td class="r muted">05-two-options.md</td></tr>
+        <tr id="src-5"><td>5</td><td>Red team 3: shape A falsified</td><td class="r muted">07-redteam-verdict-3.md</td></tr>
+        <tr id="src-6"><td>6</td><td>Calls only the user can make</td><td class="r muted">callsheet.md</td></tr>
+        <tr id="src-7"><td>7</td><td>Earlier report: Sweden, origins, Austria</td><td class="r muted">coffee-brief.html</td></tr>
+        <tr id="src-8"><td>8</td><td>Dated web captures behind every figure</td><td class="r muted">sources/, 214 files</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">10 options. Ranked on access to a buyer, then cost of finding out. Three red-team rounds. Each one falsified the pick.</p>
+</div>
+
+<script>
+var NS='http://www.w3.org/2000/svg';
+var ILL={
+ kit:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="12" width="32" height="22" rx="3"/><path d="M6 14l16 11 16-11" stroke-linejoin="round"/></svg>',
+ people:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="16" r="5"/><circle cx="30" cy="18" r="4"/><path d="M7 34c0-6 4-10 9-10s9 4 9 10M25 33c1-4 3-7 6-7s6 3 6 8" stroke-linecap="round"/></svg>',
+ brief:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="14" width="32" height="21" rx="3"/><path d="M17 14v-3a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M6 23h32"/></svg>',
+ link:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 25l6-6"/><path d="M16 21l-4 4a5 5 0 0 0 7 7l4-4M28 23l4-4a5 5 0 0 0-7-7l-4 4"/></svg>',
+ pause:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="22" cy="22" r="14"/><path d="M18 16v12M26 16v12"/></svg>',
+ tube:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17 7h10M19 7v24a3 3 0 0 0 6 0V7"/><path d="M19 22h6"/></svg>',
+ mail:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="11" width="32" height="22" rx="3"/><path d="M7 13l15 10 15-10" stroke-linejoin="round"/></svg>',
+ phone:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="14" y="6" width="16" height="32" rx="3"/><path d="M20 33h4" stroke-linecap="round"/></svg>',
+ search:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="19" cy="19" r="10"/><path d="M27 27l9 9"/></svg>'};
+document.querySelectorAll('[data-ill]').forEach(function(e){e.innerHTML=ILL[e.dataset.ill].replace(/width="44" height="44"/,'width="34" height="34"')});
+
+// gross per sale vs cost per customer
+(function(){
+ var d=[['DK box, ex VAT',3.12,'var(--c-new)'],['DK box €19.50',3.9,'var(--c-new)'],['DK box €45',9,'var(--c-new)'],['IE affiliate',7.2,'var(--c-pi)'],['IE office tier',64,'var(--c-used)',1]];
+ var max=80,h='';
+ d.forEach(function(r){var w=r[1]/max*100,pk=r[3]?' pk':'';
+  h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="band" style="left:'+(18/max*100)+'%;width:'+(42/max*100)+'%"></span><span class="b" style="width:'+w+'%;background:'+r[2]+'"></span><span class="v'+pk+'" style="left:'+w+'%">€'+r[1].toFixed(2)+'</span></div>';});
+ h+='<span></span><div class="tr" style="height:18px;color:var(--ink-3)">';
+ [0,20,40,60,80].forEach(function(v){h+='<span style="position:absolute;left:'+(v/max*100)+'%;transform:translateX('+(v===0?'0':v===80?'-100%':'-50%')+')">€'+v+'</span>';});
+ document.getElementById('hbar').innerHTML=h+'</div>';
+})();
+
+// price gap, diverging range
+(function(){
+ var s=document.getElementById('gap'),rows=[['Sweden',8,8],['Norway',0.5,5],['Ireland',-3.5,-3.5],['Austria',-9,-4],['Poland',-11,-5],['DK, CZ, SK, SI',-12,-4]];
+ var x0=124,x1=372,lo=-14,hi=10;function X(v){return x0+(v-lo)/(hi-lo)*(x1-x0)}
+ var h='';
+ [-12,-8,-4,0,4,8].forEach(function(v){h+='<line x1="'+X(v)+'" x2="'+X(v)+'" y1="6" y2="166" stroke="'+(v===0?'var(--ink-3)':'var(--rule)')+'"/><text x="'+X(v)+'" y="186" text-anchor="middle" font-size="12" fill="var(--ink-3)">'+(v>0?'+':v<0?'−':'')+'€'+Math.abs(v)+'</text>';});
+ rows.forEach(function(r,i){var y=20+i*27,c=r[2]>0?'var(--teal)':'var(--red)';
+  h+='<text x="0" y="'+(y+4)+'" font-size="12" fill="var(--ink-2)">'+r[0]+'</text>';
+  if(r[1]!==r[2])h+='<line x1="'+X(r[1])+'" x2="'+X(r[2])+'" y1="'+y+'" y2="'+y+'" stroke="'+c+'" stroke-width="6" stroke-linecap="round" opacity=".35"/><circle cx="'+X(r[1])+'" cy="'+y+'" r="5" fill="'+c+'"/>';
+  h+='<circle cx="'+X(r[2])+'" cy="'+y+'" r="5" fill="'+c+'"/>';});
+ s.innerHTML=h;
+})();
+
+// donut
+(function(){
+ var s=document.getElementById('donut'),d=[[3,'var(--c-used)'],[6,'var(--red)'],[1,'var(--c-diy)']],tot=10,r=56,cx=75,cy=75,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+x[1]+'" stroke-width="18" stroke-dasharray="'+(len-3)+' '+(circ-len+3)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">options</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">10</text>';
+ s.innerHTML=h;
+})();
+
+// origins per box
+(function(){
+ var d=[['Nordbönan SE',12],['Tostadora',11],['Bohnenpost max',9],['Cupside',8,1],['Brewmark XL',7],['Morningpost',6],['Kaffeklar',5],['Easy Brew',3],['Podwerk',2]];
+ d.sort(function(a,b){return b[1]-a[1]});
+ var max=15,h='';
+ d.forEach(function(r){var w=r[1]/max*100,pk=r[2]?' pk':'';
+  h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="b" style="width:'+w+'%;background:'+(r[2]?'var(--teal)':'var(--c-pi)')+'"></span><span class="v'+pk+'" style="left:'+w+'%">'+r[1]+'</span></div>';});
+ document.getElementById('mk').innerHTML=h;
+})();
+
+// registration dot matrix
+(function(){
+ var on='<span class="on"></span>',off='<span class="off"></span>',q='<b class="sq">?</b>';
+ var d=[['Green-bean import',on,on],['Roasting for sale',on,q],['Online sale',on,on],['Allergen label',on,on],['Lot-date label',off,on],['Export to EU',off,on],['Organic claim',off,off],['Fair-trade claim',off,off]];
+ document.getElementById('dm').innerHTML=d.map(function(r){return '<tr><td>'+r[0]+'</td><td class="c">'+r[1]+'</td><td class="c">'+r[2]+'</td></tr>'}).join('');
+})();
+
+// criteria matrix
+(function(){
+ var S={y:'<td class="c sy">✓</td>',p:'<td class="c sq">~</td>',q:'<td class="c sq">?</td>',n:'<td class="c sn">✗</td>'};
+ var st={s:'var(--c-used)',d:'var(--red)',u:'var(--c-diy)'};
+ var d=[['IE office wholesale tier','s','qyqqnyy',1],['Staff-perk programme','s','nnyppqq'],['Sweden curated box','u','nqyqpqq'],
+  ['DK/CZ single-origin bag','d','npppnyq'],['IE roast-to-order sub','d','nqnqpqy'],['IE affiliate only','d','nynypyy'],
+  ['IE curated box','d','npnpnyy'],['Austria gift-card lever','d','nnnnpyy'],['Poland curated box','d','nqnpqnq']];
+ var h='';d.forEach(function(r){h+='<tr'+(r[3]?' class="pick"':'')+'><td><span class="dot" style="background:'+st[r[1]]+'"></span>'+(r[3]?'<b>'+r[0]+'</b>':r[0])+'</td>'+r[2].split('').map(function(c){return S[c]}).join('')+'</tr>';});
+ h+='<tr><td colspan="8" class="c muted" style="font-size:12px">+ do nothing, €0</td></tr>';
+ document.getElementById('mx').innerHTML=h;
+})();
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+
+</script>
+</body>
+</html>

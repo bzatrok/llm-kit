@@ -1,0 +1,37 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:288px;background:var(--bg,#F2F5F8);overflow:hidden}
+.c{position:relative;width:960px;height:288px;font-family:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif}
+svg{position:absolute;left:0;top:0}
+.teal{fill:var(--c-used,#13A0A8)}.new{fill:var(--c-new,#8676DE)}.diy{fill:var(--c-diy,#EE8A3A)}
+.ink{fill:var(--ink,#1D2730)}.tint{fill:var(--teal-soft,#E0F3F4)}.pill{fill:var(--card,#FFFFFF)}
+.txt{position:absolute;left:40px;bottom:36px;max-width:440px}
+.name{margin:0;font-size:88px;line-height:.95;font-weight:500;color:var(--ink,#1D2730);letter-spacing:-.01em}
+.tag{margin:12px 0 0;font-size:14px;line-height:20px;color:var(--ink-3,#6A7682)}
+</style></head>
+<body><div class="c">
+<svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+<!--
+blocks: c-used 224x192 (radius-lg 16), c-new 200x160, ink 200x128, c-diy 104x96, teal-soft 104x96
+arrangement: one tall teal slab bleeding off the top, satellites stepped right and below, purple bleeding off the bottom
+pattern: pills (radius-pill) as horizontal bars, because the system's core chart is the pill bar chart and its shapes are soft and rounded
+steps/radii: gaps space-4 16, pill height space-3 12, bar pitch 28, block radius radius-lg 16, pill rx half of 12
+-->
+<rect class="teal" x="520" y="-16" width="224" height="192" rx="16"/>
+<rect class="ink" x="760" y="-16" width="200" height="144" rx="16"/>
+<rect class="new" x="760" y="144" width="200" height="160" rx="16"/>
+<rect class="diy" x="520" y="192" width="104" height="96" rx="16"/>
+<rect class="tint" x="640" y="192" width="104" height="96" rx="16"/>
+<rect class="pill" x="544" y="40" width="160" height="12" rx="6"/>
+<rect class="pill" x="544" y="68" width="112" height="12" rx="6"/>
+<rect class="pill" x="544" y="96" width="176" height="12" rx="6"/>
+<rect class="pill" x="544" y="124" width="88" height="12" rx="6"/>
+<rect class="pill" x="784" y="176" width="136" height="12" rx="6"/>
+<rect class="pill" x="784" y="204" width="96" height="12" rx="6"/>
+</svg>
+<div class="txt"><p class="name">Research</p><p class="tag">Answer first, evidence in tabs, every number traced.</p></div>
+</div></body></html>
