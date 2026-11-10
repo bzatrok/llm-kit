@@ -18,7 +18,8 @@ Skills, mods and plugins for [Claude Code](https://claude.com/claude-code), one 
 | `source-port` | Rebuilds a native program you own as compiling source from its shipped binary |
 | `research` | Researches a real-life decision against captured evidence and ends in an HTML report |
 | `discuss` | Talk a thing through: short turns, one question at a time, stays on until you stop it |
-| `teach` | Document-and-quiz teaching workspace: mission, glossary, resources and a learning record per topic |
+| `teach` | Teaching workspace over many sessions: mission, learner profile, glossary, resources, a spaced review queue and a learning record per topic; practice is graded in the terminal |
+| `visual-explain` | One scrollytelling HTML explainer per concept: sticky SVG or Three.js graphic driven by prose steps, animated tokens and self-drawing paths, a collision check script and a fresh-eyes review |
 | `marktplaats` | Sell-and-check-up workflow for Marktplaats via the Chrome extension; every outgoing message is approval-gated |
 
 ## Mods

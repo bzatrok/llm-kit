@@ -1,0 +1,157 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Four-stroke engine, 3D</title>
+<style>
+  body{margin:0;font:17px/1.55 system-ui;color:#222;background:#fff}
+  header{max-width:640px;margin:3rem auto 1rem;padding:0 1rem}
+  #scrolly{display:flex;max-width:1100px;margin:0 auto;gap:2rem;padding:0 1rem}
+  #graphic{position:sticky;top:0;height:100vh;flex:1;display:flex;align-items:center;flex-direction:column;justify-content:center}
+  canvas{width:100%;max-width:620px;aspect-ratio:1/1.1;border-radius:10px;background:#f4f6f9}
+  #hud{font:13px ui-monospace,monospace;color:#555;margin-top:.5rem}
+  #steps{flex:0 0 360px}
+  .step{min-height:85vh;display:flex;align-items:center;opacity:.25;transition:opacity .3s}
+  .step.is-active{opacity:1}
+  .step p{background:#fff;border-left:4px solid #1a73e8;padding:.8rem 1rem;margin:0}
+  @media (max-width:800px){#scrolly{flex-direction:column}#graphic{height:55vh}#steps{flex:1}.step{min-height:60vh}}
+</style>
+
+<header>
+  <h1>Four-stroke engine, in 3D</h1>
+  <p>Same story as the flat version. The crank angle drives every part: piston height, conrod swing, valve lift, charge colour. Each step only says "go to this angle, look from here, highlight this part".</p>
+</header>
+
+<section id="scrolly">
+  <figure id="graphic"><canvas id="c"></canvas><div id="hud">crank 0°</div></figure>
+  <article id="steps">
+    <div class="step" data-step="0"><p><b>The parts.</b> Cylinder, piston, connecting rod, crank. Two valves in the head, spark plug between them. The rod is what converts straight travel into rotation, and it swings as it does so.</p></div>
+    <div class="step" data-step="1"><p><b>Intake, 0° to 180°.</b> Piston descends, the intake valve lifts, the chamber fills with a blue air and fuel charge. The engine spends energy here, from the flywheel.</p></div>
+    <div class="step" data-step="2"><p><b>Compression, 180° to 360°.</b> Valves closed, piston rises, the charge turns dark as it is squeezed to about a tenth of its volume.</p></div>
+    <div class="step" data-step="3"><p><b>Ignition, around 350°.</b> The plug fires just before top dead centre. The flash is brief. From above you can see why the plug sits centrally: the flame must reach every wall.</p></div>
+    <div class="step" data-step="4"><p><b>Power, 360° to 540°.</b> Hot gas expands and drives the piston down. The rod is angled now, so the push becomes torque. Only this stroke does work.</p></div>
+    <div class="step" data-step="5"><p><b>Exhaust, 540° to 720°.</b> Exhaust valve lifts, the piston sweeps the grey burnt gas out. Back at top dead centre, the cycle starts again.</p></div>
+    <div class="step" data-step="6"><p><b>At speed.</b> Two full turns per power stroke. Here it runs continuously. Watch how little of the time the gas is orange: that is why single cylinders shake and why engines add cylinders out of phase.</p></div>
+  </article>
+</section>
+<div style="height:40vh"></div>
+
+<script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
+<script type="importmap">{"imports":{
+  "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const canvas = document.getElementById('c'), hud = document.getElementById('hud');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#f4f6f9');
+// procedural IBL: nothing to download, makes metal and glass read correctly
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; pmrem.dispose();
+const sun = new THREE.DirectionalLight('#ffffff', 1.2); sun.position.set(5,8,6); scene.add(sun);
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+
+// geometry, units: crank radius R=1, rod L=3, crank centre at origin
+const R=1, L=3, BORE=1.6, HEAD=5.0;
+const metal = (c, r=.4) => new THREE.MeshStandardMaterial({color:c, metalness:.8, roughness:r});
+const glass = new THREE.MeshPhysicalMaterial({color:'#dfe8f3', transmission:1, thickness:.3, roughness:.05, ior:1.5, side:THREE.DoubleSide});
+
+const cyl = new THREE.Mesh(new THREE.CylinderGeometry(BORE/2+.06, BORE/2+.06, 3.3, 64, 1, true), glass);
+cyl.position.y = HEAD - 3.3/2; scene.add(cyl);
+const head = new THREE.Mesh(new THREE.CylinderGeometry(BORE/2+.2, BORE/2+.2, .3, 64), metal('#555', .5));
+head.position.y = HEAD + .15; scene.add(head);
+
+const piston = new THREE.Mesh(new THREE.CylinderGeometry(BORE/2-.03, BORE/2-.03, .7, 64), metal('#c8c8c8', .3)); scene.add(piston);
+const rod = new THREE.Mesh(new THREE.BoxGeometry(.25, L, .4), metal('#9a9a9a')); scene.add(rod);
+const crank = new THREE.Group();
+crank.add(new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.3,64).rotateX(Math.PI/2), metal('#6a6a6a', .45)));
+const pin = new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.8,24).rotateX(Math.PI/2), metal('#333'));
+pin.position.y = R; crank.add(pin); scene.add(crank);
+
+const mkValve = x => { const g=new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.2,16), metal('#aaa')).translateY(.6));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.08,32), metal('#444')));
+  g.position.set(x, HEAD, 0); scene.add(g); return g; };
+const intake = mkValve(-.42), exhaust = mkValve(.42);
+const plug = new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,.8,12), metal('#eee', .2)); plug.position.set(0,HEAD+.5,0); scene.add(plug);
+const gasMat = new THREE.MeshStandardMaterial({color:'#cfe3ff', transparent:true, opacity:.55, emissive:'#000000'});
+const gas = new THREE.Mesh(new THREE.CylinderGeometry(BORE/2-.04, BORE/2-.04, 1, 48), gasMat); scene.add(gas);
+const flash = new THREE.PointLight('#ff8800', 0, 6); flash.position.set(0,HEAD-.3,0); scene.add(flash);
+
+// post: outline the part the current step is about
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const outline = new OutlinePass(new THREE.Vector2(1,1), scene, camera);
+outline.edgeStrength = 4; outline.edgeThickness = 1.5; outline.edgeGlow = .3;
+outline.visibleEdgeColor.set('#1a73e8'); outline.hiddenEdgeColor.set('#1a73e8');
+composer.addPass(outline); composer.addPass(new OutputPass());
+
+// per-step pose: cumulative crank angle, camera azimuth/elevation, highlighted parts
+const STEPS = [
+  {a:0,   az:0.6, el:0.35, hi:[]},
+  {a:180, az:0.9, el:0.3,  hi:[intake]},
+  {a:360, az:1.2, el:0.3,  hi:[piston]},
+  {a:350, az:1.4, el:1.1,  hi:[plug]},
+  {a:540, az:2.0, el:0.3,  hi:[rod]},
+  {a:720, az:2.6, el:0.35, hi:[exhaust]},
+  {a:720, az:3.2, el:0.4,  hi:[], spin:true},
+];
+let target = STEPS[0], angle = 0, az = 0.6, el = 0.35, last = performance.now(), visible = true;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const deg = Math.PI/180;
+// frame-rate independent easing: fraction per 60fps frame -> per dt
+const ease = (a,b,k,dt) => reduced ? b : a + (b-a)*(1-Math.pow(1-k, dt*60));
+const cBlue=new THREE.Color('#bcd6ff'), cDark=new THREE.Color('#3f7fe0'), cHot=new THREE.Color('#ff6a00'), cWarm=new THREE.Color('#ffb067'), cGrey=new THREE.Color('#b5b5b5');
+
+function pose(aDeg){
+  const t = aDeg*deg, ph = ((aDeg%720)+720)%720;
+  const px = Math.sin(t)*R, py = Math.cos(t)*R;
+  pin.position.set(px, py, 0); crank.rotation.z = -t;
+  const pistonY = py + Math.sqrt(L*L - px*px);              // slider-crank
+  piston.position.y = pistonY;
+  rod.position.set(px/2, (py+pistonY)/2, 0); rod.rotation.z = Math.atan2(-px, pistonY-py);
+  const top = pistonY + .35, h = Math.max(HEAD-top, .02);
+  gas.scale.y = h; gas.position.y = top + h/2;
+  const lift = s => Math.max(0, Math.sin(s*deg))*.3;
+  intake.position.y  = HEAD - (ph<180 ? lift(ph) : 0);
+  exhaust.position.y = HEAD - (ph>540 ? lift(ph-540) : 0);
+  let c = cGrey, em = 0;
+  if (ph<180) c = cBlue; else if (ph<345) c = cDark.clone().lerp(cBlue, 1-(ph-180)/165);
+  else if (ph<375) { c = cHot; em = 1 - Math.abs(ph-360)/15; } else if (ph<540) c = cHot.clone().lerp(cWarm,(ph-375)/165);
+  gasMat.color.copy(c); gasMat.emissive.set(em? '#ff5500':'#000000'); gasMat.emissiveIntensity = em*1.5; flash.intensity = em*25;
+  hud.textContent = `crank ${Math.round(ph)}°  ·  piston ${pistonY.toFixed(2)}`;
+}
+
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt = Math.min((now-last)/1000, .1); last = now;
+  if (!visible) return;                                     // sleep when off screen
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.round(w*renderer.getPixelRatio())) {
+    renderer.setSize(w,h,false); composer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+  if (target.spin) target = {...target, a: target.a + 360*dt};
+  angle = target.spin ? target.a : ease(angle, target.a, .06, dt);
+  az = ease(az, target.az, .05, dt); el = ease(el, target.el, .05, dt);
+  pose(angle);
+  camera.position.set(Math.sin(az)*9*Math.cos(el), 2.5 + 7*Math.sin(el), Math.cos(az)*9*Math.cos(el));
+  camera.lookAt(0, 2.5, 0);
+  composer.render();
+}
+requestAnimationFrame(frame);
+new IntersectionObserver(([e]) => visible = e.isIntersecting).observe(document.getElementById('scrolly'));
+
+scrollama().setup({ step: '.step', offset: 0.55 }).onStepEnter(({element}) => {
+  document.querySelectorAll('.step').forEach(s => s.classList.toggle('is-active', s === element));
+  const n = +element.dataset.step;
+  target = {...STEPS[n]};
+  if (n===6) target.a = angle;
+  outline.selectedObjects = target.hi;
+});
+</script>
