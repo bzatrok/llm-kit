@@ -88,7 +88,7 @@ aside{display:flex;flex-direction:column;gap:12px}
 </div>
 <div id="tip"></div>
 
-<script src="https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js"></script>
+<script src="https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js" integrity="sha384-KO35c6PFq7tFxAEx6FtATwL9vOBOmCzQYr7GM0iTr3oO22s7Jc9OkclOH4AV7jwK" crossorigin="anonymous"></script>
 <script>
 // ---- model: the only part an agent writes per system ----
 const MODEL = {
@@ -284,22 +284,24 @@ function runTokens(hops){
   });
 }
 
+// model text comes from repo files: escape before it reaches innerHTML
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const edgeLi=e=>`<li>${esc(byId[e.from].label)} <b>${esc(e.label)}</b> ${esc(byId[e.to].label)}</li>`;
 function showDetail(id){
   const n=byId[id]||{label:MODEL.groups.find(g=>g.id===id)?.label,tip:''};
-  const li=MODEL.edges.filter(e=>visible(e.from)===id||visible(e.to)===id)
-    .map(e=>`<li>${byId[e.from].label} <b>${e.label}</b> ${byId[e.to].label}</li>`).join('');
-  document.getElementById('detail').innerHTML=`<h2>Selected</h2><p><b>${n.label}</b><br>${n.tip||''}</p><ul>${li}</ul>`;
+  const li=MODEL.edges.filter(e=>visible(e.from)===id||visible(e.to)===id).map(edgeLi).join('');
+  document.getElementById('detail').innerHTML=`<h2>Selected</h2><p><b>${esc(n.label)}</b><br>${esc(n.tip)}</p><ul>${li}</ul>`;
 }
 function showFlow(f){
-  const li=f.edges.map(id=>MODEL.edges.find(e=>e.id===id)).map(e=>`<li>${byId[e.from].label} <b>${e.label}</b> ${byId[e.to].label}</li>`).join('');
-  document.getElementById('detail').innerHTML=`<h2>${f.label}</h2><ol style="margin:0;padding-left:18px">${li}</ol>`;
+  const li=f.edges.map(id=>MODEL.edges.find(e=>e.id===id)).map(edgeLi).join('');
+  document.getElementById('detail').innerHTML=`<h2>${esc(f.label)}</h2><ol style="margin:0;padding-left:18px">${li}</ol>`;
 }
 
 // flows list
 const fl=document.getElementById('flows');
 for(const f of MODEL.flows){
   const b=document.createElement('button'); b.dataset.id=f.id; b.setAttribute('aria-pressed','false');
-  b.innerHTML=`${f.label}<small>${f.sub}</small>`;
+  b.innerHTML=`${esc(f.label)}<small>${esc(f.sub)}</small>`;
   b.onclick=()=>{flow=flow===f.id?null:f.id;focus=null;applyState()}; fl.appendChild(b);
 }
 svg.onclick=()=>{focus=null;flow=null;applyState()};
