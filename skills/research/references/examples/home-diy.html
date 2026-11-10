@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shower Mixer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+
+/* ---- added components, built from the tokens above ---- */
+/* hbar: shaded band behind the bars */
+.hb .band{position:absolute;top:0;bottom:0;background:var(--red-soft);border-radius:var(--r-sm)}
+/* option card: status chip in the header, image slot with drawing */
+.opt .oh .chip{align-self:start}
+.opt .photo{display:block;width:100%;height:220px;object-fit:cover;background:var(--soft)}
+.opt .slot{height:220px;background:var(--soft);display:grid;place-items:center;align-content:center;gap:8px;color:var(--ink-3);font-size:var(--fs-s)}
+.opt .row>span:last-child{min-width:0}
+/* step list: verdict history */
+.steps{display:grid}
+.step{display:grid;grid-template-columns:20px 1fr;gap:12px;position:relative;padding-bottom:18px}
+.step:last-child{padding-bottom:0}
+.step::before{content:"";position:absolute;left:9px;top:16px;bottom:0;width:1px;background:var(--rule)}
+.step:last-child::before{display:none}
+.step .k{width:10px;height:10px;border-radius:50%;margin:6px 0 0 5px;background:var(--red)}
+.step .k.ok{background:var(--teal)}.step .k.mu{background:var(--c-mute)}
+.step .t{font-size:var(--fs-s);color:var(--ink-3)}
+.step .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.step p{margin:2px 0 0;color:var(--ink-2)}
+/* checklist */
+.ck .row{grid-template-columns:18px 1fr auto;gap:12px;padding:10px 0;align-items:start}
+.ck .box{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-3);margin-top:4px}
+.ck .box.ok{border-color:var(--teal);background:var(--teal)}
+.ck .box.bl{border-color:var(--red)}
+.ck .d{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+/* ranked list */
+.rk .row{grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:10px 0}
+.rk .n{width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--ink-2);display:grid;place-items:center;font-size:var(--fs-s);font-weight:500}
+.rk .n.top{background:var(--teal-soft);color:var(--teal)}
+.rk .d{display:block;font-size:var(--fs-s);color:var(--ink-3)}
+/* old belief to finding */
+.fix .row{grid-template-columns:1fr 18px 1fr;gap:12px;align-items:start;padding:10px 0}
+.fix .was{color:var(--ink-3)}
+.fix .ar{color:var(--ink-3);text-align:center}
+/* small dot matrix */
+.dm{width:100%;border-collapse:collapse;font-size:var(--fs-s);min-width:0}
+.dm th,.dm td{padding:6px 8px;border-bottom:1px solid var(--rule)}
+.dm td:first-child{white-space:normal;color:var(--ink-2)}
+.dm .c{text-align:center}
+.dm .on{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--teal)}
+.dm .off{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--c-mute)}
+/* call card and price cells */
+.q{color:var(--ink-2)}
+td .pn{display:block;font-size:var(--fs-s);color:var(--ink-3);white-space:normal}
+td.best{color:var(--teal);font-weight:500}
+td.best .pn{font-weight:400}
+.wrapc td:first-child{white-space:normal}
+.note{margin:0;color:var(--ink-2)}
+@media (max-width:720px){
+  .fix .row{grid-template-columns:1fr}
+  .fix .ar{display:none}
+  .fix .was::after{content:" →"}
+  .opt .oh .chip{grid-column:2;justify-self:start}
+}
+
+/* pipe ruler */
+.ruler{position:relative;height:118px;margin:4px 8px 12px}
+.ruler .ln{position:absolute;left:0;right:0;top:58px;height:2px;background:var(--rule)}
+.ruler .tk{position:absolute;top:54px;height:10px;width:1px;background:var(--ink-3)}
+.ruler .pt{position:absolute;top:53px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%)}
+.ruler .pt.hi{top:51px;width:16px;height:16px}
+.ruler .lb{position:absolute;top:0;transform:translateX(-50%);text-align:center;font-size:var(--fs-s);line-height:1.4;color:var(--ink-2);white-space:nowrap}
+.ruler .lb.dn{top:76px}
+.ruler .lb.hi{color:var(--teal);font-weight:500}
+.hb.vb{grid-template-columns:190px 1fr}
+@media (max-width:720px){.hb.vb{grid-template-columns:1fr;gap:2px 0}.hb.vb .tr{margin-bottom:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 14 Sep 2026</div>
+    <h1>Shower mixer</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Fit 4 Aquamera Tempo 300 mixers, about €249 in parts.</mark> They are on the <a class="ref" data-src="1">150 mm union list</a>, no adapter.</p>
+  <p><mark>Do not order before the site checks.</mark> The <a class="ref" data-src="8">basement mixer</a> decides 3 or 4 mixers.</p>
+  <p>First take the basement knob off. Then measure and magnet-test all 4 wall outlets.</p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Mixers</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-parts" id="t-parts">Parts</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Mixer price, top outlet 1/2"</h2>
+    <p class="sub">Euro incl. VAT, 14 Sep 2026. Colour = fit to the wall unions.</p>
+    <div class="hb vb" id="hbar"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Fits the unions, no adapter</span>
+      <span><span class="dot" style="background:var(--c-diy)"></span>Fits the unions, adapter in the box</span>
+      <span><span class="dot" style="background:var(--c-mute)"></span>Fit not confirmed</span>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Cost of the job</h2>
+      <p class="sub">Parts if you fit them. Labour only if a plumber does, €120–300 a mixer.</p>
+      <svg id="dumb" width="100%" viewBox="0 0 400 170" role="img" aria-label="Cost of the job"></svg>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--c-used)"></span>Do it yourself, parts</span>
+        <span><span class="dot" style="background:var(--c-new)"></span>Plumber, labour</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Parts for 4 mixers</h2>
+      <p class="sub">The recommended buy, in euro.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Parts split"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-used)"></span>4 Aquamera mixers<b>€237.10</b></span>
+          <span><span class="dot" style="background:var(--c-diy)"></span>Thread paste<b>€6.45</b></span>
+          <span><span class="dot" style="background:var(--c-pi)"></span>Adapter set<b>€5.80</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Union spacing</h2>
+    <p class="sub">What each reading means, in mm, centre to centre. 150 standard and 153 are 3 mm apart. Eccentric unions cover both.</p>
+    <div id="ruler" class="ruler" role="img" aria-label="Union spacing scale"></div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--teal)"></span>Working assumption</span>
+      <span><span class="dot" style="background:var(--c-pi)"></span>Eccentrics cover it</span>
+      <span><span class="dot" style="background:var(--ink-3)"></span>Needs offset fittings</span>
+    </div>
+  </div>
+  <p class="note">Next step: take the basement knob off. Then measure the spacing and magnet-test all four wall outlets.</p>
+</section>
+
+<!-- MIXERS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid">
+    <article class="card opt">
+      <img class="photo" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 220'%3E%3Crect width='480' height='220' fill='%23d9d9d9'/%3E%3Cg fill='none' stroke='%23999' stroke-width='6' stroke-linecap='round'%3E%3Crect x='200' y='80' width='80' height='50' rx='10'/%3E%3Cpath d='M240 130v50M215 60h50M240 60v20'/%3E%3C/g%3E%3C/svg%3E" alt="Main-bathroom mixer: chrome exposed thermostatic mixer with limescale on the temperature knob">
+      <div class="oh"><div class="img" data-ill="mixer"></div><div><span class="route">M1 · wall</span><span class="nm">Main bathroom</span></div><span class="chip">Replace</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">What it is</span><span>Exposed thermostatic mixer, two round knobs, limescale on the chrome</span></div>
+        <div class="row"><span class="f">Rail</span><span>Wall rail with slide bracket, chrome flaking</span></div>
+        <div class="row"><span class="f">Unions</span><span>Brass S-unions, chrome cover plates <span class="chip one">Not measured</span></span></div>
+      </div>
+      <div class="flag">Limescale has locked the temperature knob and probably the unions. Have a plan B to cut the old mixer out. The new mixer needs its anti-scald stop set on site.</div>
+    </article>
+    <article class="card opt">
+      <img class="photo" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 220'%3E%3Crect width='480' height='220' fill='%23d9d9d9'/%3E%3Cg fill='none' stroke='%23999' stroke-width='6' stroke-linecap='round'%3E%3Crect x='200' y='80' width='80' height='50' rx='10'/%3E%3Cpath d='M240 130v50M215 60h50M240 60v20'/%3E%3C/g%3E%3C/svg%3E" alt="Guest-shower mixer: nickel two-handle mixer with a square brass stem and no handle">
+      <div class="oh"><div class="img" data-ill="union"></div><div><span class="route">M2 · wall</span><span class="nm">Guest shower</span></div><span class="chip">Replace</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">What it is</span><span>Manual two-handle mixer, DN15, nickel-plated</span></div>
+        <div class="row"><span class="f">Stem</span><span>Square, tapped hole in the tip. Takes a lever</span></div>
+        <div class="row"><span class="f">Pipe</span><span>Plastic-coated compression nuts. Probably copper <span class="chip one">Not measured</span></span></div>
+      </div>
+      <div class="flag">Hot on the left or the right? If the feed is reversed, the thermostatic cartridge will not work and the pipes need swapping.</div>
+    </article>
+    <article class="card opt">
+      <div class="slot"><span data-ill="mixer" data-size="64"></span>No photo in this set</div>
+      <div class="oh"><div class="img" data-ill="mixer"></div><div><span class="route">M4 · wall</span><span class="nm">Basement shower</span></div><span class="chip one">Check first</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">What it is</span><span>Manual mixer on a vertical stack, DN stamp</span></div>
+        <div class="row"><span class="f">Knob</span><span>Ribbed white plastic, no scale. Looks like a 40 mm cartridge</span></div>
+        <div class="row"><span class="f">Pipe</span><span>Painted, material unclear <span class="chip one">Not measured</span></span></div>
+      </div>
+      <div class="flag">Sits on what looks like a shared stack. Ask the building manager in writing before you touch it.</div>
+    </article>
+    <article class="card opt">
+      <div class="slot"><span data-ill="mixer" data-size="64"></span>No photo in this set</div>
+      <div class="oh"><div class="img" data-ill="mixer"></div><div><span class="route">M3 · wall</span><span class="nm">Annex shower</span></div><span class="chip">Replace</span></div>
+      <div class="rows">
+        <div class="row"><span class="f">What it is</span><span>Manual mixer, Vandermeer &amp; Zn, about 1950s–60s</span></div>
+        <div class="row"><span class="f">Handle</span><span>Bakelite wheel, marked HOT/COLD</span></div>
+        <div class="row"><span class="f">Pipe</span><span>Steel, by the beaded fittings <span class="chip one">Not measured</span></span></div>
+      </div>
+      <div class="flag">No cartridge swap. The Vandermeer body has no thread for one. Replace the whole mixer.</div>
+    </article>
+  </div>
+
+  <div class="card">
+    <h2>What I got wrong</h2>
+    <p class="sub">First photo survey → finding on site.</p>
+    <div class="rows fix" style="margin:0">
+      <div class="row"><span class="was">Guest-shower mixer is thermostatic, knob missing</span><span class="ar">→</span><span>Manual two-handle mixer. The square stem with a tapped hole shows it.</span></div>
+      <div class="row"><span class="was">Basement mixer is thermostatic under a cap</span><span class="ar">→</span><span>Manual knob. The cartridge under it can still be thermostatic. Run check A.</span></div>
+      <div class="row"><span class="was">Any 150 mm mixer fits the wall unions</span><span class="ar">→</span><span>Brand matters. Nordo and Lumina are 150 mm and still do not fit.</span></div>
+      <div class="row"><span class="was">A DIY-chain mixer will do</span><span class="ar">→</span><span>Delta Bouw, Sanitop and Werfmaat do not publish the cartridge size. Their mixers are not on the union list.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Mixer</th><th>Shop</th><th class="r">Price</th><th class="c">Fits the unions</th><th class="c">No adapter</th><th class="c">Cartridge size published</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> yes</span><span><b class="sq">~</b> partly, or sources disagree</span><span><b class="sq">?</b> not found</span><span><b class="sn">✗</b> no</span></div>
+
+  <div class="card">
+    <h2>Ruled out</h2>
+    <p class="sub">4 routes, and why not.</p>
+    <div class="rows glist" style="margin:0">
+      <div class="row"><span>Swap the annex mixer's internals for a thermostatic cartridge.</span><span class="who">No thread on the body</span></div>
+      <div class="row"><span>Torvik quick-swap cartridge, change it without closing the mains.</span><span class="who">Torvik bodies only</span></div>
+      <div class="row"><span>Generic Werfmaat, Delta Bouw or Sanitop mixers.</span><span class="who">Not on the union list</span></div>
+      <div class="row"><span>Leave the main-bathroom mixer manual.</span><span class="who">Scald risk</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>Status</h2>
+    <p class="sub">14 Sep 2026.</p>
+    <div class="rows ck" style="margin:0">
+      <div class="row"><span class="box ok"></span><span>Showers and mixers mapped<span class="d">Main bathroom, guest shower, basement shower, annex</span></span><span class="chip ok">Done</span></div>
+      <div class="row"><span class="box ok"></span><span>Mixer type checked on site<span class="d">No thermostatic cartridges. All 4 are manual</span></span><span class="chip ok">Done</span></div>
+      <div class="row"><span class="box ok"></span><span>Spare cartridges<span class="d">2 owned, 40 mm</span></span><span class="chip ok">Done</span></div>
+      <div class="row"><span class="box ok"></span><span>Parts priced<span class="d">Delta Bouw, Sanitop, Werfmaat, Kranenhuis</span></span><span class="chip ok">Done</span></div>
+      <div class="row"><span class="box"></span><span>Parts ordered<span class="d">Wait for checks A to D</span></span><span class="chip">Not done</span></div>
+      <div class="row"><span class="box"></span><span>Mixers replaced<span class="d">4, or 3 if the basement cartridge is thermostatic already</span></span><span class="chip">Not done</span></div>
+      <div class="row"><span class="box bl"></span><span>Union spacing and pipe material</span><span class="chip unv">Blocked</span></div>
+      <div class="row"><span class="box bl"></span><span>Shared hot-water supply or own water heater</span><span class="chip unv">Blocked</span></div>
+      <div class="row"><span class="box bl"></span><span>Building rules for the shared stack</span><span class="chip unv">Blocked</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">11 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the parts list</h3>
+    <div class="rows glist">
+      <div class="row"><span>Union spacing and pipe material at each mixer.</span><span class="who">Tape measure and magnet</span></div>
+      <div class="row"><span>Is the basement cartridge thermostatic already?</span><span class="who">Take the knob off</span></div>
+      <div class="row"><span>Is the guest-shower mixer fed hot on the left or the right?</span><span class="who">Look on site</span></div>
+      <div class="row"><span>Do the boxes hold the unions and trim for 4 mixers?</span><span class="who">Open the box</span></div>
+    </div>
+    <h3 class="gh">Could change who does the job</h3>
+    <div class="rows glist">
+      <div class="row"><span>Shared hot-water supply or own water heater? Decides who closes the mains.</span><span class="who">Ask the building manager</span></div>
+      <div class="row"><span>Building rules for the shared stack. Not online.</span><span class="who">Deed of division</span></div>
+      <div class="row"><span>Does the system have a pressure reducer?</span><span class="who">Installation documents</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>Aquamera cartridge size. Kranenhuis says 38 mm, the maker says 40 mm.</span><span class="who">Datasheet AQ-30015</span></div>
+      <div class="row"><span>Is the wall outlet 1/2"? Can the old unions stay?</span><span class="who">Check before closing the mains</span></div>
+      <div class="row"><span>Import price €12–16 lower a mixer. Shipping not checked.</span><span class="who">Not checked</span></div>
+      <div class="row"><span>Tape readings in the photos. Good to about ±3 mm only.</span><span class="who">Re-measure</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Checks to do on site</h2>
+    <p class="sub">Before you order. Check D matters most.</p>
+    <div class="rows ck" style="margin:0">
+      <div class="row"><span class="box"></span><span>A. Take the basement knob off<span class="d">Round pin that springs back = thermostatic. Square stem = manual. Decides 3 or 4 mixers.</span></span><span class="who muted" style="font-size:12px">Priority 1</span></div>
+      <div class="row"><span class="box"></span><span>B. If thermostatic, caliper the cartridge<span class="d">40.0 mm = standard, fits direct. 38.0 mm = older size, adapter in the box.</span></span><span></span></div>
+      <div class="row"><span class="box"></span><span>C. Look for a pressure reducer<span class="d">At the water heater or in the installation documents.</span></span><span></span></div>
+      <div class="row"><span class="box"></span><span>D. Measure and magnet-test all 4 wall outlets<span class="d">Union centres 150 mm, ±6 mm is fine. Steel sticks, copper does not. Decides compression or threaded fit.</span></span><span class="who muted" style="font-size:12px">Priority 2</span></div>
+      <div class="row"><span class="box"></span><span>E. Measure each projection from the wall<span class="d">Tempo 300 is 85 ±2 mm. Look for the offset union set, €22.55.</span></span><span></span></div>
+      <div class="row"><span class="box"></span><span>F. Count the spare cartridges<span class="d">4 wanted. Delta Bouw sells only a 4-pack, €89.</span></span><span></span></div>
+      <div class="row"><span class="box"></span><span>G. Hot or cold side in the guest shower<span class="d">A reversed feed means one more connection to rework.</span></span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTS -->
+<section class="panel" id="p-parts" role="tabpanel" aria-labelledby="t-parts" hidden>
+  <div class="card tw">
+    <table class="wrapc">
+      <thead><tr><th>For</th><th>Part</th><th>Shop</th><th class="r">Price</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td>Main bathroom, basement, annex</td><td>Aquamera Tempo 300 top outlet, art. AQ-30015<span class="pn muted" style="display:block;font-size:12px">3 × €58.40</span></td><td>Kranenhuis</td><td class="r">€175.20</td></tr>
+        <tr class="pick"><td>Guest shower</td><td>Aquamera Tempo 300 bottom outlet, art. AQ-30025</td><td>Kranenhuis</td><td class="r">€61.90</td></tr>
+        <tr><td>Guest shower, if copper</td><td>Aquamera adapter set 1/2" × 15 mm, art. AQ-30090</td><td>Kranenhuis</td><td class="r">€5.80</td></tr>
+        <tr><td>Steel-pipe joints</td><td>Seal-Fix thread paste, 100 g</td><td>Werfmaat</td><td class="r">€6.45</td></tr>
+        <tr><td><b>Total, 4 mixers</b></td><td class="muted">€191 if the basement mixer is thermostatic already</td><td></td><td class="r"><b>€249</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card tw">
+    <table class="wrapc">
+      <thead><tr><th>Part</th><th class="r">Delta Bouw</th><th class="r">Sanitop</th><th class="r">Werfmaat</th><th class="r">Kranenhuis</th></tr></thead>
+      <tbody id="shop"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b style="color:var(--teal)">Teal</b> = cheapest in the row</span><span>– = not found at that shop</span><span>Incl. VAT, 14 Sep 2026</span></div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Spare cartridges</h2>
+      <p class="sub">Optional. Prices only for a top-up.</p>
+      <div class="rows" style="margin:0">
+        <div class="row"><span class="f">4-pack</span><span>€89 at Delta Bouw, €22.25 a cartridge</span></div>
+        <div class="row"><span class="f">Single cartridge</span><span>€27.90 at Kranenhuis, 40 mm</span></div>
+        <div class="row"><span class="f">Stop kit</span><span>€12.50, limiter and key</span></div>
+        <div class="row"><span class="f">Note</span><span>No 3-pack or single at Delta Bouw. Other makes do not fit</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>If a plumber does it</h2>
+      <p class="sub">Local rates, 2026, excl. VAT and parts.</p>
+      <div class="rows" style="margin:0">
+        <div class="row"><span class="f">Hourly</span><span>€50–90</span></div>
+        <div class="row"><span class="f">Call-out</span><span>€25–45 a visit</span></div>
+        <div class="row"><span class="f">Mixer swap</span><span>€120–300 a mixer</span></div>
+        <div class="row"><span class="f">Evenings</span><span>€110–160 an hour</span></div>
+        <div class="row"><span class="f">Ask for</span><span>A fixed price, closing the mains and re-opening included</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs wrapc">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Aquamera union compatibility guide for exposed mixers, V2.0</td><td class="r muted">Mar 2022</td></tr>
+        <tr id="src-2"><td>2</td><td>Aquamera support: cartridge types, adapters, pressure reducer, anti-scald stop</td><td class="r muted">14 Sep</td></tr>
+        <tr id="src-3"><td>3</td><td>Nordo dimension drawing, Werfmaat 20481637</td><td class="r muted">14 Sep</td></tr>
+        <tr id="src-4"><td>4</td><td>Aquamera Tempo 300 datasheet, art. AQ-30015</td><td class="r muted">14 Sep</td></tr>
+        <tr id="src-5"><td>5</td><td>Shop pages: Delta Bouw, Sanitop, Werfmaat, Kranenhuis</td><td class="r muted">14 Sep</td></tr>
+        <tr id="src-6"><td>6</td><td>Forum threads: scaled cartridge swaps, old mixer to new unions</td><td class="r muted">14 Sep</td></tr>
+        <tr id="src-7"><td>7</td><td>Plumber quote sites: swap rates</td><td class="r muted">2026</td></tr>
+        <tr id="src-8"><td>8</td><td>Site photos M1 and M2, 640 × 960</td><td class="r muted">14 Sep</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">4 mixers, 4 shops. Ranked on union fit, then price. Prices incl. VAT.</p>
+</div>
+
+<script>
+var C={g:'var(--c-used)',a:'var(--c-diy)',x:'var(--c-mute)'};
+var ILL={
+ mixer:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="16" y="18" width="12" height="12" rx="3"/><path d="M4 24h12M22 30v10M22 18v-6M16 12h12"/></svg>',
+ union:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="15" y="20" width="14" height="10" rx="3"/><path d="M3 25h12M29 25h12M22 20v-8M16 12h12"/></svg>'};
+document.querySelectorAll('[data-ill]').forEach(function(e){var z=e.dataset.size||34;e.innerHTML=ILL[e.dataset.ill].replace(/width="44" height="44"/,'width="'+z+'" height="'+z+'"')});
+
+// hbar: mixer prices
+(function(){
+ var d=[['Nordo, Werfmaat',24.95,'x'],['Generic, Werfmaat',27.50,'x'],['Set, Werfmaat',31.95,'x'],['Lumina, Delta Bouw',38.90,'x'],
+  ['Valtek, Werfmaat',44.80,'a'],['Torvik, Kranenhuis',51.20,'g'],['Chrome, Werfmaat',54.00,'x'],['Valtek, Kranenhuis',56.40,'a'],
+  ['Aquamera, Kranenhuis',58.40,'g',1],['Lumina 38 mm, Sanitop',71.90,'x']];
+ var max=80,h='';
+ d.forEach(function(r){var w=r[1]/max*100,pk=r[3]?' pk':'';
+  h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="b" style="width:'+w+'%;background:'+C[r[2]]+'"></span><span class="v'+pk+'" style="left:'+w+'%">€'+r[1].toFixed(2)+'</span></div>';});
+ document.getElementById('hbar').innerHTML=h;
+})();
+
+// dumbbell: cost of the job
+(function(){
+ var s=document.getElementById('dumb'),rows=[['DIY, 3 mixers',191,191,'var(--c-used)'],['DIY, 4 mixers',249,249,'var(--c-used)',1],['Plumber, 3 mixers',360,900,'var(--c-new)'],['Plumber, 4 mixers',480,1200,'var(--c-new)']];
+ var x0=110,x1=380,mx=1200;function X(v){return x0+v/mx*(x1-x0)}
+ var h='';
+ [0,300,600,900,1200].forEach(function(v){h+='<line x1="'+X(v)+'" x2="'+X(v)+'" y1="8" y2="140" stroke="var(--rule)"/><text x="'+X(v)+'" y="160" text-anchor="middle" font-size="12" fill="var(--ink-3)">€'+v+'</text>';});
+ rows.forEach(function(r,i){var y=24+i*34;
+  h+='<text x="0" y="'+(y+4)+'" font-size="12" fill="var(--ink-2)">'+r[0]+'</text>';
+  if(r[1]!==r[2])h+='<line x1="'+X(r[1])+'" x2="'+X(r[2])+'" y1="'+y+'" y2="'+y+'" stroke="'+r[3]+'" stroke-width="6" stroke-linecap="round" opacity=".35"/><circle cx="'+X(r[1])+'" cy="'+y+'" r="5" fill="'+r[3]+'"/>';
+  h+='<circle cx="'+X(r[2])+'" cy="'+y+'" r="5" fill="'+r[3]+'"/>';
+  if(r[4])h+='<circle cx="'+X(r[2])+'" cy="'+y+'" r="8" fill="none" stroke="var(--teal)" stroke-width="2"/>';});
+ s.innerHTML=h;
+})();
+
+// donut: parts split
+(function(){
+ var s=document.getElementById('donut'),d=[[237.10,'var(--c-used)'],[6.45,'var(--c-diy)'],[5.80,'var(--c-pi)']],tot=249.35,r=56,cx=75,cy=75,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+x[1]+'" stroke-width="18" stroke-dasharray="'+Math.max(len-3,1.5)+' '+(circ-Math.max(len-3,1.5))+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">total</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">€249</text>';
+ s.innerHTML=h;
+})();
+
+// ruler: union spacing
+(function(){
+ var lo=137.5,hi=162.5;function X(v){return ((v-lo)/(hi-lo)*100).toFixed(2)+'%'}
+ var pts=[[140,'140<br>offset','s',0],[145,'145<br>eccentric','c',1],[148,'148<br>eccentric','c',0],[150,'150<br>standard','s',1,1],[153,'153<br>eccentric','c',0],[160,'160<br>offset','s',1]];
+ var h='<span class="ln"></span>';
+ for(var v=138;v<=162;v++)h+='<span class="tk" style="left:'+X(v)+'"></span>';
+ pts.forEach(function(p){var c=p[4]?'var(--teal)':(p[2]==='c'?'var(--c-pi)':'var(--ink-3)');
+  h+='<span class="pt'+(p[4]?' hi':'')+'" style="left:'+X(p[0])+';background:'+c+'"></span>';
+  h+='<span class="lb'+(p[3]?' dn':'')+(p[4]?' hi':'')+'" style="left:'+X(p[0])+'">'+p[1]+'</span>';});
+ document.getElementById('ruler').innerHTML=h;
+})();
+
+// matrix: mixers
+(function(){
+ var S={y:'<td class="c sy">✓</td>',p:'<td class="c sq">~</td>',q:'<td class="c sq">?</td>',n:'<td class="c sn">✗</td>'};
+ var d=[['Aquamera Tempo 300','Kranenhuis','58.40','g','yyp',1],['Torvik Fixflow','Kranenhuis','51.20','g','yyq'],
+  ['Valtek V2','Werfmaat','44.80','a','ynq'],['Valtek V2','Kranenhuis','56.40','a','ynq'],
+  ['Lumina Eco','Delta Bouw','38.90','x','nqn'],['Nordo Basic, black','Werfmaat','24.95','x','nqn'],['Generic','Werfmaat','27.50','x','nqn'],['Lumina, 38 mm','Sanitop','71.90','x','nqn']];
+ var h='';d.forEach(function(r){h+='<tr'+(r[5]?' class="pick"':'')+'><td><span class="dot" style="background:'+C[r[3]]+'"></span>'+(r[5]?'<b>'+r[0]+'</b>':r[0])+'</td><td>'+r[1]+'</td><td class="r">€'+r[2]+'</td>'+r[4].split('').map(function(c){return S[c]}).join('')+'</tr>';});
+ document.getElementById('mx').innerHTML=h;
+})();
+
+// price per shop
+(function(){
+ var d=[['Mixer, top outlet',[38.90,'Lumina Eco'],[71.90,'Lumina, 38 mm'],[24.95,'Nordo Basic'],[48.50,'Torvik Basic, 1/2" only']],
+  ['Top outlet, fits the unions',null,null,[44.80,'Valtek V2'],[51.20,'Torvik']],
+  ['Mixer, bottom outlet',[44.50,'Lumina Eco'],[71.90,'Lumina, 38 mm'],[27.50,'Generic, 1.3★'],[61.90,'Aquamera']],
+  ['Offset union set',[19.49,'Lumina'],null,null,[22.55,'Torvik']],
+  ['Adapter 1/2" × 15 mm',null,null,[2.10,'Nordo'],[5.80,'Aquamera']],
+  ['Spare temperature knob',null,null,[6.35,'Nordo'],null],
+  ['Isolation tap, angled',null,null,[5.40,'15 mm compression'],null],
+  ['Thread paste, steel',null,null,[6.45,'Seal-Fix 100 g'],null],
+  ['Spare cartridges, 4-pack',[89,'€22.25 a cartridge'],null,null,null]];
+ var h='';
+ d.forEach(function(r){var cells=r.slice(1),min=Math.min.apply(null,cells.filter(Boolean).map(function(c){return c[0]}));
+  h+='<tr><td>'+r[0]+'</td>'+cells.map(function(c){if(!c)return '<td class="r muted">–</td>';
+   var best=c[0]===min&&cells.filter(Boolean).length>1;
+   return '<td class="r'+(best?' best':'')+'">€'+(c[0]%1?c[0].toFixed(2):c[0])+'<span class="pn">'+c[1]+'</span></td>';}).join('')+'</tr>';});
+ document.getElementById('shop').innerHTML=h;
+})();
+
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+
+</script>
+</body>
+</html>

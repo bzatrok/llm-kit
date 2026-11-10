@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot vacuum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8; --card:#FFFFFF; --soft:#F5F7F9;
+  --ink:#1D2730; --ink-2:#4A5661; --ink-3:#6A7682; --rule:#E5E9EE;
+  --teal:#0B7F86; --teal-soft:#E0F3F4;
+  --red:#C2334A; --red-soft:#FCE9EB;
+  --orange:#B0560F; --orange-soft:#FDEEDF;
+  --c-used:#13A0A8; --c-new:#8676DE; --c-diy:#EE8A3A; --c-pi:#3C8ED6; --c-mute:#C3CAD2;
+  --shadow:0 1px 2px rgba(25,45,65,.04),0 6px 20px rgba(25,45,65,.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --f:"Poppins","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --fs-s:12px; --fs-m:14px; --fs-l:18px; --fs-xl:26px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --card:#181D23; --soft:#1F252C; --ink:#EEF1F4; --ink-2:#B7C0C9; --ink-3:#919BA6; --rule:#2B323A;
+  --teal:#4FD1D8; --teal-soft:#123A3D; --red:#FF7C8C; --red-soft:#3E1A21; --orange:#F5A25C; --orange-soft:#3B2614;
+  --c-mute:#4A535D; --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3);}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--fs-m)/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+b{font-weight:500}
+.muted{color:var(--ink-3)}
+svg text{font-family:var(--f)}
+
+/* header */
+.top{display:flex;align-items:flex-end;gap:16px}
+.top .sp{flex:1}
+.meta{font-size:var(--fs-s);color:var(--ink-3)}
+h1{font-size:var(--fs-xl);font-weight:500;line-height:1.2;margin:4px 0 0}
+/* TL;DR: 2-3 lines, conclusions marked, key references linked */
+.tldr{margin-top:20px;padding:18px 22px}
+.tldr .k{font-size:var(--fs-s);color:var(--ink-3);margin:0 0 6px}
+.tldr p{margin:0;font-size:var(--fs-m);line-height:1.65;color:var(--ink-2);max-width:78ch}
+.tldr p+p{margin-top:4px}
+.tldr mark{background:var(--teal-soft);color:var(--ink);font-weight:500;padding:1px 4px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+a.ref{color:var(--teal);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+a.ref:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+tr.hl td{background:var(--teal-soft);transition:background .6s}
+.btn{font:400 var(--fs-s) var(--f);color:var(--ink-3);background:none;border:1px solid var(--rule);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* tabs */
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:4px;margin-top:28px;overflow-x:auto;box-shadow:var(--shadow)}
+.seg button{flex:1;font:400 var(--fs-m) var(--f);color:var(--ink-2);background:none;border:0;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--teal-soft);color:var(--teal);font-weight:500}
+.panel{padding-top:20px;display:grid;gap:16px}
+.panel[hidden]{display:none}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px}
+.card h2{font-size:var(--fs-l);font-weight:500;margin:0}
+.card .sub{color:var(--ink-3);font-size:var(--fs-s);margin:2px 0 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--fs-s);color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+/* chips (status only) */
+.chip{display:inline-flex;align-items:center;font-size:var(--fs-s);line-height:1;padding:5px 10px;border-radius:var(--r-pill);white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip.ok{color:var(--teal);background:var(--teal-soft)}
+.chip.one{color:var(--orange);background:var(--orange-soft)}
+.chip.unv{color:var(--red);background:var(--red-soft)}
+.src{font-size:10px;color:var(--ink-3);vertical-align:super;line-height:0;margin-left:2px}
+.sy{color:var(--teal)}.sn{color:var(--red)}.sq{color:var(--orange)}
+
+/* hbar chart */
+.hb{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;align-items:center;font-size:var(--fs-s)}
+.hb .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .nm.pk{color:var(--teal);font-weight:500}
+.hb .tr{position:relative;height:18px}
+.hb .b{position:absolute;left:0;top:3px;height:12px;border-radius:var(--r-pill);opacity:.9}
+.hb .v{position:absolute;top:0;line-height:18px;padding-left:8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hb .v.pk{color:var(--teal);font-weight:500}
+
+/* donut */
+.donut{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut .leg{display:grid;gap:10px;font-size:var(--fs-s);color:var(--ink-2)}
+.donut .leg span{display:flex;align-items:center;gap:8px}
+.donut .leg b{color:var(--ink);margin-left:auto;padding-left:18px;font-variant-numeric:tabular-nums}
+
+/* option cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.opt .oh{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+.img{width:56px;height:56px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-3)}
+.opt .route{font-size:var(--fs-s);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.opt .nm{font-size:var(--fs-m);font-weight:500;line-height:1.3;display:block;margin-top:2px}
+.opt .pr{font-size:var(--fs-m);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:start}
+.opt.pick .pr{color:var(--teal)}
+.rows{margin:0 16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);align-items:center}
+.row:last-child{border-bottom:0}
+.row .f{color:var(--ink-3);font-size:var(--fs-s)}
+.flag{margin:auto 16px 16px;padding:9px 12px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);font-size:var(--fs-s);line-height:1.5}
+.spacer{margin-top:auto;height:12px}
+
+/* table */
+.tw{overflow-x:auto;padding:6px 0}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:12px 20px;border-bottom:1px solid var(--rule);text-align:left}
+thead th{font-size:var(--fs-s);font-weight:400;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+td.c,th.c{text-align:center}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--teal-soft)}
+td .dot{margin-right:10px;vertical-align:1px}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:180px 1fr;gap:14px 16px;align-items:center}
+.tl .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.tl .bar{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.tl .end{position:absolute;top:-4px;font-size:var(--fs-s);line-height:18px;color:var(--ink-2);padding-left:10px;white-space:nowrap}
+.tl .now{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1.5px dashed var(--ink-3)}
+.tl .ax{position:relative;height:18px;font-size:var(--fs-s);color:var(--ink-3)}
+.tl .ax span{position:absolute;transform:translateX(-50%)}
+
+/* gaps */
+.glist .row{grid-template-columns:1fr auto;gap:16px;padding:10px 0}
+.gh{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:20px 0 2px}
+.sub+.gh{margin-top:0}
+.glist{margin:0!important}
+td:first-child{white-space:nowrap}
+.glist .who{color:var(--ink-3);font-size:var(--fs-s);text-align:right;white-space:nowrap}
+.srcs td:first-child{color:var(--ink-3);width:3em}
+.foot{margin-top:28px;font-size:var(--fs-s);color:var(--ink-3)}
+
+@media (max-width:720px){
+  .two,.grid{grid-template-columns:1fr}
+  .tl{grid-template-columns:110px 1fr}
+  .hb{grid-template-columns:110px 1fr}
+  .opt .oh{grid-template-columns:60px 1fr auto}.img{width:60px;height:60px}
+}
+
+/* ---- added components (built from the tokens above) ---- */
+.hb .v{white-space:nowrap}
+.end-note{margin:20px 0 0;color:var(--ink-2)}
+.card h3{font-size:var(--fs-m);font-weight:500;margin:0 0 10px}
+
+/* test result bars: one small hbar per discipline */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.three .hb{grid-template-columns:92px 1fr}
+
+/* dense matrix */
+table.dense th,table.dense td{padding:12px 12px;white-space:nowrap}
+table.dense th:first-child,table.dense td:first-child{padding-left:20px}
+
+/* shop table */
+td .chip{margin-left:8px}
+.tw .note td{font-size:var(--fs-s);color:var(--ink-3);text-align:center}
+
+/* cost breakdown */
+.bill{display:grid;grid-template-columns:150px 1fr 90px;gap:12px 14px;align-items:center;font-size:var(--fs-s)}
+.bill .nm{color:var(--ink-2)}
+.bill .stk{display:flex;gap:3px;height:14px}
+.bill .stk span{border-radius:4px;flex:none}
+.bill .tot{text-align:right;font-size:var(--fs-m);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bill .tot.pk{color:var(--teal)}
+.lines{margin-top:18px;border-top:1px solid var(--rule)}
+.lines .row{grid-template-columns:1fr auto}
+.lines .row .a{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lines .row.sum span{font-weight:500}
+
+/* checklist */
+.ck{border-top:1px solid var(--rule)}
+.ck label{display:grid;grid-template-columns:20px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);cursor:pointer;align-items:start}
+.ck label:last-child{border-bottom:0}
+.ck input{accent-color:var(--teal);width:16px;height:16px;margin:4px 0 0}
+.ck input:checked+span{color:var(--ink-3);text-decoration:line-through}
+.ck .w{display:block;font-size:var(--fs-s);color:var(--ink-3);text-decoration:none}
+
+/* option card extras */
+.opt .ask{margin:0 16px 16px;font-size:var(--fs-s);color:var(--ink-2)}
+.opt .ask h3{font-size:var(--fs-s);font-weight:500;color:var(--ink-3);margin:12px 0 4px}
+.opt .ask ol{margin:0;padding-left:18px}
+.opt .ask li{padding:2px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* km record track */
+.km{display:grid;grid-template-columns:90px 1fr 64px;gap:14px 14px;align-items:center;font-size:var(--fs-s)}
+.km .nm{color:var(--ink-2)}
+.km .nm.pk{color:var(--teal);font-weight:500}
+.km .track{position:relative;height:10px;background:var(--soft);border-radius:var(--r-pill)}
+.km .seg2{position:absolute;top:0;height:10px;border-radius:var(--r-pill)}
+.km .tk{position:absolute;top:-3px;width:2px;height:16px;margin-left:-1px;border-radius:1px;background:var(--ink)}
+.km .tk.miss{background:var(--red)}
+.km .tk.insp{background:var(--ink-3)}
+.km .v{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.km .ax{position:relative;height:18px;color:var(--ink-3)}
+.km .ax span{position:absolute;transform:translateX(-50%)}
+.tkl{display:inline-block;width:2px;height:12px;border-radius:1px;background:var(--ink)}
+
+/* message blocks */
+.msg{padding:0;overflow:hidden}
+.msg .mh{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--rule)}
+.msg .mh .sp{flex:1}
+.msg .mh .t{font-weight:500}
+.msg .mh .muted{font-size:var(--fs-s);display:block}
+.msg .mb{margin:16px;padding:14px 16px;background:var(--soft);border-radius:var(--r-md);white-space:pre-wrap;line-height:1.6}
+.btn.done{color:var(--teal);border-color:var(--teal)}
+
+@media (max-width:720px){
+  .three{grid-template-columns:1fr}
+  .hb.wr .nm{white-space:normal;line-height:1.3}
+  .bill{grid-template-columns:96px 1fr 76px}
+  .km{grid-template-columns:70px 1fr 48px;gap:14px 10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="meta">Research · 10 Nov 2026</div>
+    <h1>Robot vacuum</h1>
+  </div>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="card tldr" aria-label="Summary">
+  <p class="k">TL;DR</p>
+  <p><mark>Buy the Roboclean R7 Max with Evo dock, ±€449 with accessories at <a class="ref" data-src="1">Gadgetly</a>.</mark> It won the <a class="ref" data-src="2">LabCheck test</a>, with the best carpet and hard-floor pickup.</p>
+  <p>LabCheck tested the basic dock. That the Evo dock is the same is not proven (<a class="ref" data-src="6">red team</a>). If your floor area is small, the Nimbo at €329 is the better buy.</p>
+  <p>First check the battery health of the old robot. <mark>Above 80 %, buy nothing this season.</mark></p>
+</section>
+
+<div class="seg" role="tablist">
+  <button role="tab" aria-selected="true" aria-controls="p-ov" id="t-ov">Overview</button>
+  <button role="tab" aria-selected="false" aria-controls="p-opt" id="t-opt">Options</button>
+  <button role="tab" aria-selected="false" aria-controls="p-cmp" id="t-cmp">Compare</button>
+  <button role="tab" aria-selected="false" aria-controls="p-buy" id="t-buy">Buy</button>
+  <button role="tab" aria-selected="false" aria-controls="p-gap" id="t-gap">Gaps</button>
+  <button role="tab" aria-selected="false" aria-controls="p-src" id="t-src">Sources</button>
+</div>
+
+<!-- OVERVIEW -->
+<section class="panel" id="p-ov" role="tabpanel" aria-labelledby="t-ov">
+  <div class="card">
+    <h2>Price per robot</h2>
+    <p class="sub">Euro, with dock, accessories not included. Vacuo price from Voltmart.</p>
+    <div class="hb wr" id="hbar"></div>
+    <div class="legend" style="margin-top:18px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Tested in the 2025 round</span>
+      <span><span class="dot" style="background:var(--c-new)"></span>Not in the 2025 round</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Dirt left behind</h2>
+    <p class="sub">LabCheck 2025. Bar = points of test dirt left behind above the best robot. Lower is better.</p>
+    <div class="three">
+      <div><h3>Carpet</h3><div class="hb" id="brCarpet"></div></div>
+      <div><h3>Hard floor</h3><div class="hb" id="brHard"></div></div>
+      <div><h3>Pet hair</h3><div class="hb" id="brHair"></div></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Runtime</h2>
+      <p class="sub">LabCheck 2025, minutes per charge, standard mode.</p>
+      <div class="hb" id="wear"></div>
+    </div>
+    <div class="card">
+      <h2>Tested in the 2025 round</h2>
+      <p class="sub">All 10 robots on the shortlist.</p>
+      <div class="donut">
+        <svg id="donut" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Tested in the 2025 round"></svg>
+        <div class="leg">
+          <span><span class="dot" style="background:var(--c-used)"></span>Tested<b>6</b></span>
+          <span><span class="dot" style="background:var(--c-new)"></span>Not tested<b>4</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="end-note">Next step: check the battery health of the old robot this week. If it is below 80 %, order the same week.</p>
+</section>
+
+<!-- OPTIONS -->
+<section class="panel" id="p-opt" role="tabpanel" aria-labelledby="t-opt" hidden>
+  <div class="grid" id="opts"></div>
+</section>
+
+<!-- COMPARE -->
+<section class="panel" id="p-cmp" role="tabpanel" aria-labelledby="t-cmp" hidden>
+  <div class="card tw">
+    <table class="dense">
+      <thead><tr><th>Robot</th><th class="r">Price</th><th class="c">Tested as this model</th><th class="r">Hair</th><th class="r">Hard floor</th><th class="r">Carpet</th><th class="r">Runtime</th><th class="r">Noise</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><b class="sy">✓</b> tested as this model</span><span><b class="sq">~</b> tested with basic dock, not Evo dock</span><span><b class="sn">✗</b> not in the 2025 round</span><span>(old), (TG) = older model or other test</span></div>
+  <p class="muted" style="margin:0;font-size:12px">Dirt figures from different tests use different scales. Compare only within one test.</p>
+
+  <div class="card">
+    <h2>Return rules per shop</h2>
+    <p class="sub">Return window for an opened robot, days. Cleanwise accepts only sealed boxes since 1 Oct 2026.</p>
+    <div class="hb" id="ret"></div>
+  </div>
+  <div class="card tw">
+    <table>
+      <thead><tr><th>Shop</th><th>Rule</th><th class="r">Fee</th></tr></thead>
+      <tbody>
+        <tr><td>Gadgetly</td><td>30 days. Free return label.</td><td class="r muted">None</td></tr>
+        <tr><td>Shopfair</td><td>14 days. Opened items accepted.</td><td class="r">€6.95</td></tr>
+        <tr><td>Voltmart</td><td>14 days. Dock must be unused.</td><td class="r">Up to €12</td></tr>
+        <tr><td>Homehub</td><td>45 days. Original box required.</td><td class="r">€9.95</td></tr>
+        <tr><td>Cleanwise</td><td>14 days, sealed box only.</td><td class="r">Up to €15</td></tr>
+        <tr><td>Vacdirect</td><td>No return of opened items.</td><td class="r muted">None</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- BUY -->
+<section class="panel" id="p-buy" role="tabpanel" aria-labelledby="t-buy" hidden>
+  <div class="card tw">
+    <div style="padding:16px 20px 4px"><h2 style="font-size:18px;font-weight:500;margin:0">Price per shop</h2><p class="sub" style="margin:2px 0 0">Roboclean R7 Max with Evo dock. Prices of 10 Nov 2026.</p></div>
+    <table>
+      <thead><tr><th>Shop</th><th class="r">Price</th><th class="r">Delivery</th><th class="r">Delivered</th></tr></thead>
+      <tbody id="shops"></tbody>
+    </table>
+  </div>
+  <p class="muted" style="margin:0;font-size:12px">pricecompare.example compares 11 shops and does not list Gadgetly. Dealscout shows 12 offers at €399–579.</p>
+
+  <div class="card">
+    <h2>The bill</h2>
+    <p class="sub">One robot plus a spare-parts pack. Two routes.</p>
+    <div class="bill" id="bill"></div>
+    <div class="legend" style="margin-top:16px">
+      <span><span class="dot" style="background:var(--c-used)"></span>Robot</span>
+      <span><span class="dot" style="background:var(--c-diy)"></span>Spare parts</span>
+      <span><span class="dot" style="background:var(--c-mute)"></span>Range</span>
+    </div>
+    <div class="rows lines" style="margin:18px 0 0">
+      <div class="row"><span>Robot with Evo dock</span><span class="a">€399.00</span></div>
+      <div class="row"><span>Spare filters and brushes, 4 × €12.45 (from)</span><span class="a">€49.80</span></div>
+      <div class="row"><span>Recycling of the old robot</span><span class="a"><span class="chip ok">Included</span></span></div>
+      <div class="row"><span>Delivery to your door</span><span class="a"><span class="chip ok">Free</span></span></div>
+      <div class="row"><span>Two-year warranty extension</span><span class="a"><span class="chip unv">Unknown</span></span></div>
+      <div class="row sum"><span>Total, shop's own bundle</span><span class="a">€448.80</span></div>
+    </div>
+    <p class="muted" style="margin:14px 0 0;font-size:12px">€12.45 is a from price. The real price for your region shows only at checkout. Independent route: spare parts €55–80, delivery €6–9, a surcharge for a setup call is unknown.</p>
+  </div>
+
+  <div class="card">
+    <h2>When to order</h2>
+    <p class="sub">2026–27. Dashed line = report date.</p>
+    <div class="tl" id="tl"></div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Before you order</h2>
+      <p class="sub">Tick as you go. Not saved.</p>
+      <div class="ck">
+        <label><input type="checkbox"><span>Check the battery health of the old robot.<span class="w">Above 80 %, buy nothing this season.</span></span></label>
+        <label><input type="checkbox"><span>Check the pile height of your thickest carpet.<span class="w">A new brush roll costs €25–50, plus about €40 to fit.</span></span></label>
+        <label><input type="checkbox"><span>Filter on the Evo dock. Pick the plain listing.<span class="w">€399.00, "In stock", no outlet label.</span></span></label>
+        <label><input type="checkbox"><span>Add the spare-parts pack at checkout.<span class="w">It ships in the same box.</span></span></label>
+        <label><input type="checkbox"><span>Ask if the spare filters are in the €12.45.</span></label>
+        <label><input type="checkbox"><span>On delivery, check the production date on the box.<span class="w">Refuse stock older than about 2 years.</span></span></label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Traps in the listing</h2>
+      <p class="sub">Same shop, same search.</p>
+      <div class="rows glist">
+        <div class="row"><span>"Top deal": R7 Max basic dock, outlet demo unit, 2022. 1 in stock.</span><span class="who">€329.99</span></div>
+        <div class="row"><span>R7 Max outlet, 2022. Dearer than the fresh basic dock at €379.99.</span><span class="who">€419.99</span></div>
+        <div class="row"><span>R7 Max with UK plug. Wrong plug.</span><span class="who">€389.89</span></div>
+        <div class="row"><span>Zentrix Pearl 11 went up during the day.</span><span class="who">€469.09 → €479.00</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAPS -->
+<section class="panel" id="p-gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <div class="card">
+    <h2>What I could not verify</h2>
+    <p class="sub">11 open questions, grouped by what the answer could change.</p>
+    <h3 class="gh">Could change the pick</h3>
+    <div class="rows glist">
+      <div class="row"><span>Battery health of the current robot. Above 80 %, buy nothing.</span><span class="who">Only you know</span></div>
+      <div class="row"><span>Do the charging contacts on the old dock still work?</span><span class="who">Check the dock</span></div>
+      <div class="row"><span>Is the Evo dock the same as the basic dock that LabCheck tested?</span><span class="who">Not proven</span></div>
+      <div class="row"><span>Does Boardstore or Homehub sell it with accessories for less than €449?</span><span class="who">No price shown</span></div>
+    </div>
+    <h3 class="gh">Could change another option</h3>
+    <div class="rows glist">
+      <div class="row"><span>Your floor area. If small, the Nimbo at €329 is the better buy.</span><span class="who">Only you know</span></div>
+      <div class="row"><span>Vacuo Prime 6 price at Gadgetly.</span><span class="who">Page blocked</span></div>
+      <div class="row"><span>Real delivery price for your region.</span><span class="who">Shows at checkout</span></div>
+      <div class="row"><span>Are spare filters in the €12.45, or charged separately?</span><span class="who">Ask when you book</span></div>
+    </div>
+    <h3 class="gh">Minor</h3>
+    <div class="rows glist">
+      <div class="row"><span>LabCheck scores per discipline. Only overall and noise are public.</span><span class="who">Not published</span></div>
+      <div class="row"><span>Does a third-party app void the warranty?</span><span class="who">Sources disagree</span></div>
+      <div class="row"><span>Robot price per month. No source gives a curve.</span><span class="who">Not published</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="p-src" role="tabpanel" aria-labelledby="t-src" hidden>
+  <div class="card tw">
+    <table class="srcs">
+      <thead><tr><th>#</th><th>What</th><th class="r">Captured</th></tr></thead>
+      <tbody>
+        <tr id="src-1"><td>1</td><td>Gadgetly prices for the R7 Max, shop delivery tariffs</td><td class="r muted">10 Nov</td></tr>
+        <tr id="src-2"><td>2</td><td>LabCheck 2024 and 2025, TechGuide, Floor Monthly, Vacuum Reviews, HomeTest</td><td class="r muted">10 Nov</td></tr>
+        <tr id="src-3"><td>3</td><td>Return rules at six shops</td><td class="r muted">10 Nov</td></tr>
+        <tr id="src-4"><td>4</td><td>pricecompare.example 11 shops, return terms, price trend, shop reviews</td><td class="r muted">10 Nov</td></tr>
+        <tr id="src-5"><td>5</td><td>Shortlist analysis: robot only or with mop, ranking</td><td class="r muted">01-shortlist.md</td></tr>
+        <tr id="src-6"><td>6</td><td>Red-team check: weakened, the core holds</td><td class="r muted">02-redteam.md</td></tr>
+        <tr id="src-7"><td>7</td><td>Timing and shop. Checked inline, not by a fresh agent</td><td class="r muted">03-timing-and-shop.md</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">10 robots. Ranked on carpet and hard floor, then pet hair, then tested in the 2025 round. Red-team verdict: weakened, the core holds.</p>
+</div>
+
+<script>
+var C={y:'var(--c-used)',n:'var(--c-new)',d:'var(--c-diy)',m:'var(--c-mute)'};
+function eur(v){return '€'+v.toFixed(2)}
+function hbar(id,rows,max,fmt,pkColor){var h='';
+ rows.forEach(function(r){var w=r[1]/max*100,pk=r[3]?' pk':'';
+  h+='<span class="nm'+pk+'">'+r[0]+'</span><div class="tr"><span class="b" style="width:'+w+'%;background:'+(C[r[2]]||r[2])+'"></span><span class="v'+pk+'" style="left:'+w+'%">'+fmt(r)+'</span></div>';});
+ document.getElementById(id).innerHTML=h;}
+
+// generic robot drawing
+var ILL={robot:'<svg width="34" height="34" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="22" cy="22" r="17"/><circle cx="22" cy="22" r="6"/><path d="M22 5v6M22 33v6M5 22h6M33 22h6" stroke-linecap="round"/><path d="M12 14a14 14 0 0 1 8-6" stroke-linecap="round"/></svg>'};
+
+// price per robot
+hbar('hbar',[['Kiro Basic Lite',279,'n'],['Nimbo Swift 3',329,'y'],['Hexa Clean H5',339,'y'],['Vacuo Prime 6',349,'y'],
+ ['Cleanova Orbit 8',359,'y'],['Mopstar M4',389,'n'],['Roboclean R7 Max',399,'y',1],['Mopstar X5 Pro',419,'n'],
+ ['Dustwell Aqua S9',429,'y'],['Zentrix Pearl 11',479,'n']],560,function(r){return eur(r[1])});
+
+// dirt left behind: points behind best
+(function(){var t=[['R7 Max',8.1,3.3,9.9],['Aqua S9',8.5,4.2,10.1],['Swift 3',9.1,3.9,10.0],['Orbit 8',10.2,4.4,9.9],['Clean H5',11.4,5.1,10.5]];
+ [['brCarpet',1],['brHard',2],['brHair',3]].forEach(function(k){var best=Math.min.apply(null,t.map(function(r){return r[k[1]]}));
+  hbar(k[0],t.map(function(r){var d=Math.round((r[k[1]]-best)*10)/10;return [r[0],d,d===0?'var(--teal)':'var(--c-mute)',d===0?1:0,r[k[1]]]}),5,
+   function(r){return r[1]===0?r[4].toFixed(1)+' %':'+'+r[1].toFixed(1)});});})();
+
+// runtime
+hbar('wear',[['R7 Max',148,'y',1],['Aqua S9',165,'y'],['Swift 3',172,'y'],['Orbit 8',141,'y'],['Clean H5',98,'y']],240,
+ function(r){return r[1].toLocaleString('en-US')+' min'});
+
+// donut
+(function(){var s=document.getElementById('donut'),d=[[6,'y'],[4,'n']],tot=10,r=56,circ=2*Math.PI*r,off=0,h='';
+ d.forEach(function(x){var len=x[0]/tot*circ;
+  h+='<circle cx="75" cy="75" r="'+r+'" fill="none" stroke="'+C[x[1]]+'" stroke-width="18" stroke-dasharray="'+(len-3)+' '+(circ-len+3)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 75 75)"/>';off+=len;});
+ h+='<text x="75" y="66" text-anchor="middle" font-size="12" fill="var(--ink-3)">robots</text><text x="75" y="96" text-anchor="middle" font-size="26" font-weight="500" fill="var(--ink)">10</text>';
+ s.innerHTML=h;})();
+
+// return window per shop
+hbar('ret',[['Vacdirect',0,'var(--red)'],['Shopfair',14,'var(--c-diy)'],['Voltmart',14,'var(--c-diy)'],['Gadgetly',30,'var(--c-mute)'],['Homehub',45,'var(--c-mute)']],60,function(r){return r[1]+' days'});
+
+// option cards
+(function(){
+ var O=[
+  ['1 · Pick','Roboclean R7 Max with Evo dock',399.00,379.00,'y',['ok','LabCheck winner, as basic dock'],'Carpet 8.1 %, hard floor 3.3 % left behind. Both best.','148 min, lowest of the premiums','LabCheck tested the basic dock. That the Evo dock is the same is not proven.',1],
+  ['2','Dustwell Aqua S9 with basic dock',429.00,409.00,'y',['ok','LabCheck 2nd, 2.2'],'Carpet 8.5 %, hard floor 4.2 %','165 min','Hard floor 0.9 points worse than the R7 Max. €30 more.'],
+  ['3','Mopstar X5 Pro',419.00,399.00,'n',['unv','Not in the 2025 round'],'Hard floor 2.9 % (old model), carpet 14.0 % (older test)','181 min','Carpet pickup in the older test is the weakest of the premiums. Not resolved.'],
+  ['4 · Best saving','Nimbo Swift 3 with basic dock',329.00,309.00,'y',['ok','LabCheck 4th, 2.6'],'Carpet 9.1 %, hard floor 3.9 %','172 min','Carpet pickup 1.0 point behind the R7 Max.'],
+  ['5','Cleanova Orbit 8 with basic dock',359.00,339.00,'y',['ok','LabCheck 5th, 2.6'],'Carpet 10.2 %, hard floor 4.4 %, pet hair 9.9 %','141 min','Loudest of the field: 73.0 dB.'],
+  ['6','Vacuo Prime 6',349.00,335.00,'y',['ok','TechGuide 3rd, 1.4'],'Pet hair 7.9 % (TechGuide), best of its test','137 min (old model)','Weak edge cleaning: 74/100. Price is Voltmart, not Gadgetly.'],
+  ['7 · Cheapest','Kiro Basic Lite',279.00,259.00,'n',['unv','Not in the 2025 round'],'Pet hair 11.8 % (old model). Carpet grade A.',null,'The old Basic came 15th of 16 in the 2025 round. The Lite is not tested.'],
+  ['8','Zentrix Pearl 11',479.00,449.00,'n',['unv','Never tested'],'Pet hair 12.3 %, carpet 11.0 % (old model)',null,'Dearest and least proven. Weakest carpet pickup of the premiums in its test.'],
+  ['9','Mopstar M4',389.00,365.00,'n',['one','Last win 2021'],'Carpet grade A. Hard floor below average.','Short','A 2022 generation, replaced by the X5 Pro.'],
+  ['10 · Advised against','Hexa Clean H5',339.00,319.00,'y',['unv','LabCheck 3.8, sufficient'],'Carpet 11.4 %, hard floor 5.1 %','98 min, worst of the field','Not the Hexa Clean H5 Pro. That robot starts at €499.']];
+ var h='';
+ O.forEach(function(o){h+='<article class="card opt'+(o[9]?' pick':'')+'"><div class="oh"><div class="img">'+ILL.robot+'</div><div><span class="route"><span class="dot" style="background:'+C[o[4]]+'"></span>'+o[0]+'</span><span class="nm">'+o[1]+'</span></div><span class="pr">'+eur(o[2])+'</span></div>'+
+  '<div class="rows"><div class="row"><span class="f">Lowest seen</span><span>'+eur(o[3])+'</span></div>'+
+  '<div class="row"><span class="f">2025 round</span><span><span class="chip '+o[5][0]+'">'+o[5][1]+'</span></span></div>'+
+  '<div class="row"><span class="f">Cleaning</span><span>'+o[6]+'</span></div>'+
+  '<div class="row"><span class="f">Runtime</span><span>'+(o[7]||'<span class="muted">No data</span>')+'</span></div></div>'+
+  '<div class="flag">'+o[8]+'</div></article>';});
+ document.getElementById('opts').innerHTML=h;})();
+
+// matrix
+(function(){var S={y:'<td class="c sy">✓</td>',p:'<td class="c sq">~</td>',n:'<td class="c sn">✗</td>'};
+ var d=[['Roboclean R7 Max',399,'y','p','9.9 %','3.3 %','8.1 %','148 min','71.1 dB',1],
+  ['Dustwell Aqua S9',429,'y','y','10.1 %','4.2 %','8.5 %','165 min','71.2 dB'],
+  ['Mopstar X5 Pro',419,'n','n','9.6 % (old)','2.9 % (old)','14.0 % (old)','181 min','–'],
+  ['Nimbo Swift 3',329,'y','y','10.0 %','3.9 %','9.1 %','172 min','71.7 dB'],
+  ['Cleanova Orbit 8',359,'y','y','9.9 %','4.4 %','10.2 %','141 min','73.0 dB'],
+  ['Vacuo Prime 6',349,'y','y','7.9 % (TG)','–','limited','137 min (old)','74.2 dB (old)'],
+  ['Kiro Basic Lite',279,'n','n','11.8 % (old)','–','grade A','–','–'],
+  ['Zentrix Pearl 11',479,'n','n','12.3 % (old)','–','11.0 % (old)','–','72.9 dB'],
+  ['Mopstar M4',389,'n','n','–','below avg.','grade A','short','–'],
+  ['Hexa Clean H5',339,'y','y','10.5 %','5.1 %','11.4 %','98 min','70.4 dB']];
+ var h='';d.forEach(function(r){h+='<tr'+(r[9]?' class="pick"':'')+'><td><span class="dot" style="background:'+C[r[2]]+'"></span>'+(r[9]?'<b>'+r[0]+'</b>':r[0])+'</td><td class="r">'+eur(r[1])+'</td>'+S[r[3]]+
+  '<td class="r">'+r[4]+'</td><td class="r">'+r[5]+'</td><td class="r">'+r[6]+'</td><td class="r">'+r[7]+'</td><td class="r">'+r[8]+'</td></tr>';});
+ document.getElementById('mx').innerHTML=h;})();
+
+// shops
+(function(){var d=[['Gadgetly',399.00,0,'In stock',1],['voltmart.example',409.00,4.99],['cleanwise.example, homehub.example, vacdirect.example',419.00,0,'1–3 days'],
+  ['shopfair.example, roboworld.example, dustoff.example, cleanbot24.example',424.00,0,'1–5 days'],['boardstore.example',439.00,0,'1–3 days'],['partshub.example',449.00,0],['motomart.example',459.00,9.99]];
+ var h='';d.forEach(function(r){var t=r[1]+r[2];h+='<tr'+(r[4]?' class="pick"':'')+'><td style="white-space:normal">'+(r[4]?'<b>'+r[0]+'</b><span class="chip ok">Cheapest</span>':r[0])+'</td><td class="r">'+eur(r[1])+'</td><td class="r">'+(r[2]?eur(r[2]):'Free')+(r[3]?'<span class="muted">, '+r[3]+'</span>':'')+'</td><td class="r">'+(r[4]?'<b>'+eur(t)+'</b>':eur(t))+'</td></tr>';});
+ document.getElementById('shops').innerHTML=h;})();
+
+// bill
+(function(){var max=560;function w(v){return (v/max*100)+'%'}
+ var h='<span class="nm">Shop\'s own bundle</span><div class="stk"><span style="width:'+w(399)+';background:var(--c-used)"></span><span style="width:'+w(49.80)+';background:var(--c-diy)"></span></div><span class="tot pk">€448.80</span>';
+ h+='<span class="nm">Independent route</span><div class="stk"><span style="width:'+w(399)+';background:var(--c-used)"></span><span style="width:'+w(460-399)+';background:var(--c-diy)"></span><span style="width:'+w(30)+';background:var(--c-mute)"></span></div><span class="tot">€460–490</span>';
+ document.getElementById('bill').innerHTML=h;})();
+
+// timeline: 1 Nov 2026 to 30 Apr 2027, by day
+(function(){var t=document.getElementById('tl'),N=181;function x(d){return d/N*100}
+ // day index from 1 Nov
+ var now=9,rows=[['Order window','var(--c-used)',5,38,'order now'],['Next test round','var(--c-diy)',70,73,'~10 Jan'],['Sale season peak','var(--red)',20,50,'late Nov–Dec']];
+ var h='';rows.forEach(function(r){h+='<span>'+r[0]+'</span><div class="track"><span class="bar" style="left:'+x(r[2])+'%;width:'+(x(r[3])-x(r[2]))+'%;background:'+r[1]+'"></span><span class="end" style="left:'+x(r[3])+'%">'+r[4]+'</span><span class="now" style="left:'+x(now)+'%"></span></div>';});
+ h+='<span></span><div class="ax">';[['Nov',0],['Dec',30],['Jan',61],['Feb',92],['Mar',120],['Apr',151]].forEach(function(m){h+='<span style="left:'+x(m[1]+14)+'%">'+m[0]+'</span>';});
+ t.innerHTML=h+'</div>';})();
+</script>
+<script>
+// references: jump to the source row
+document.querySelectorAll('a.ref').forEach(function(a){a.href='#src-'+a.dataset.src;a.addEventListener('click',function(e){
+ e.preventDefault();document.getElementById('t-src').click();var r=document.getElementById('src-'+a.dataset.src);if(!r)return;
+ r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('hl');setTimeout(function(){r.classList.remove('hl')},1600);});});
+// tabs + theme
+(function(){var tabs=[].slice.call(document.querySelectorAll('.seg button'));
+ tabs.forEach(function(tb){tb.addEventListener('click',function(){tabs.forEach(function(o){o.setAttribute('aria-selected',o===tb);document.getElementById(o.getAttribute('aria-controls')).hidden=o!==tb;});});});})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+ var r=document.documentElement,c=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ r.setAttribute('data-theme',c==='dark'?'light':'dark');});
+</script>
+</body>
+</html>
