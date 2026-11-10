@@ -48,6 +48,7 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
 .legend svg{width:44px;height:10px;flex:none;display:block}
 #detail p{margin:0 0 8px} #detail ul{margin:0;padding-left:18px} #detail li{margin:2px 0}
 .hint{color:var(--muted);font-size:12px}
+header a{color:var(--sync)}
 
 /* --- graphic --- */
 .grp rect{fill:var(--group);stroke:var(--line)}
@@ -200,7 +201,7 @@ const elk=new ELK();
 async function render(){
   const edges=visibleEdges();
   const L=await elk.layout(elkGraph(edges));
-  const pad=16; svg.innerHTML='';
+  const pad=16, prevBoxes=render.boxes, prevView=view.cur; svg.innerHTML=''; render.boxes={};
   view.home={x:-pad,y:-pad,w:L.width+2*pad,h:L.height+2*pad}; setView(view.home);
   const defs=el('defs',{},svg);
   for(const k of ['sync','async','data','mixed']){
@@ -212,7 +213,7 @@ async function render(){
   for(const c of L.children){
     pos[c.id]=c;
     if(c.children){                     // expanded group
-      const g=el('g',{class:'grp'},lg);
+      const g=el('g',{class:'grp','data-id':c.id},lg); render.boxes[c.id]=c;
       el('rect',{x:c.x,y:c.y,width:c.width,height:c.height,rx:8},g);
       const label=MODEL.groups.find(x=>x.id===c.id).label;
       const t=el('text',{x:c.x+12,y:c.y+20,class:'toggle','data-tip':'Collapse this group'},g);
@@ -243,10 +244,39 @@ async function render(){
   }
   render.paths=paths; render.tokens=lt;
   applyState();
+  if(prevBoxes) morph(prevBoxes,prevView);
+}
+
+// Expand/collapse: every box glides from where it (or its group) was drawn last time,
+// the viewBox tweens to the new fit, and edges fade in once the boxes have landed.
+// ELK re-routes every edge, so edges are not morphed.
+const MORPH_MS=450, EASE='cubic-bezier(.33,1,.68,1)';
+function morph(prev,fromView){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  for(const g of svg.querySelectorAll('.node,.grp')){
+    const id=g.dataset.id, now=render.boxes[id], was=prev[id]||prev[grpOf(id)];
+    if(!now) continue;
+    if(!was){g.animate([{opacity:0},{opacity:1}],{duration:MORPH_MS,easing:EASE});continue}
+    const born=!prev[id];               // a member coming out of its collapsed group
+    const r=Math.min(was.width/now.width,was.height/now.height);
+    const s=born||r<.8||r>1.25?Math.min(Math.max(r,.5),2):1;
+    const dx=was.x+was.width/2-s*(now.x+now.width/2), dy=was.y+was.height/2-s*(now.y+now.height/2);
+    g.animate([{transform:`translate(${dx}px,${dy}px) scale(${s})`,transformOrigin:'0 0',opacity:born?0:1},
+      {transform:'none',transformOrigin:'0 0',opacity:1}],{duration:MORPH_MS,easing:EASE});
+  }
+  for(const e of svg.querySelectorAll('.edge,.elabel'))
+    e.animate([{opacity:0},{opacity:0,offset:.6},{opacity:1}],{duration:MORPH_MS+250,easing:'ease-out'});
+  const to=view.home, t0=performance.now(), ease=t=>1-Math.pow(1-t,3), lerp=(a,b,t)=>a+(b-a)*t, token=view.morph={};
+  (function step(now){
+    if(view.morph!==token) return;     // the reader zoomed or panned: stop tweening
+    const t=Math.min(1,(now-t0)/MORPH_MS), k=ease(t);
+    setView({x:lerp(fromView.x,to.x,k),y:lerp(fromView.y,to.y,k),w:lerp(fromView.w,to.w,k),h:lerp(fromView.h,to.h,k)});
+    if(t<1) requestAnimationFrame(step); else view.morph=null})(t0);
 }
 
 function drawNode(layer,b,n){
   const g=el('g',{class:'node'+(n.external?' external':'')+(n.collapsed?' collapsed':''),'data-id':n.id,tabindex:0,'data-tip':n.tip||'Click to expand'},layer);
+  render.boxes[n.id]=b;
   if(n.kind==='db'){
     const e=8,{x,y,width:w,height:h}=b;
     el('path',{class:'box',d:`M${x} ${y+e}A${w/2} ${e} 0 0 1 ${x+w} ${y+e}V${y+h-e}A${w/2} ${e} 0 0 1 ${x} ${y+h-e}Z M${x} ${y+e}A${w/2} ${e} 0 0 0 ${x+w} ${y+e}`},g);
@@ -327,19 +357,19 @@ const view={home:null,cur:null,dragged:false};
 function setView(v){view.cur=v; svg.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`)}
 function toSvg(cx,cy){const r=svg.getBoundingClientRect(),v=view.cur,k=Math.max(v.w/r.width,v.h/r.height);
   return {x:v.x+(cx-r.left-(r.width-v.w/k)/2)*k, y:v.y+(cy-r.top-(r.height-v.h/k)/2)*k, k}}
-function zoom(f,cx,cy){const r=svg.getBoundingClientRect(); cx??=r.left+r.width/2; cy??=r.top+r.height/2;
+function zoom(f,cx,cy){view.morph=null; const r=svg.getBoundingClientRect(); cx??=r.left+r.width/2; cy??=r.top+r.height/2;
   const v=view.cur, w=Math.min(Math.max(v.w*f,view.home.w/8),view.home.w*2), a=w/v.w, p=toSvg(cx,cy);
   setView({x:p.x-(p.x-v.x)*a, y:p.y-(p.y-v.y)*a, w, h:v.h*a})}
 svg.addEventListener('wheel',e=>{e.preventDefault(); zoom(Math.exp(e.deltaY*(e.ctrlKey?.01:.002)),e.clientX,e.clientY)},{passive:false});
 let drag=null;
 svg.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,v:view.cur}; view.dragged=false});
 addEventListener('pointermove',e=>{if(!drag) return; const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
-  if(!view.dragged && Math.hypot(dx,dy)<4) return; view.dragged=true; svg.classList.add('panning');
+  if(!view.dragged && Math.hypot(dx,dy)<4) return; view.dragged=true; view.morph=null; svg.classList.add('panning');
   const k=toSvg(0,0).k; setView({...drag.v, x:drag.v.x-dx*k, y:drag.v.y-dy*k})});
 addEventListener('pointerup',()=>{drag=null; svg.classList.remove('panning'); setTimeout(()=>view.dragged=false)});
 document.getElementById('zin').onclick=()=>zoom(1/1.25);
 document.getElementById('zout').onclick=()=>zoom(1.25);
-document.getElementById('zfit').onclick=()=>setView(view.home);
+document.getElementById('zfit').onclick=()=>{view.morph=null;setView(view.home)};
 
 // tooltips
 const tip=document.getElementById('tip');

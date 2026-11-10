@@ -76,6 +76,7 @@ The template reads URL params so every state can be screenshotted: `?flow=<id>`,
 - Box widths come from canvas `measureText`, not estimates.
 - The page fills the viewport. The map fits the stage on load; wheel/pinch zooms around the cursor, drag pans, +/−/Fit buttons and a hover Legend chip sit top right. Zoom and pan rewrite the `viewBox`; a click after a drag is ignored.
 - Marching dashes are CSS `stroke-dashoffset` animation; a negative offset moves dashes along the path direction, so edge direction is drawing direction. Speed by kind: sync fast, data medium, async slow.
+- Expand/collapse animates (`morph()`): each box glides from its previous box, or from its group's box when it is newly revealed, the `viewBox` tweens to the new fit, and edges fade in after ~60% of the move. ELK re-routes every edge, so edges are faded, never morphed. Zoom, pan or Fit cancels the tween. Reduced motion skips it.
 - Flow tokens: one circle per hop on `offset-path`, Web Animations keyframes stagger them so each starts when the last lands.
 - `prefers-reduced-motion` stops the dashes and hides tokens. The lit path still shows.
 - One CDN dependency: `elkjs@0.9.3` from unpkg, pinned with an SRI `integrity` hash; changing the version means recomputing it (`openssl dgst -sha384 -binary elk.bundled.js | openssl base64 -A`). Model text goes through `esc()` before any `innerHTML`. Offline needed → inline `elk.bundled.js`.
