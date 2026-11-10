@@ -58,7 +58,7 @@ collapsed: [group ids closed on first load]
 2. **Write the model.** Edges first, then check every node has at least one edge. A part with no edge is either missing an edge or does not belong on the map.
 3. **Write flows**, one per question from scope step 2.
 4. **Verify** (below).
-5. Save as `<system>-map.html` in the cwd. Report the path, the parts and edges you assumed, and what you left out.
+5. Save as `.visuals/<system>-map.html` at the project root (git root, else cwd); create the folder if missing. Keep it out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report the path, the parts and edges you assumed, and what you left out.
 
 ## Verify
 
