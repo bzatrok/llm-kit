@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web Stack Map</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#22252b; --muted:#6b7079; --line:#d9d7d1;
+  --group:#eceae4; --sync:#2f6fdb; --async:#c27a12; --data:#2e8b57; --bad:#c8402f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181c; --panel:#1f2227; --ink:#e8e6e1; --muted:#9aa0a9; --line:#363a41;
+    --group:#23262c; --sync:#6c9dff; --async:#e5a43d; --data:#5cc08a; --bad:#ff7a66;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181c; --panel:#1f2227; --ink:#e8e6e1; --muted:#9aa0a9; --line:#363a41;
+  --group:#23262c; --sync:#6c9dff; --async:#e5a43d; --data:#5cc08a; --bad:#ff7a66;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:20px 16px 8px;max-width:1280px;margin:0 auto}
+h1{font-size:20px;margin:0 0 4px}
+header p{margin:0;color:var(--muted);max-width:70ch}
+.wrap{max-width:1280px;margin:0 auto;padding:8px 16px 24px;display:grid;grid-template-columns:1fr 300px;gap:16px}
+@media (max-width:860px){.wrap{grid-template-columns:1fr}}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:auto;align-self:start}
+svg{display:block;width:100%;height:auto}
+aside{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+.flows button{display:block;width:100%;text-align:left;margin:0 0 6px;padding:7px 10px;border:1px solid var(--line);
+  border-radius:6px;background:transparent;color:var(--ink);font:inherit;cursor:pointer}
+.flows button[aria-pressed="true"]{border-color:var(--sync);box-shadow:inset 3px 0 0 var(--sync)}
+.flows button small{display:block;color:var(--muted)}
+.legend div{display:flex;align-items:center;gap:8px;margin:4px 0}
+.legend svg{width:44px;height:10px;flex:none}
+#detail p{margin:0 0 8px} #detail ul{margin:0;padding-left:18px} #detail li{margin:2px 0}
+.hint{color:var(--muted);font-size:12px}
+
+/* --- graphic --- */
+.grp rect{fill:var(--group);stroke:var(--line)}
+.grp text{fill:var(--muted);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.grp .toggle{cursor:pointer}
+.node{cursor:pointer}
+.node .box{fill:var(--panel);stroke:var(--ink);stroke-width:1.2}
+.node.external .box{stroke-dasharray:4 3;stroke:var(--muted)}
+.node.collapsed .box{stroke-width:2}
+.node .t{fill:var(--ink);font-size:13px;font-weight:600}
+.node .s{fill:var(--muted);font-size:11px}
+.edge{fill:none;stroke-width:1.6;transition:opacity .25s}
+.edge.sync{stroke:var(--sync);stroke-dasharray:7 5;animation:march .7s linear infinite}
+.edge.async{stroke:var(--async);stroke-dasharray:2 6;stroke-linecap:round;animation:march 2.4s linear infinite}
+.edge.data{stroke:var(--data);stroke-dasharray:10 4;animation:march 1.2s linear infinite}
+.edge.mixed{stroke:var(--muted);stroke-dasharray:5 4;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-12}}
+.elabel rect{fill:var(--panel)}
+.elabel text{fill:var(--muted);font-size:11px}
+.dim{opacity:.13}
+.hot{stroke-width:2.6}
+.tok{fill:var(--ink);opacity:0}
+.node.sel .box{stroke:var(--sync);stroke-width:2.4}
+#tip{position:fixed;pointer-events:none;max-width:260px;background:var(--ink);color:var(--bg);padding:6px 9px;border-radius:6px;
+  font-size:12px;opacity:0;transition:opacity .12s;z-index:9}
+@media (prefers-reduced-motion: reduce){ .edge{animation:none!important} .tok{display:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Web app stack: Next.js, .NET, Postgres on Hetzner</h1>
+  <p>Example system. Dashes move the way data moves. Click a box to focus on its connections, click a group header to collapse it, pick a flow to trace one request end to end.</p>
+</header>
+<div class="wrap">
+  <div class="stage"><svg id="g" role="img" aria-label="System map"></svg></div>
+  <aside>
+    <div class="card flows"><h2>Flows</h2><div id="flows"></div></div>
+    <div class="card" id="detail"><h2>Selected</h2><p class="hint">Click a box.</p></div>
+    <div class="card legend"><h2>Edges</h2>
+      <div><svg viewBox="0 0 44 10"><path class="edge sync" d="M2 5H42"/></svg>sync request / response</div>
+      <div><svg viewBox="0 0 44 10"><path class="edge async" d="M2 5H42"/></svg>async: poll, webhook, job</div>
+      <div><svg viewBox="0 0 44 10"><path class="edge data" d="M2 5H42"/></svg>data read / write</div>
+      <div><svg viewBox="0 0 44 10"><path class="edge mixed" d="M2 5H42"/></svg>merged links (collapsed group)</div>
+      <p class="hint" style="margin:6px 0 0">Dashed border = outside our infrastructure.</p>
+    </div>
+  </aside>
+</div>
+<div id="tip"></div>
+
+<script src="https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js"></script>
+<script>
+// ---- model: the only part an agent writes per system ----
+const MODEL = {
+  collapsed: [],          // group ids closed on first load; ?collapse=a,b overrides
+  groups: [
+    {id:'edge',  label:'Cloudflare'},
+    {id:'vm',    label:'Hetzner VM · docker compose'},
+    {id:'data',  label:'Data'},
+    {id:'ext',   label:'External services'},
+  ],
+  nodes: [
+    {id:'browser', label:'Browser', sub:'user', tip:'The user agent. Talks only to Cloudflare, never to the VM directly.'},
+    {id:'cf',      group:'edge', label:'Proxy + TLS', sub:'DNS, WAF, cache', tip:'Terminates TLS, caches static assets, forwards the rest to the VM.'},
+    {id:'next',    group:'vm', label:'Next.js', sub:'app router, SSR', tip:'Renders pages on the server and calls the API from server components.'},
+    {id:'api',     group:'vm', label:'.NET API', sub:'ASP.NET Core', tip:'Owns business rules and the database. The only writer to Postgres apart from the worker.'},
+    {id:'worker',  group:'vm', label:'.NET worker', sub:'BackgroundService', tip:'Polls the outbox table and runs jobs outside the request path.'},
+    {id:'pg',      group:'data', kind:'db', label:'Postgres', sub:'tables + outbox', tip:'System of record. The API writes the order and its outbox row in one transaction.'},
+    {id:'s3',      group:'data', kind:'db', label:'Object storage', sub:'S3-compatible', tip:'Uploaded files. The browser downloads through short-lived presigned URLs.'},
+    {id:'pay',     group:'ext', external:true, label:'Payment provider', sub:'checkout + webhooks', tip:'Charges the card, then confirms with a signed webhook.'},
+    {id:'mail',    group:'ext', external:true, label:'Email provider', sub:'SMTP / API', tip:'Delivers transactional mail queued by the worker.'},
+  ],
+  edges: [
+    {id:'e1', from:'browser', to:'cf',     kind:'sync',  label:'HTTPS'},
+    {id:'e2', from:'cf',      to:'next',   kind:'sync',  label:'proxies'},
+    {id:'e3', from:'next',    to:'api',    kind:'sync',  label:'calls REST'},
+    {id:'e4', from:'api',     to:'pg',     kind:'data',  label:'reads / writes'},
+    {id:'e5', from:'worker',  to:'pg',     kind:'async', label:'polls outbox'},
+    {id:'e6', from:'worker',  to:'mail',   kind:'async', label:'sends'},
+    {id:'e7', from:'api',     to:'pay',    kind:'sync',  label:'creates session'},
+    {id:'e8', from:'pay',     to:'api',    kind:'async', label:'webhook'},
+    {id:'e9', from:'api',     to:'s3',     kind:'data',  label:'stores uploads'},
+    {id:'e10',from:'browser', to:'s3',     kind:'data',  label:'presigned GET'},
+  ],
+  flows: [
+    {id:'page',  label:'Page load', sub:'SSR page with data', edges:['e1','e2','e3','e4']},
+    {id:'pay',   label:'Checkout', sub:'charge, then webhook confirms', edges:['e1','e2','e3','e7','e8','e4']},
+    {id:'mail',  label:'Order email', sub:'outbox → worker → mail', edges:['e4','e5','e6']},
+    {id:'file',  label:'File download', sub:'bypasses the VM', edges:['e1','e2','e3','e9','e10']},
+  ],
+};
+
+// ---- renderer ----
+const SVGNS='http://www.w3.org/2000/svg', svg=document.getElementById('g');
+const collapsed=new Set(); let focus=null, flow=null;
+const ctx=document.createElement('canvas').getContext('2d');
+const measure=(t,font)=>{ctx.font=font;return ctx.measureText(t).width};
+const el=(tag,attrs={},parent)=>{const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e};
+const byId=Object.fromEntries(MODEL.nodes.map(n=>[n.id,n]));
+const grpOf=id=>byId[id]?.group;
+const visible=id=>collapsed.has(grpOf(id))?grpOf(id):id;   // node id → what is drawn for it
+
+function nodeSize(n){
+  const w=Math.max(measure(n.label,'600 13px system-ui'),measure(n.sub||'','11px system-ui'))+32;
+  return {width:Math.ceil(Math.max(w,110)), height:n.kind==='db'?58:48};
+}
+
+// Collapsed groups become one node; edges into them merge, edges inside them vanish.
+function visibleEdges(){
+  const out=new Map();
+  for(const e of MODEL.edges){
+    const s=visible(e.from), t=visible(e.to);
+    if(s===t) continue;
+    const k=s+'>'+t;
+    if(out.has(k)){const v=out.get(k); v.ids.push(e.id); if(v.kind!==e.kind) v.kind='mixed'}
+    else out.set(k,{id:'v'+out.size, s, t, kind:e.kind, label:e.label, ids:[e.id]});
+  }
+  for(const v of out.values()) if(v.ids.length>1) v.label=v.ids.length+' links';
+  return [...out.values()];
+}
+
+function elkGraph(edges){
+  const kids=[];
+  for(const g of MODEL.groups){
+    const members=MODEL.nodes.filter(n=>n.group===g.id);
+    if(collapsed.has(g.id)){
+      const n={label:g.label, sub:members.length+' parts · click to open'};
+      kids.push({id:g.id, ...nodeSize(n)});
+    }else kids.push({id:g.id, layoutOptions:{'elk.padding':'[top=34,left=16,bottom=16,right=16]'},
+      children:members.map(n=>({id:n.id,...nodeSize(n)}))});
+  }
+  for(const n of MODEL.nodes) if(!n.group) kids.push({id:n.id,...nodeSize(n)});
+  return {id:'root', layoutOptions:{
+      'elk.algorithm':'layered','elk.direction':'RIGHT','elk.hierarchyHandling':'INCLUDE_CHILDREN',
+      'elk.edgeRouting':'ORTHOGONAL','elk.layered.spacing.nodeNodeBetweenLayers':'70',
+      'elk.spacing.nodeNode':'28','elk.spacing.edgeLabel':'4','elk.layered.edgeLabels.sideSelection':'ALWAYS_UP',
+      },
+    children:kids,
+    edges:edges.map(e=>({id:e.id, sources:[e.s], targets:[e.t],
+      labels:[{text:e.label, width:Math.ceil(measure(e.label,'11px system-ui'))+8, height:15}]}))};
+}
+
+const elk=new ELK();
+async function render(){
+  const edges=visibleEdges();
+  const L=await elk.layout(elkGraph(edges));
+  const pad=16; svg.innerHTML='';
+  svg.setAttribute('viewBox',`${-pad} ${-pad} ${L.width+2*pad} ${L.height+2*pad}`);
+  const defs=el('defs',{},svg);
+  for(const k of ['sync','async','data','mixed']){
+    const m=el('marker',{id:'m-'+k,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+    el('path',{d:'M0 0L10 5L0 10z',style:`fill:var(--${k==='mixed'?'muted':k})`},m);
+  }
+  const lg=el('g',{},svg), le=el('g',{},svg), ll=el('g',{},svg), lt=el('g',{},svg), ln=el('g',{},svg);
+  const pos={};
+  for(const c of L.children){
+    pos[c.id]=c;
+    if(c.children){                     // expanded group
+      const g=el('g',{class:'grp'},lg);
+      el('rect',{x:c.x,y:c.y,width:c.width,height:c.height,rx:8},g);
+      const label=MODEL.groups.find(x=>x.id===c.id).label;
+      const t=el('text',{x:c.x+12,y:c.y+20,class:'toggle','data-tip':'Collapse this group'},g);
+      t.textContent='▾ '+label; t.onclick=ev=>{ev.stopPropagation();collapsed.add(c.id);focus=null;render()};
+      // ELK returns children relative to their group, edges relative to e.container
+      for(const n of c.children){const a={...n,x:n.x+c.x,y:n.y+c.y};pos[n.id]=a;drawNode(ln,a,byId[n.id])}
+    }else if(byId[c.id]) drawNode(ln,c,byId[c.id]);
+    else{                              // collapsed group
+      const g=MODEL.groups.find(x=>x.id===c.id), cnt=MODEL.nodes.filter(n=>n.group===c.id).length;
+      drawNode(ln,c,{id:c.id,label:g.label,sub:cnt+' parts · click to open',collapsed:true});
+    }
+  }
+  const paths={};
+  for(const e of L.edges){
+    const v=edges.find(x=>x.id===e.id); const sec=e.sections[0];
+    const o=(e.container&&e.container!=='root'&&pos[e.container])||{x:0,y:0};
+    const pts=[sec.startPoint,...(sec.bendPoints||[]),sec.endPoint];
+    const d='M'+pts.map(p=>(p.x+o.x).toFixed(1)+' '+(p.y+o.y).toFixed(1)).join('L');
+    const p=el('path',{d,class:'edge '+v.kind,'marker-end':`url(#m-${v.kind})`,'data-ids':v.ids.join(' '),'data-s':v.s,'data-t':v.t},le);
+    p.dataset.tip=v.ids.map(id=>{const m=MODEL.edges.find(x=>x.id===id);return `${byId[m.from].label} ${m.label} ${byId[m.to].label}`}).join(' · ');
+    for(const id of v.ids) paths[id]=p;
+    const lb=e.labels?.[0]; if(lb){
+      const g=el('g',{class:'elabel','data-ids':v.ids.join(' ')},ll);
+      const lx=lb.x+o.x, ly=lb.y+o.y;
+      el('rect',{x:lx,y:ly,width:lb.width,height:lb.height,rx:3},g);
+      const t=el('text',{x:lx+4,y:ly+11.5},g); t.textContent=lb.text;
+    }
+  }
+  render.paths=paths; render.tokens=lt;
+  applyState();
+}
+
+function drawNode(layer,b,n){
+  const g=el('g',{class:'node'+(n.external?' external':'')+(n.collapsed?' collapsed':''),'data-id':n.id,tabindex:0,'data-tip':n.tip||'Click to expand'},layer);
+  if(n.kind==='db'){
+    const e=8,{x,y,width:w,height:h}=b;
+    el('path',{class:'box',d:`M${x} ${y+e}A${w/2} ${e} 0 0 1 ${x+w} ${y+e}V${y+h-e}A${w/2} ${e} 0 0 1 ${x} ${y+h-e}Z M${x} ${y+e}A${w/2} ${e} 0 0 0 ${x+w} ${y+e}`},g);
+  }else el('rect',{class:'box',x:b.x,y:b.y,width:b.width,height:b.height,rx:n.id==='browser'?24:6},g);
+  const cy=b.y+b.height/2+(n.kind==='db'?4:0);
+  const t=el('text',{class:'t',x:b.x+b.width/2,y:cy-3,'text-anchor':'middle'},g); t.textContent=n.label;
+  const s=el('text',{class:'s',x:b.x+b.width/2,y:cy+12,'text-anchor':'middle'},g); s.textContent=n.sub||'';
+  g.onclick=ev=>{ev.stopPropagation();
+    if(n.collapsed){collapsed.delete(n.id);render();return}
+    focus=focus===n.id?null:n.id; flow=null; applyState()};
+  g.onkeydown=ev=>{if(ev.key==='Enter')g.onclick(ev)};
+}
+
+function applyState(){
+  const nodes=svg.querySelectorAll('.node'), edges=svg.querySelectorAll('.edge'), labels=svg.querySelectorAll('.elabel');
+  [...nodes,...edges,...labels].forEach(x=>x.classList.remove('dim','hot','sel'));
+  render.tokens.innerHTML='';
+  document.querySelectorAll('#flows button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===flow));
+  if(focus){
+    const keep=new Set([focus]);
+    edges.forEach(p=>{const on=p.dataset.s===focus||p.dataset.t===focus;
+      if(on){keep.add(p.dataset.s);keep.add(p.dataset.t);p.classList.add('hot')}else p.classList.add('dim')});
+    labels.forEach(l=>{const p=svg.querySelector(`.edge[data-ids="${l.dataset.ids}"]`);if(p.classList.contains('dim'))l.classList.add('dim')});
+    nodes.forEach(n=>{if(!keep.has(n.dataset.id))n.classList.add('dim')});
+    svg.querySelector(`.node[data-id="${focus}"]`)?.classList.add('sel');
+    showDetail(focus);
+  }else if(flow){
+    const f=MODEL.flows.find(x=>x.id===flow);
+    const hops=[]; for(const id of f.edges){const p=render.paths[id]; if(p && hops.at(-1)!==p) hops.push(p)}
+    const on=new Set(hops), keep=new Set(hops.flatMap(p=>[p.dataset.s,p.dataset.t]));
+    edges.forEach(p=>on.has(p)?p.classList.add('hot'):p.classList.add('dim'));
+    labels.forEach(l=>{if(!hops.some(p=>p.dataset.ids===l.dataset.ids))l.classList.add('dim')});
+    nodes.forEach(n=>{if(!keep.has(n.dataset.id))n.classList.add('dim')});
+    runTokens(hops);
+    showFlow(f);
+  }else document.getElementById('detail').innerHTML='<h2>Selected</h2><p class="hint">Click a box.</p>';
+}
+
+// One token per hop, each starts when the previous lands; whole flow loops.
+function runTokens(hops){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hop=800, T=hops.length*hop+900;
+  hops.forEach((p,i)=>{
+    const c=el('circle',{class:'tok',r:5},render.tokens);
+    c.style.offsetPath=`path('${p.getAttribute('d')}')`;
+    const a=i*hop/T, b=(i+1)*hop/T;
+    c.animate([{offset:0,offsetDistance:'0%',opacity:0},{offset:a,offsetDistance:'0%',opacity:0},
+      {offset:Math.min(a+.01,b),offsetDistance:'0%',opacity:1},{offset:b,offsetDistance:'100%',opacity:1},
+      {offset:Math.min(b+.01,1),offsetDistance:'100%',opacity:0},{offset:1,offsetDistance:'100%',opacity:0}],
+      {duration:T,iterations:Infinity,easing:'linear'});
+  });
+}
+
+function showDetail(id){
+  const n=byId[id]||{label:MODEL.groups.find(g=>g.id===id)?.label,tip:''};
+  const li=MODEL.edges.filter(e=>visible(e.from)===id||visible(e.to)===id)
+    .map(e=>`<li>${byId[e.from].label} <b>${e.label}</b> ${byId[e.to].label}</li>`).join('');
+  document.getElementById('detail').innerHTML=`<h2>Selected</h2><p><b>${n.label}</b><br>${n.tip||''}</p><ul>${li}</ul>`;
+}
+function showFlow(f){
+  const li=f.edges.map(id=>MODEL.edges.find(e=>e.id===id)).map(e=>`<li>${byId[e.from].label} <b>${e.label}</b> ${byId[e.to].label}</li>`).join('');
+  document.getElementById('detail').innerHTML=`<h2>${f.label}</h2><ol style="margin:0;padding-left:18px">${li}</ol>`;
+}
+
+// flows list
+const fl=document.getElementById('flows');
+for(const f of MODEL.flows){
+  const b=document.createElement('button'); b.dataset.id=f.id; b.setAttribute('aria-pressed','false');
+  b.innerHTML=`${f.label}<small>${f.sub}</small>`;
+  b.onclick=()=>{flow=flow===f.id?null:f.id;focus=null;applyState()}; fl.appendChild(b);
+}
+svg.onclick=()=>{focus=null;flow=null;applyState()};
+
+// tooltips
+const tip=document.getElementById('tip');
+document.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');if(!t||t.classList.contains('dim')){tip.style.opacity=0;return}
+  tip.textContent=t.dataset.tip;tip.style.opacity=1});
+document.addEventListener('pointermove',e=>{tip.style.left=Math.min(e.clientX+14,innerWidth-270)+'px';tip.style.top=(e.clientY+14)+'px'});
+
+// ?flow=pay&collapse=vm for screenshots / deep links
+const q=new URLSearchParams(location.search);
+(q.has('collapse')?q.get('collapse'):(MODEL.collapsed||[]).join(',')).split(',').filter(Boolean).forEach(g=>collapsed.add(g));
+flow=q.get('flow'); focus=q.get('focus');
+render();
+</script>
+</body>
+</html>
