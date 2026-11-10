@@ -12,7 +12,7 @@ Skills, mods and plugins for [Claude Code](https://claude.com/claude-code), one 
 
 | Skill | What it does |
 |---|---|
-| `teamwork` | Claude as lead splitting work across Claude subagents and OpenCode agents: routing, budgets, briefs, monitoring, review |
+| `teamwork` | Claude as lead splitting work across Claude subagents and OpenCode agents: routing, sizing, briefs, monitoring, review |
 | `project-context` | Keeps a `PROJECT_CONTEXT.md` per repo: intent, stakeholders, invariants, what is deliberately unfinished |
 | `handover-workflow` | Writes and executes handover docs so a cold-start session can carry out planned work |
 | `source-port` | Rebuilds a native program you own as compiling source from its shipped binary |
