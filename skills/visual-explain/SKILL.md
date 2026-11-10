@@ -46,7 +46,7 @@ Walk one concrete example through the mechanism: real hostnames, real values, th
 5. **Write the prose.** One `<div class="step" data-step="N">` per step, bold lead-in, 2–3 sentences. Depth in layers: the step text is plain language, a `<details>` under the step holds the deeper detail, the raw source (RFC section, file:line, command output) is one click away. The `<details>` glossary at the top stays.
 6. **Scrollama stays as in the template.** No GSAP, no timeline library. Only unpkg CDN deps. Offline needed → inline the scripts. When the page links an external stylesheet (a teach lesson does), the graphic-state CSS still stays inline as the page's first `<style>` block: `check.sh` reads that block.
 7. **Verify** (section below). Mandatory for 3D: a wrong import map gives a silent black canvas.
-8. Save as `<topic>-explain.html` in the cwd. Report path, the one-line question, and the assumptions.
+8. Save as `.visuals/<topic>-explain.html` at the project root (git root, else cwd); create the folder if missing. Keep it out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report path, the one-line question, and the assumptions.
 
 ## Prose
 
