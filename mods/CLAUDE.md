@@ -1,7 +1,7 @@
 # Claude Code mods
 
 Personal mods (plugins of function hooks), one folder per mod. Loaded in every session via
-`CLAUDE_CODE_PLUGIN_DIRS=~/prod/ClaudeMods` in `~/.claude/settings.json`, which loads every subfolder
+`CLAUDE_CODE_PLUGIN_DIRS=<repo>/mods` in `~/.claude/settings.json`, which loads every subfolder
 with a `.claude-plugin/plugin.json` — a new mod folder loads without touching settings.
 
 | Mod | What it does |
