@@ -72,8 +72,9 @@ The template reads URL params so every state can be screenshotted: `?flow=<id>`,
 
 ## Template mechanics (change only with reason)
 
-- ELK `layered`, direction RIGHT, orthogonal routing, `hierarchyHandling: INCLUDE_CHILDREN`. ELK returns child boxes relative to their group and edges relative to `edge.container`. The renderer adds the offsets. Do not rely on `elk.json.shapeCoords`; it had no effect with elkjs 0.9.3 in testing.
+- ELK `layered`, direction DOWN (fills a landscape stage better than RIGHT, which came out ~4:1 on a 20-part map), orthogonal routing, `hierarchyHandling: INCLUDE_CHILDREN`. ELK returns child boxes relative to their group and edges relative to `edge.container`. The renderer adds the offsets. Do not rely on `elk.json.shapeCoords`; it had no effect with elkjs 0.9.3 in testing.
 - Box widths come from canvas `measureText`, not estimates.
+- The page fills the viewport. The map fits the stage on load; wheel/pinch zooms around the cursor, drag pans, +/−/Fit buttons and a hover Legend chip sit top right. Zoom and pan rewrite the `viewBox`; a click after a drag is ignored.
 - Marching dashes are CSS `stroke-dashoffset` animation; a negative offset moves dashes along the path direction, so edge direction is drawing direction. Speed by kind: sync fast, data medium, async slow.
 - Flow tokens: one circle per hop on `offset-path`, Web Animations keyframes stagger them so each starts when the last lands.
 - `prefers-reduced-motion` stops the dashes and hides tokens. The lit path still shows.

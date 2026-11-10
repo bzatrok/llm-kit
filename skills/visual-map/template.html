@@ -20,23 +20,32 @@
   --group:#23262c; --sync:#6c9dff; --async:#e5a43d; --data:#5cc08a; --bad:#ff7a66;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-header{padding:20px 16px 8px;max-width:1280px;margin:0 auto}
-h1{font-size:20px;margin:0 0 4px}
-header p{margin:0;color:var(--muted);max-width:70ch}
-.wrap{max-width:1280px;margin:0 auto;padding:8px 16px 24px;display:grid;grid-template-columns:1fr 300px;gap:16px}
-@media (max-width:860px){.wrap{grid-template-columns:1fr}}
-.stage{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:auto;align-self:start}
-svg{display:block;width:100%;height:auto}
-aside{display:flex;flex-direction:column;gap:12px}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+  height:100vh;display:flex;flex-direction:column}
+header{padding:10px 16px 6px}
+h1{font-size:17px;margin:0 0 2px}
+header p{margin:0;color:var(--muted);font-size:12.5px}
+.wrap{flex:1;min-height:0;padding:6px 16px 12px;display:grid;grid-template-columns:1fr 280px;gap:12px}
+@media (max-width:860px){.wrap{grid-template-columns:1fr;grid-template-rows:70vh auto}}
+.stage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-height:0}
+#g{display:block;width:100%;height:100%;cursor:grab;touch-action:none;user-select:none}
+#g.panning{cursor:grabbing}
+.ctl{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:2}
+.ctl button,.ctl .chip{font:12px system-ui;min-width:28px;height:28px;padding:0 8px;border:1px solid var(--line);border-radius:6px;
+  background:var(--panel);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.legend{position:relative}
+.legend .pop{display:none;position:absolute;right:0;top:32px;width:250px;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:default}
+.legend:hover .pop,.legend:focus-within .pop{display:block}
+aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
 .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
 .flows button{display:block;width:100%;text-align:left;margin:0 0 6px;padding:7px 10px;border:1px solid var(--line);
   border-radius:6px;background:transparent;color:var(--ink);font:inherit;cursor:pointer}
 .flows button[aria-pressed="true"]{border-color:var(--sync);box-shadow:inset 3px 0 0 var(--sync)}
 .flows button small{display:block;color:var(--muted)}
-.legend div{display:flex;align-items:center;gap:8px;margin:4px 0}
-.legend svg{width:44px;height:10px;flex:none}
+.legend .pop div{display:flex;align-items:center;gap:8px;margin:4px 0}
+.legend svg{width:44px;height:10px;flex:none;display:block}
 #detail p{margin:0 0 8px} #detail ul{margin:0;padding-left:18px} #detail li{margin:2px 0}
 .hint{color:var(--muted);font-size:12px}
 
@@ -70,20 +79,27 @@ aside{display:flex;flex-direction:column;gap:12px}
 <body>
 <header>
   <h1>Web app stack: Next.js, .NET, Postgres on Hetzner</h1>
-  <p>Example system. Dashes move the way data moves. Click a box to focus on its connections, click a group header to collapse it, pick a flow to trace one request end to end.</p>
+  <p>Example system. Dashes move the way data moves. Scroll or pinch to zoom, drag to pan. Click a box to focus, a group header to collapse, a flow to trace it.</p>
 </header>
 <div class="wrap">
-  <div class="stage"><svg id="g" role="img" aria-label="System map"></svg></div>
+  <div class="stage">
+    <div class="ctl">
+      <button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">−</button><button id="zfit" title="Fit to screen">Fit</button>
+      <div class="legend"><span class="chip" tabindex="0">Legend</span>
+        <div class="pop">
+          <div><svg viewBox="0 0 44 10"><path class="edge sync" d="M2 5H42"/></svg>sync request / response</div>
+          <div><svg viewBox="0 0 44 10"><path class="edge async" d="M2 5H42"/></svg>async: poll, webhook, job</div>
+          <div><svg viewBox="0 0 44 10"><path class="edge data" d="M2 5H42"/></svg>data read / write</div>
+          <div><svg viewBox="0 0 44 10"><path class="edge mixed" d="M2 5H42"/></svg>merged links (collapsed group)</div>
+          <p class="hint" style="margin:6px 0 0">Dashed border = outside our infrastructure.</p>
+        </div>
+      </div>
+    </div>
+    <svg id="g" role="img" aria-label="System map"></svg>
+  </div>
   <aside>
     <div class="card flows"><h2>Flows</h2><div id="flows"></div></div>
     <div class="card" id="detail"><h2>Selected</h2><p class="hint">Click a box.</p></div>
-    <div class="card legend"><h2>Edges</h2>
-      <div><svg viewBox="0 0 44 10"><path class="edge sync" d="M2 5H42"/></svg>sync request / response</div>
-      <div><svg viewBox="0 0 44 10"><path class="edge async" d="M2 5H42"/></svg>async: poll, webhook, job</div>
-      <div><svg viewBox="0 0 44 10"><path class="edge data" d="M2 5H42"/></svg>data read / write</div>
-      <div><svg viewBox="0 0 44 10"><path class="edge mixed" d="M2 5H42"/></svg>merged links (collapsed group)</div>
-      <p class="hint" style="margin:6px 0 0">Dashed border = outside our infrastructure.</p>
-    </div>
   </aside>
 </div>
 <div id="tip"></div>
@@ -171,7 +187,7 @@ function elkGraph(edges){
   }
   for(const n of MODEL.nodes) if(!n.group) kids.push({id:n.id,...nodeSize(n)});
   return {id:'root', layoutOptions:{
-      'elk.algorithm':'layered','elk.direction':'RIGHT','elk.hierarchyHandling':'INCLUDE_CHILDREN',
+      'elk.algorithm':'layered','elk.direction':'DOWN','elk.hierarchyHandling':'INCLUDE_CHILDREN',
       'elk.edgeRouting':'ORTHOGONAL','elk.layered.spacing.nodeNodeBetweenLayers':'70',
       'elk.spacing.nodeNode':'28','elk.spacing.edgeLabel':'4','elk.layered.edgeLabels.sideSelection':'ALWAYS_UP',
       },
@@ -185,7 +201,7 @@ async function render(){
   const edges=visibleEdges();
   const L=await elk.layout(elkGraph(edges));
   const pad=16; svg.innerHTML='';
-  svg.setAttribute('viewBox',`${-pad} ${-pad} ${L.width+2*pad} ${L.height+2*pad}`);
+  view.home={x:-pad,y:-pad,w:L.width+2*pad,h:L.height+2*pad}; setView(view.home);
   const defs=el('defs',{},svg);
   for(const k of ['sync','async','data','mixed']){
     const m=el('marker',{id:'m-'+k,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
@@ -238,7 +254,7 @@ function drawNode(layer,b,n){
   const cy=b.y+b.height/2+(n.kind==='db'?4:0);
   const t=el('text',{class:'t',x:b.x+b.width/2,y:cy-3,'text-anchor':'middle'},g); t.textContent=n.label;
   const s=el('text',{class:'s',x:b.x+b.width/2,y:cy+12,'text-anchor':'middle'},g); s.textContent=n.sub||'';
-  g.onclick=ev=>{ev.stopPropagation();
+  g.onclick=ev=>{ev.stopPropagation(); if(view.dragged) return;
     if(n.collapsed){collapsed.delete(n.id);render();return}
     focus=focus===n.id?null:n.id; flow=null; applyState()};
   g.onkeydown=ev=>{if(ev.key==='Enter')g.onclick(ev)};
@@ -304,7 +320,26 @@ for(const f of MODEL.flows){
   b.innerHTML=`${esc(f.label)}<small>${esc(f.sub)}</small>`;
   b.onclick=()=>{flow=flow===f.id?null:f.id;focus=null;applyState()}; fl.appendChild(b);
 }
-svg.onclick=()=>{focus=null;flow=null;applyState()};
+svg.onclick=()=>{if(view.dragged) return; focus=null;flow=null;applyState()};
+
+// zoom + pan by rewriting the viewBox; preserveAspectRatio "meet" keeps the fit centred
+const view={home:null,cur:null,dragged:false};
+function setView(v){view.cur=v; svg.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`)}
+function toSvg(cx,cy){const r=svg.getBoundingClientRect(),v=view.cur,k=Math.max(v.w/r.width,v.h/r.height);
+  return {x:v.x+(cx-r.left-(r.width-v.w/k)/2)*k, y:v.y+(cy-r.top-(r.height-v.h/k)/2)*k, k}}
+function zoom(f,cx,cy){const r=svg.getBoundingClientRect(); cx??=r.left+r.width/2; cy??=r.top+r.height/2;
+  const v=view.cur, w=Math.min(Math.max(v.w*f,view.home.w/8),view.home.w*2), a=w/v.w, p=toSvg(cx,cy);
+  setView({x:p.x-(p.x-v.x)*a, y:p.y-(p.y-v.y)*a, w, h:v.h*a})}
+svg.addEventListener('wheel',e=>{e.preventDefault(); zoom(Math.exp(e.deltaY*(e.ctrlKey?.01:.002)),e.clientX,e.clientY)},{passive:false});
+let drag=null;
+svg.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,v:view.cur}; view.dragged=false});
+addEventListener('pointermove',e=>{if(!drag) return; const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  if(!view.dragged && Math.hypot(dx,dy)<4) return; view.dragged=true; svg.classList.add('panning');
+  const k=toSvg(0,0).k; setView({...drag.v, x:drag.v.x-dx*k, y:drag.v.y-dy*k})});
+addEventListener('pointerup',()=>{drag=null; svg.classList.remove('panning'); setTimeout(()=>view.dragged=false)});
+document.getElementById('zin').onclick=()=>zoom(1/1.25);
+document.getElementById('zout').onclick=()=>zoom(1.25);
+document.getElementById('zfit').onclick=()=>setView(view.home);
 
 // tooltips
 const tip=document.getElementById('tip');
