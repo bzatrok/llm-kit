@@ -1,0 +1,179 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>TLS verification, scrollytelling</title>
+<style>
+  body{margin:0;font:17px/1.55 system-ui;color:#222}
+  header{max-width:720px;margin:3rem auto 1rem;padding:0 1rem}
+  details{max-width:720px;margin:0 auto 1rem;padding:0 1rem;font-size:15px;color:#444}
+  details dt{font-weight:700;float:left;clear:left;width:9em}
+  details dd{margin:0 0 .2rem 9.5em}
+  #scrolly{display:flex;max-width:min(1500px,96vw);margin:0 auto;gap:2rem;padding:0 1rem}
+  #graphic{position:sticky;top:0;height:100vh;flex:1;display:flex;flex-direction:column;justify-content:center}
+  #graphic svg{width:100%;max-height:88vh}
+  #dots{display:flex;gap:8px;justify-content:center;margin-top:.6rem}
+  #dots button{width:11px;height:11px;border-radius:50%;border:0;padding:0;background:#ccc;cursor:pointer}
+  #dots button.on{background:#1a73e8}
+  #hint{font:12px ui-monospace,monospace;color:#888;text-align:center;margin-top:.3rem}
+  #steps{flex:0 0 400px}
+  .step{min-height:85vh;display:flex;align-items:center;opacity:.25;transition:opacity .3s}
+  .step.is-active{opacity:1}
+  .step:last-child{min-height:60vh}  /* top still crosses the 55% trigger at page bottom, no empty tail */
+  .step p{background:#fff;border-left:4px solid #1a73e8;padding:.8rem 1rem;margin:0}
+  .mono{font-family:ui-monospace,monospace;font-size:12px}
+  code{font-family:ui-monospace,monospace;font-size:14px;background:#f3f3f3;padding:0 3px}
+  @media (max-width:800px){#scrolly{flex-direction:column}#graphic{position:relative;height:auto}#steps{flex:auto}}
+
+  /* Graphic state. JS puts geN (step >= N) and atN (step == N) on the svg.
+     Elements with class sN appear from step N on, oN only at step N (several oN allowed). JS sets that opacity. */
+  svg text{font-size:13px}
+  .box{fill:#fff;stroke:#333;stroke-width:1.5;transition:fill .5s,stroke .5s,stroke-width .3s}
+  .ghost{fill:#fff;stroke:#999;stroke-width:1.5;stroke-dasharray:4 3;transition:fill .5s,stroke .5s,stroke-width .3s}
+  .arrow{stroke:#333;stroke-width:2;fill:none;transition:opacity .5s}
+  .fade{transition:opacity .5s}
+  /* nicobailon-kit port. JS adds .now to oN elements on step N, .on to sN elements from step N. */
+  .tok{fill:#1a73e8;visibility:hidden;offset-rotate:0deg}
+  .tok.now{visibility:visible;animation:run var(--dur,1.2s) ease-in-out var(--d,0s) both}
+  @keyframes run{0%{offset-distance:0%;opacity:0}10%{opacity:1}75%{opacity:1}100%{offset-distance:100%;opacity:0}}
+  .draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .8s ease-out var(--d,0s)}  /* needs pathLength="1" */
+  .draw.on{stroke-dashoffset:0}
+  .hot{stroke:#1a73e8;stroke-width:3;filter:drop-shadow(0 0 3px #1a73e8)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.tok{display:none}}
+  /* step 1: the ClientHello packet travels down the tunnel */
+  #pkt{transition:transform 1.2s ease-in-out}
+  .ge1 #pkt{transform:translateX(430px)}
+  /* step 2: cards fly out of the server onto the chain row, one after the other */
+  .card{transform-box:fill-box;transform-origin:center;transition:transform .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),opacity .6s var(--d,0s)}
+  svg:not(.ge2) .card{transform:translate(var(--fx),var(--fy)) scale(.15);opacity:0}
+  /* steps 3-5: one check per step. The card under check is highlighted, a passed card turns green. */
+  .ge3 #leaf,.ge4 #inter,.ge6 #rootslot,.ge6 #root{fill:#dff5e1;stroke:#2a8f3c;stroke-dasharray:none}
+  .at3 #leaf,.at4 #inter,.at5 #rootslot{stroke:#1a73e8;stroke-width:3.5}
+  .at3 #c-leaf,.at4 #c-inter{transform:scale(1.08)}
+  .at5 #rootslot{fill:#eef4ff}
+  /* step 6: the tunnel is trusted */
+  #tunnel{transition:stroke .5s}
+  .ge6 #tunnel{stroke:#bfe6c5}
+</style>
+
+<header>
+  <h1>How a TLS client decides to trust a server</h1>
+  <p>One question: when a client opens <code>https://api.example.com</code>, what does it check before it sends a byte of HTTP, and where can that fail? Scroll. The graphic on the left tracks the text on the right.</p>
+</header>
+<details>
+  <summary>What is what</summary>
+  <dl>
+    <dt>leaf</dt><dd>the server's own certificate, names the hostname</dd>
+    <dt>intermediate</dt><dd>a CA certificate that signed the leaf, sent by the server</dd>
+    <dt>root</dt><dd>the self-signed top of the chain, never sent, must be in the store</dd>
+    <dt>trust store</dt><dd>the roots the client ships with (OS, browser, or a tool's own bundle)</dd>
+    <dt>SNI</dt><dd>the hostname the client asks for in ClientHello</dd>
+  </dl>
+</details>
+
+<section id="scrolly">
+  <figure id="graphic">
+    <svg viewBox="0 0 960 520" data-step="0">
+      <defs>
+        <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#333"/></marker>
+        <marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2a8f3c"/></marker>
+      </defs>
+
+      <!-- trust store -->
+      <rect x="20" y="20" width="920" height="90" rx="10" fill="#eef4ff" stroke="#555"/>
+      <text x="32" y="42" font-weight="700">client trust store</text>
+      <text x="928" y="42" text-anchor="end" font-family="ui-monospace,monospace" font-size="11">shipped with the OS or the tool</text>
+      <rect class="box" x="32" y="56" width="150" height="44" rx="5"/><text x="107" y="74" text-anchor="middle" font-size="11">DigiCert</text><text x="107" y="90" text-anchor="middle" font-size="11">Global Root G2</text>
+      <rect class="box" x="194" y="56" width="150" height="44" rx="5"/><text x="269" y="74" text-anchor="middle" font-size="11">ISRG Root X1</text><text x="269" y="90" text-anchor="middle" font-size="11">… 130 more</text>
+      <rect id="rootslot" class="box" x="518" y="56" width="300" height="44" rx="5"/>
+      <text x="668" y="74" text-anchor="middle" font-size="11">Example Root CA</text>
+      <text class="fade o0 o1 o2 o3 o4" x="668" y="90" text-anchor="middle" font-size="11" fill="#999">present, nobody looked yet</text>
+      <text class="fade o5" x="668" y="90" text-anchor="middle" font-size="11" fill="#1a73e8" font-weight="700">lookup by subject name</text>
+      <text class="fade s6" x="668" y="90" text-anchor="middle" font-size="11" fill="#2a8f3c" font-weight="700">found ✓</text>
+
+      <!-- client, tunnel, server -->
+      <rect id="client" class="box" x="20" y="160" width="200" height="90" rx="10"/>
+      <text x="120" y="185" text-anchor="middle" font-weight="700">client</text>
+      <text x="120" y="205" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">GET /v1/orders</text>
+      <text x="120" y="230" text-anchor="middle" font-size="11" fill="#777">trusts nothing yet</text>
+      <line id="tunnel" x1="222" y1="205" x2="738" y2="205" stroke="#dfe8f6" stroke-width="14" stroke-linecap="round"/>
+      <text x="480" y="186" text-anchor="middle" font-size="11" fill="#555">TLS handshake :443</text>
+      <g id="pkt" class="fade o1 o2 o3 o4 o5"><circle cx="248" cy="205" r="7" fill="#1a73e8"/><text x="248" y="228" text-anchor="middle" font-size="10" fill="#1a73e8" font-weight="700">ClientHello</text></g>
+      <rect id="server" class="box" x="740" y="160" width="200" height="90" rx="10"/>
+      <text x="840" y="185" text-anchor="middle" font-weight="700">server</text>
+      <text x="840" y="205" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">api.example.com</text>
+      <text class="fade s2" x="840" y="230" text-anchor="middle" font-size="11" fill="#777">sends 2 certs ↓</text>
+
+      <!-- chain row, cards fly in from the server (--fx/--fy = offset from rest position to the server centre) -->
+      <text x="20" y="300" font-size="11" fill="#555">chain as received · arrow = "signed by" · checked left → right</text>
+      <g id="c-leaf" class="card" style="--fx:720px;--fy:-160px;--d:0s">
+        <rect id="leaf" class="box" x="20" y="320" width="200" height="90" rx="6"/>
+        <text x="120" y="343" text-anchor="middle" font-weight="700">leaf</text>
+        <text x="120" y="362" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">CN api.example.com</text>
+        <text x="120" y="380" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">SAN api.example.com</text>
+        <text x="120" y="398" text-anchor="middle" font-size="11" fill="#777">issuer: Example CA 1</text>
+      </g>
+      <g id="c-inter" class="card" style="--fx:480px;--fy:-160px;--d:.25s">
+        <rect id="inter" class="box" x="260" y="320" width="200" height="90" rx="6"/>
+        <text x="360" y="343" text-anchor="middle" font-weight="700">intermediate</text>
+        <text x="360" y="362" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">CN Example CA 1</text>
+        <text x="360" y="398" text-anchor="middle" font-size="11" fill="#777">issuer: Example Root CA</text>
+      </g>
+      <rect id="root" class="ghost" x="500" y="320" width="200" height="90" rx="6"/>
+      <text x="600" y="343" text-anchor="middle" font-weight="700" fill="#777">root</text>
+      <text x="600" y="362" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11" fill="#777">CN Example Root CA</text>
+      <text x="600" y="390" text-anchor="middle" font-size="11" fill="#777">not sent · must be in the store</text>
+      <path class="arrow draw s3" pathLength="1" d="M222 365 H 256" marker-end="url(#mg)" stroke="#2a8f3c"/>
+      <path class="arrow draw s4" pathLength="1" d="M462 365 H 496" marker-end="url(#mg)" stroke="#2a8f3c"/>
+      <path class="arrow s5" d="M600 318 V 104" marker-end="url(#m)" stroke-dasharray="5 4"/>
+      <circle class="tok o5" r="5" style="offset-path:path('M600 318 V 104');--dur:1.4s;--d:.3s"/>
+      <text class="fade s5" x="608" y="140" font-size="11" fill="#555">same subject?</text>
+
+      <!-- result line: one text per step -->
+      <rect x="20" y="450" width="920" height="50" rx="6" fill="#f6f6f6" stroke="#ccc"/>
+      <g font-family="ui-monospace,monospace" font-size="12" text-anchor="middle">
+        <text class="fade o0" x="480" y="480" fill="#555">no connection yet · trust store loaded</text>
+        <text class="fade o1" x="480" y="480" fill="#1a73e8">→ ClientHello (SNI api.example.com) · nothing trusted yet</text>
+        <text class="fade o2" x="480" y="480" fill="#555">← Certificate: 2 certs received · 0 verified</text>
+        <text class="fade o3" x="480" y="480" fill="#2a8f3c">leaf: signature ✓ under Example CA 1 · dates ✓ · SAN ✓</text>
+        <text class="fade o4" x="480" y="480" fill="#2a8f3c">intermediate: signature ✓ under Example Root CA</text>
+        <text class="fade o5" x="480" y="480" fill="#1a73e8">store lookup: "Example Root CA" … miss would be: unable to get local issuer certificate</text>
+        <text class="fade o6" x="480" y="480" fill="#2a8f3c" font-weight="700">Verify return code: 0 (ok) · key exchange starts</text>
+      </g>
+    </svg>
+    <nav id="dots" aria-label="steps"></nav><div id="hint">↑ ↓ or click a dot</div>
+  </figure>
+
+  <article id="steps">
+    <div class="step" data-step="0"><p><b>Start.</b> The client has one asset: a list of root certificates it was shipped with. Everything below follows from that list.</p></div>
+    <div class="step" data-step="1"><p><b>ClientHello.</b> The client says which hostname it wants. The server uses that to pick a certificate. Nothing is trusted yet.</p></div>
+    <div class="step" data-step="2"><p><b>Certificate chain arrives.</b> Leaf plus intermediate. The root is not sent. If it were, the client would ignore it: a server cannot vouch for itself.</p></div>
+    <div class="step" data-step="3"><p><b>Leaf check.</b> Signature verified with the intermediate's public key. Validity dates checked. The requested hostname must be in the SAN list.</p></div>
+    <div class="step" data-step="4"><p><b>Intermediate check.</b> Signature verified with the root's public key. The client has that key only if it can find the root. Where does it look?</p></div>
+    <div class="step" data-step="5"><p><b>Store lookup.</b> The intermediate names its issuer. The client searches its store for a root with that subject. A miss here is <span class="mono">unable to get local issuer certificate</span>, the error you see behind a corporate proxy from pip or Java.</p></div>
+    <div class="step" data-step="6"><p><b>Anchored.</b> Every link is verified and the top link is in the client's own store. Only now does key exchange proceed and the connection becomes encrypted <i>to the right party</i>.</p></div>
+  </article>
+</section>
+
+<script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
+<script>
+const svg = document.querySelector('#graphic svg'), steps = [...document.querySelectorAll('.step')];
+const dots = steps.map((s, i) => { const b = document.createElement('button'); b.title = 'step ' + i;
+  b.onclick = () => s.scrollIntoView({block: 'center', behavior: 'smooth'}); document.getElementById('dots').append(b); return b; });
+let cur = 0;
+function show(n) {
+  cur = n; svg.dataset.step = n;
+  svg.setAttribute('class', steps.map((_, i) => i <= n ? 'ge' + i : '').join(' ') + ' at' + n);
+  svg.querySelectorAll('[class]').forEach(el => {
+    const c = el.getAttribute('class'), from = c.match(/\bs(\d+)\b/), only = [...c.matchAll(/\bo(\d+)\b/g)].map(m => +m[1]);
+    if (from) { el.style.opacity = n >= +from[1] ? 1 : 0; el.classList.toggle('on', n >= +from[1]); }
+    else if (only.length) { el.style.opacity = only.includes(n) ? 1 : 0; el.classList.toggle('now', only.includes(n)); }
+  });
+  steps.forEach((s, i) => s.classList.toggle('is-active', i === n));
+  dots.forEach((d, i) => d.classList.toggle('on', i === n));
+}
+show(0);
+scrollama().setup({ step: '.step', offset: 0.55 }).onStepEnter(({element}) => show(+element.dataset.step));
+addEventListener('keydown', e => {
+  const d = {ArrowDown: 1, ArrowRight: 1, j: 1, ArrowUp: -1, ArrowLeft: -1, k: -1}[e.key]; if (!d) return;
+  const t = steps[cur + d]; if (t) { e.preventDefault(); t.scrollIntoView({block: 'center', behavior: 'smooth'}); }
+});
+</script>
