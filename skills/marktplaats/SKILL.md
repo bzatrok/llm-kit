@@ -16,7 +16,7 @@ without the user approving that exact action first.**
 
 Two things must exist before any mode runs.
 
-**The workspace** — default `~/Sales/`. If it isn't there, create it from `templates/`:
+**The workspace** — the location your CLAUDE.md names, else `~/Sales/`. If it isn't there, create it from `templates/`:
 `CLAUDE.md` (the user's selling defaults — interview them for it), `ledger.md`, `.gitignore`
 covering `items/*/photos/`. Read the workspace `CLAUDE.md` at the start of every mode; it holds
 delivery, payment, address and tone defaults that override anything generic here.

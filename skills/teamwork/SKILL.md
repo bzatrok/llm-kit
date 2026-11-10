@@ -75,7 +75,7 @@ Rule of thumb: **if a test pass or fail can judge the result and the brief fits 
 it goes to OpenCode. If it needs judgement midway, it stays on Claude.**
 
 Mechanical transcription rows go to OpenCode (the opencode subagent plugin defaults to
-`opencode-go/deepseek-v4.1-flash`; confirm the provider with `opencode models` before the first launch).
+`opencode-go/deepseek-v4.1-flash`; confirm the provider with `opencode models` before the first launch). Spend rules (which providers are allowed, caps, who approves spend) come from the user's CLAUDE.md; with none there, ask before any paid run.
 
 | Executor | Use for | Cost |
 |---|---|---|
