@@ -1,0 +1,319 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why the twilight sky turns purple</title>
+<style>
+  :root{--ink:#e8e6f0;--dim:#9a97ab;--card:#171a24;--accent:#b48cff}
+  body{margin:0;font:17px/1.55 system-ui;color:var(--ink);background:#0b0d14}
+  header{max-width:680px;margin:3rem auto 1rem;padding:0 1rem}
+  header p{color:var(--dim)}
+  details{max-width:680px;margin:0 auto 2rem;padding:0 1rem;color:var(--dim);font-size:15px}
+  #scrolly{position:relative;display:flex;max-width:1180px;margin:0 auto;gap:2rem;padding:0 1rem}
+  #stage{position:sticky;top:0;height:100vh;flex:1;display:flex;flex-direction:column;justify-content:center}
+  #view{position:relative;width:100%;aspect-ratio:1.25/1;max-height:82vh}
+  #c{width:100%;height:100%;display:block;border-radius:12px;background:#05060b}
+  #sky{position:absolute;right:12px;top:12px;width:44px;height:46%;border-radius:6px;border:1px solid #ffffff22}
+  #skylabel{position:absolute;right:62px;top:14px;font:11px ui-monospace,monospace;color:var(--dim);text-align:right;line-height:1.3}
+  #rail{position:absolute;left:10px;top:12px;bottom:12px;width:6px;border-radius:3px;background:#ffffff14;cursor:ns-resize;touch-action:none}
+  #knob{position:absolute;left:-4px;width:14px;height:14px;border-radius:50%;background:var(--accent);transform:translateY(-50%)}
+  #hud{font:13px ui-monospace,monospace;color:var(--dim);margin-top:.6rem;min-height:1.4em}
+  #legend{font:12px ui-monospace,monospace;color:var(--dim);margin-top:.2rem}
+  #legend b{font-weight:400}
+  #steps{flex:0 0 340px}
+  .step{min-height:100vh;display:flex;align-items:center;opacity:.25;transition:opacity .3s}
+  .step.is-active{opacity:1}
+  .step div{background:var(--card);border-left:3px solid var(--accent);padding:.9rem 1.1rem;border-radius:4px}
+  .step p{margin:0}
+  .step details{margin:.6rem 0 0;padding:0;font-size:14px}
+  @media (max-width:820px){#scrolly{flex-direction:column}#stage{height:62vh;top:0;z-index:1;background:#0b0d14}#steps{flex:1}.step{min-height:90vh}}
+  @media (prefers-reduced-motion:reduce){.step{transition:none}}
+  body.frozen header,body.frozen>details{display:none}  /* ?t= screenshots: stage at the top */
+</style>
+
+<header>
+  <h1>Why the twilight sky turns purple</h1>
+  <p>Scroll to move the Sun below the horizon, and scroll back to undo it. The slice shows the atmosphere above one observer; the strip at the top right is the sky they see when they look west.</p>
+</header>
+<details>
+  <summary>Terms and assumptions</summary>
+  <p><b>Civil twilight</b>: the Sun's centre is 0–6° below the horizon. <b>Nautical twilight</b>: 6–12°. <b>Purple light</b>: the purple glow of civil twilight, mostly with the Sun 2–6° down. <b>Chappuis absorption</b>: ozone absorbing visible light, with peaks at 575 and 603 nm.</p>
+  <p>Assumptions: heights are stretched 12×, so straight sunbeams are drawn as curves. The fine-particle layer at about 22 km is placed for illustration. Colours come from a toy scattering model that follows the published explanation; it is not a radiative-transfer simulation. Refraction is ignored. Sources: Wikipedia articles <i>Afterglow</i>, <i>Twilight</i>, <i>Chappuis absorption</i>, <i>Ozone layer</i>, <i>Earth radius</i>.</p>
+</details>
+
+<section id="scrolly">
+  <figure id="stage">
+    <div id="view">
+      <canvas id="c" aria-label="Cross-section of Earth's atmosphere at twilight"></canvas>
+      <canvas id="sky" width="1" height="120" aria-hidden="true"></canvas>
+      <div id="skylabel">overhead<br><br><br><br><br><br><br>sky looking<br>west<br><br>horizon</div>
+      <div id="rail" role="slider" aria-label="Scrub through twilight" tabindex="0" aria-valuemin="0" aria-valuemax="100"><div id="knob"></div></div>
+    </div>
+    <div id="hud"></div>
+    <div id="legend"><b style="color:#ffd9a0">━</b> sunbeams &nbsp; <b style="color:#8f9bd6">┅</b> edge of Earth's shadow &nbsp; <b style="color:#7fd1b9">━</b> ozone 15–35 km</div>
+  </figure>
+  <article id="steps">
+    <div class="step" data-step="0"><div><p><b>Sunset.</b> For the observer on top, the Sun sits on the horizon. Every sunbeam reaches them, and all the air overhead is lit.</p></div></div>
+    <div class="step" data-step="1"><div><p><b>Earth's shadow rises.</b> The Sun drops below the horizon. The lowest beam that clears the ground now passes above the observer, and everything under it is in shadow. At 2° the shadow is about 4 km deep overhead.</p>
+      <details><summary>Where the 4 km comes from</summary>Shadow height overhead = R(sec θ − 1), with R = 6371 km (mean Earth radius) and θ the Sun's angle below the horizon. Refraction is ignored.</details></div></div>
+    <div class="step" data-step="2"><div><p><b>Purple light.</b> The beams that still reach the sky overhead skimmed low, dense air on the way, which scattered their blue out, so they arrive red. Fine particles high up scatter that red light back down. Blue scattered light fills the sky around it, and red plus blue reads as purple. The shadow keeps climbing. What happens to the purple once it passes the particles?</p></div></div>
+    <div class="step" data-step="3"><div><p><b>The purple fades.</b> By 6° the shadow overhead is about 35 km deep, above the particle layer. No red light reaches the particles any more, and the purple goes. 6° is also where civil twilight ends.</p></div></div>
+    <div class="step" data-step="4"><div><p><b>Why the sky overhead stays deep blue.</b> Ozone, 15–35 km up, absorbs yellow and orange light. The peaks are at 575 and 603 nm. A twilight beam crosses a long stretch of the ozone layer, so this absorption only shows at dawn and dusk: the blue hour.</p></div></div>
+    <div class="step" data-step="5"><div><p><b>End of nautical twilight.</b> At 12° the shadow overhead is about 140 km deep, above the whole slice. The last bright arch in the west goes out, and the stars take over.</p></div></div>
+    <div class="step" data-step="6"><div><p><b>After a volcano.</b> Back at 4°, add three times as many high particles. More of them catch the red beams, and the purple gets stronger. After the 1883 eruption of Krakatoa, red twilights were seen around the world.</p></div></div>
+  </article>
+</section>
+<div style="height:30vh"></div>
+
+<script type="importmap">{"imports":{
+  "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ---------- 1. The model: pure functions of the Sun's depression angle. Shared by the slice shader and the sky strip.
+const R = 6371, H = 8, TOP = 100;            // km. H: density scale height used by the toy model
+const EX = 12, RD = 30, S = RD / R;          // heights drawn 12x; Earth radius 30 scene units
+const DUST_C = 22, DUST_W = 8;               // assumption: fine-particle layer, illustrative
+const PHI0 = -35 * Math.PI / 180, PHI1 = 25 * Math.PI / 180;   // slice spans 35 deg west to 25 deg east of the observer
+const BETA = [0.23, 0.45, 1.0], OZ = [0.45, 1.0, 0.12], G = 18, DEG = Math.PI / 180;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const smooth = (a, b, x) => { const s = clamp((x - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); };
+const shadowH = d => d <= 0 ? -1 : R * (1 / Math.cos(d * DEG) - 1);   // shadow depth at d degrees past the terminator
+// Colour of sunlight arriving at height h (km), d degrees past the terminator. null = in Earth's shadow.
+function illum(h, d) {
+  if (d > 0 && h < shadowH(d)) return null;
+  const ht = d > 0 ? (R + h) * Math.cos(d * DEG) - R : h;               // lowest height the beam passed
+  const tf = d > 0 ? 0.5 * G * Math.exp(-ht / H) : 0.5 * G * Math.exp(-h / H) * 0.02 / (0.02 + Math.sin(-d * DEG));
+  const oz = 1.1 * smooth(-4, 2, d) * (1 - 0.7 * smooth(30, 40, ht));   // long grazing path through the ozone layer
+  return BETA.map((b, i) => Math.exp(-tf * b - oz * OZ[i]));
+}
+const dustRho = (h, dust) => dust * Math.exp(-(((h - DUST_C) / DUST_W) ** 2));
+
+// ---------- 2. The timeline: every visual is a function of t in [0,1]. Keys are [t, value], eased between.
+const TL = {
+  theta: [[0, 0], [0.10, 0], [0.25, 2], [0.36, 3], [0.41, 3.2], [0.55, 6], [0.68, 7], [0.84, 12], [0.92, 4], [1, 4]],
+  dust:  [[0, 1], [0.87, 1], [0.93, 3], [1, 3]],
+  ozone: [[0, 0], [0.58, 0], [0.63, 1], [0.76, 1], [0.8, 0]],
+  fan:   [[0, 0], [0.29, 0], [0.34, 1], [0.55, 1], [0.6, 0], [0.88, 0], [0.93, 1], [1, 1]],
+  az:    [[0, 0.35], [0.25, 0.15], [0.4, -0.05], [0.55, 0.1], [0.7, 0.3], [0.84, 0.45], [1, 0.1]],
+  el:    [[0, 0.22], [0.4, 0.1], [0.7, 0.28], [1, 0.12]],
+  dist:  [[0, 50], [0.25, 44], [0.4, 26], [0.55, 28], [0.7, 36], [0.84, 48], [0.93, 28], [1, 26]],
+  tx:    [[0, -3], [0.4, -1.5], [1, -1.5]],
+  ty:    [[0, 31], [0.4, 32.2], [0.7, 31.6], [1, 32.2]],
+};
+function at(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) {
+    const [t1, v1] = keys[i];
+    if (t <= t1) { const [t0, v0] = keys[i - 1]; return v0 + (v1 - v0) * smooth(t0, t1, t); }
+  }
+  return keys[keys.length - 1][1];
+}
+
+// ---------- 3. The scene.
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+const disp = (h, phi) => { const r = RD + clamp(h, 0, TOP) * S * EX; return new THREE.Vector3(r * Math.sin(phi), r * Math.cos(phi), 0); };
+
+const uni = { theta: { value: 0 }, dust: { value: 1 }, ozone: { value: 0 } };
+const GLSL_MODEL = `
+  uniform float theta, dust, ozone;
+  const float R = ${R.toFixed(1)}, H = ${H.toFixed(1)}, G = ${G.toFixed(1)}, DEG = ${DEG};
+  const vec3 BETA = vec3(${BETA.join(',')}), OZ = vec3(${OZ.join(',')});
+  float shadowH(float d) { return d <= 0.0 ? -1.0 : R * (1.0 / cos(d * DEG) - 1.0); }
+  vec4 illum(float h, float d) {             // rgb = light colour, a = 1 lit / 0 shadow
+    if (d > 0.0 && h < shadowH(d)) return vec4(0.0);
+    float ht = d > 0.0 ? (R + h) * cos(d * DEG) - R : h;
+    float tf = d > 0.0 ? 0.5 * G * exp(-ht / H) : 0.5 * G * exp(-h / H) * 0.02 / (0.02 + sin(-d * DEG));
+    float oz = 1.1 * smoothstep(-4.0, 2.0, d) * mix(1.0, 0.3, smoothstep(30.0, 40.0, ht));
+    return vec4(exp(-tf * BETA - oz * OZ), 1.0);
+  }`;
+
+// Atmosphere slice: each fragment shows the light that reaches it.
+const slice = new THREE.Mesh(
+  new THREE.RingGeometry(RD, RD + TOP * S * EX, 220, 40, Math.PI / 2 - PHI1, PHI1 - PHI0),
+  new THREE.ShaderMaterial({
+    uniforms: uni, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    vertexShader: `varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: GLSL_MODEL + `
+      varying vec2 vP;
+      void main(){
+        float h = (length(vP) - ${RD.toFixed(1)}) / ${(S * EX).toFixed(6)};
+        float d = atan(vP.x, vP.y) / DEG + theta;
+        vec4 L = illum(h, d);
+        float air = exp(-h / 30.0);
+        float p = dust * exp(-pow((h - ${DUST_C.toFixed(1)}) / ${DUST_W.toFixed(1)}, 2.0));
+        vec3 lit = L.rgb * (0.25 + 0.75 * air) + L.rgb * p * 0.5;
+        vec3 dark = vec3(0.03, 0.035, 0.07) * (0.4 + air);
+        vec3 col = mix(dark, lit, L.a);
+        float band = ozone * (smoothstep(14.0, 15.0, h) - smoothstep(35.0, 36.0, h));
+        col = mix(col, vec3(0.5, 0.82, 0.73), band * 0.12);
+        gl_FragColor = vec4(col, 0.92);
+      }`,
+  }));
+scene.add(slice);
+
+// Earth: day side lit from the Sun's direction, night side dark.
+// Back half only (z <= 0) plus a flat cut face, so the slice in the z = 0 plane is never hidden behind the globe.
+const earthMat = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+  uniforms: { sun: { value: new THREE.Vector3(-1, 0, 0) } },
+  vertexShader: `varying vec3 vN; void main(){ vN = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `uniform vec3 sun; varying vec3 vN;
+    void main(){ float l = smoothstep(-0.06, 0.12, dot(vN, sun));
+      gl_FragColor = vec4(mix(vec3(0.05,0.06,0.1), vec3(0.2,0.25,0.34), l), 1.0); }`,
+});
+const earth = new THREE.Mesh(new THREE.SphereGeometry(RD - 0.02, 128, 96, Math.PI, Math.PI), earthMat);
+scene.add(earth);
+const cut = new THREE.Mesh(new THREE.CircleGeometry(RD - 0.02, 160), earthMat);
+cut.position.z = -0.02; scene.add(cut);
+
+// Stars come out as twilight deepens.
+const starGeo = new THREE.BufferGeometry();
+const sp = []; for (let i = 0; i < 900; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(400); if (v.y > -60) sp.push(v.x, v.y, v.z); }
+starGeo.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.4, sizeAttenuation: false, transparent: true, opacity: 0 }));
+scene.add(stars);
+
+// Sunbeams: straight in real space, drawn through the 12x height stretch. Colour = light left after the path so far.
+const RAYS = [1, 3, 6, 10, 15, 22, 30, 45, 65, 85], NPT = 260;
+const rays = RAYS.map(() => {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(NPT * 3), 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(NPT * 3), 3));
+  const line = new THREE.Line(g, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  scene.add(line); return line;
+});
+function buildRays(theta) {
+  const u = [-Math.sin(theta * DEG), Math.cos(theta * DEG)], dir = [Math.cos(theta * DEG), Math.sin(theta * DEG)];
+  RAYS.forEach((ht, k) => {
+    const pos = rays[k].geometry.attributes.position, col = rays[k].geometry.attributes.color;
+    const tau = [0, 0, 0]; let n = 0, prev = null;
+    for (let i = 0; i < NPT; i++) {
+      const s = -2600 + (5200 * i) / (NPT - 1);
+      const x = (R + ht) * u[0] + s * dir[0], y = (R + ht) * u[1] + s * dir[1];
+      const h = Math.hypot(x, y) - R, phi = Math.atan2(x, y);
+      if (prev) { const ds = Math.hypot(x - prev[0], y - prev[1]); const rho = Math.exp(-h / H) * 0.0045 * G; for (let c = 0; c < 3; c++) tau[c] += rho * BETA[c] * ds / 10; }
+      prev = [x, y];
+      if (h > TOP || phi < PHI0 || phi > PHI1) continue;
+      const p = disp(h, phi), fade = Math.min(1, 0.25 + ht / 40);
+      pos.setXYZ(n, p.x, p.y, 0.05); col.setXYZ(n, Math.exp(-tau[0]) * fade, Math.exp(-tau[1]) * 0.85 * fade, Math.exp(-tau[2]) * 0.7 * fade); n++;
+    }
+    rays[k].geometry.setDrawRange(0, n); pos.needsUpdate = col.needsUpdate = true;
+  });
+}
+
+// Edge of Earth's shadow: shadow depth at each angle past the terminator.
+const edge = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({ color: 0x8f9bd6, dashSize: 0.5, gapSize: 0.35, transparent: true }));
+scene.add(edge);
+function buildEdge(theta) {
+  const pts = [];
+  for (let d = 0; d <= 60; d += 0.25) { const h = shadowH(d), phi = (d - theta) * DEG; if (h > TOP) break; if (phi >= PHI0 && phi <= PHI1) pts.push(disp(h, phi).setZ(0.06)); }
+  edge.geometry.setFromPoints(pts); edge.computeLineDistances();
+}
+
+// Ozone band edges, and the observer with three sightlines to the west.
+const arc = (h, color) => { const pts = []; for (let a = PHI0; a <= PHI1 + 1e-6; a += 0.5 * DEG) pts.push(disp(h, a).setZ(0.07));
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0 })); scene.add(l); return l; };
+const ozoneArcs = [arc(15, 0x7fd1b9), arc(35, 0x7fd1b9)];
+const observer = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.8, 16), new THREE.MeshBasicMaterial({ color: 0xb48cff }));
+observer.position.set(0, RD + 0.4, 0.1); scene.add(observer);
+const fan = [15, 45, 75].map(e => {
+  const pts = []; for (let s = 0; s <= 400; s += 4) { const x = -s * Math.cos(e * DEG), y = R + s * Math.sin(e * DEG), h = Math.hypot(x, y) - R; if (h > TOP) break; pts.push(disp(h, Math.atan2(x, y)).setZ(0.08)); }
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xb48cff, transparent: true, opacity: 0 })); scene.add(l); return l;
+});
+
+// Fine particles in the slice, lit by whatever light reaches them.
+const NP = 700, pPos = [], pH = [], pPhi = [];
+for (let i = 0; i < NP; i++) {
+  let h; do { h = DUST_C + (Math.random() * 2 - 1) * DUST_W * 1.8; } while (Math.random() > Math.exp(-(((h - DUST_C) / DUST_W) ** 2)));
+  const phi = PHI0 + Math.random() * (PHI1 - PHI0), p = disp(h, phi); pPos.push(p.x, p.y, (Math.random() - 0.5) * 0.6); pH.push(h); pPhi.push(phi);
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPos, 3));
+pGeo.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(NP * 3), 3));
+const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ size: 2.2, sizeAttenuation: false, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+scene.add(particles);
+function lightParticles(theta, dust) {
+  const col = pGeo.attributes.color, k = Math.min(1, 0.35 * dust);
+  for (let i = 0; i < NP; i++) { const L = illum(pH[i], pPhi[i] / DEG + theta); const v = L ? L : [0, 0, 0]; col.setXYZ(i, v[0] * k, v[1] * k, v[2] * k); }
+  col.needsUpdate = true;
+}
+
+// ---------- 4. The sky the observer sees, looking west: integrate scattered light along each sightline.
+const sky = document.getElementById('sky'), sctx = sky.getContext('2d'), SKY_ROWS = sky.height;
+const skyImg = sctx.createImageData(1, SKY_ROWS);
+function paintSky(theta, dust) {
+  const exposure = 2.2 * Math.exp(theta * 0.42);           // the eye adapts as it gets darker
+  for (let row = 0; row < SKY_ROWS; row++) {
+    const e = (90 * (SKY_ROWS - 1 - row)) / (SKY_ROWS - 1) * DEG, acc = [0, 0, 0];
+    for (let s = 0.5; s < 900; s += 2.5) {
+      const x = -s * Math.cos(e), y = R + s * Math.sin(e), h = Math.hypot(x, y) - R;
+      if (h > TOP) break;
+      const rho = Math.exp(-h / H), L = illum(h, Math.atan2(x, y) / DEG + theta), w = 2.5 * 0.01;
+      if (!L) { acc[0] += rho * 0.0006 * w; acc[1] += rho * 0.0009 * w; acc[2] += rho * 0.002 * w; continue; }
+      const p = dustRho(h, dust) * 0.06;
+      for (let c = 0; c < 3; c++) acc[c] += (rho * BETA[c] + p) * L[c] * w;
+    }
+    const m = Math.max(...acc) * exposure * 14 || 1e-9, k = (1 - Math.exp(-m)) / m;   // tone by the brightest channel: keeps the hue
+    for (let c = 0; c < 3; c++) skyImg.data[row * 4 + c] = 255 * Math.min(1, acc[c] * exposure * 14 * k);
+    skyImg.data[row * 4 + 3] = 255;
+  }
+  sctx.putImageData(skyImg, 0, 0);
+}
+
+// ---------- 5. Render one moment. Deterministic in t, so scrubbing backwards is exact.
+const hud = document.getElementById('hud'), steps = [...document.querySelectorAll('.step')];
+const knob = document.getElementById('knob'), rail = document.getElementById('rail');
+let last = {};
+function render(t) {
+  const theta = at(TL.theta, t), dust = at(TL.dust, t), oz = at(TL.ozone, t), f = at(TL.fan, t);
+  if (theta !== last.theta || dust !== last.dust) {
+    uni.theta.value = theta; uni.dust.value = dust;
+    earthMat.uniforms.sun.value.set(-Math.cos(theta * DEG), -Math.sin(theta * DEG), 0);
+    buildRays(theta); buildEdge(theta); lightParticles(theta, dust); paintSky(theta, dust);
+    stars.material.opacity = smooth(3, 12, theta);
+    const hs = shadowH(theta), phase = theta <= 0.05 ? 'sunset' : theta < 6 ? 'civil twilight' : theta < 12 ? 'nautical twilight' : 'end of nautical twilight';
+    hud.textContent = `Sun ${theta.toFixed(1)}° below horizon · shadow overhead ${hs > 0 ? hs.toFixed(hs < 10 ? 1 : 0) + ' km' : 'none'} · ${phase}${dust > 1.05 ? ' · particles ×' + dust.toFixed(1) : ''}`;
+  }
+  uni.ozone.value = oz; ozoneArcs.forEach(a => { a.material.opacity = oz * 0.8; a.visible = oz > 0.01; }); fan.forEach(l => l.material.opacity = f * 0.7);
+  const az = at(TL.az, t), el = at(TL.el, t), dist = at(TL.dist, t), target = new THREE.Vector3(at(TL.tx, t), at(TL.ty, t), 0);
+  camera.position.set(target.x + dist * Math.sin(az) * Math.cos(el), target.y + dist * Math.sin(el), dist * Math.cos(az) * Math.cos(el));
+  camera.lookAt(target);
+  renderer.render(scene, camera);
+  const n = Math.min(steps.length - 1, Math.floor(t * steps.length));
+  steps.forEach((s, i) => s.classList.toggle('is-active', i === n));
+  knob.style.top = (t * 100) + '%'; rail.setAttribute('aria-valuenow', Math.round(t * 100));
+  last = { theta, dust };
+}
+
+// ---------- 6. Scroll is the clock. The shown t follows it with a short ease; ?t=0.4 freezes it for screenshots.
+const scrolly = document.getElementById('scrolly');
+const frozen = new URLSearchParams(location.search).get('t');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const scrollT = () => { const r = scrolly.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight), 0, 1); };
+let goal = frozen !== null ? +frozen : scrollT(), shown = goal, raf = 0, then = 0;
+function loop(now) {
+  raf = 0;
+  const dt = then ? Math.min((now - then) / 1000, 0.1) : 1 / 60; then = now;
+  shown = reduced.matches ? goal : shown + (goal - shown) * (1 - Math.pow(1 - 0.16, dt * 60));
+  if (Math.abs(goal - shown) < 1e-4) shown = goal;
+  render(shown);
+  if (shown !== goal) raf = requestAnimationFrame(loop); else then = 0;
+}
+const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+addEventListener('scroll', () => { if (frozen === null) { goal = scrollT(); kick(); } }, { passive: true });
+// The rail scrubs by scrolling the page, so scroll stays the one source of truth.
+const toScroll = t => scrollTo({ top: scrolly.offsetTop + t * (scrolly.offsetHeight - innerHeight), behavior: 'instant' });
+rail.addEventListener('pointerdown', e => { rail.setPointerCapture(e.pointerId); const move = ev => { const b = rail.getBoundingClientRect(); toScroll(clamp((ev.clientY - b.top) / b.height, 0, 1)); }; move(e); rail.onpointermove = move; });
+rail.addEventListener('pointerup', () => { rail.onpointermove = null; });
+rail.addEventListener('keydown', e => { const k = { ArrowDown: 0.02, ArrowUp: -0.02, PageDown: 1 / 7, PageUp: -1 / 7 }[e.key]; if (k) { e.preventDefault(); toScroll(clamp(goal + k, 0, 1)); } });
+new ResizeObserver(() => {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); render(shown);
+}).observe(canvas);
+if (frozen !== null) document.body.classList.add('frozen');
+render(shown);
+</script>
