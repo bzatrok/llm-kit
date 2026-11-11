@@ -21,6 +21,7 @@ Skills, mods and plugins for [Claude Code](https://claude.com/claude-code), one 
 | `teach` | Teaching workspace over many sessions: mission, learner profile, glossary, resources, a spaced review queue and a learning record per topic; practice is graded in the terminal |
 | `visual-explain` | One scrollytelling HTML explainer per concept: sticky SVG or Three.js graphic driven by prose steps, animated tokens and self-drawing paths, a collision check script and a fresh-eyes review |
 | `visual-explain-3d` | One scroll-scrubbed 3D explainer per concept: a continuous timeline driven by scroll position, shader cross-sections, additive beams and particles computed from one shared model, an observer inset and frozen-moment screenshots |
+| `visual-render` | One animated isometric figure of a real system read from its own config or code, built on the Anatomy kit: an inventory with sources first, then a machine or crafted modules, tokens on the real paths, outcomes as places |
 | `visual-map` | One static HTML map per system: ELK auto-layout, animated dashed edges showing data direction, click-to-focus, collapsible groups for large systems and named flows traced end to end |
 | `marktplaats` | Sell-and-check-up workflow for Marktplaats via the Chrome extension; every outgoing message is approval-gated |
 
