@@ -40,6 +40,7 @@ collapsed: [group ids closed on first load]
 
 - **label** ≤ 3 words, the thing's real name. **sub** ≤ 4 words, its tech or role ("ASP.NET Core", "tables + outbox").
 - **tip** 1–2 sentences: what it owns or why it exists. No new term inside a tip.
+- All text (labels, subs, tips, intro) follows the **Prose** rules of `visual-explain`, including ASD-STE100.
 - **edge label is a verb phrase** ≤ 3 words, read as `from <label> to`: "calls REST", "polls outbox", "webhook". An edge points in the direction the data or request goes. A request/response pair is one sync edge from the caller.
 - **kind**: `sync` = caller waits; `async` = poll, queue, webhook, cron, fire-and-forget; `data` = read/write to a store. Four colours at most, the template already uses them.
 - `kind:'db'` draws a cylinder (databases, buckets, queues as storage). `external:true` draws a dashed border: anything you do not operate.
@@ -58,7 +59,7 @@ collapsed: [group ids closed on first load]
 2. **Write the model.** Edges first, then check every node has at least one edge. A part with no edge is either missing an edge or does not belong on the map.
 3. **Write flows**, one per question from scope step 2.
 4. **Verify** (below).
-5. Save as `.visuals/<system>-map.html` at the project root (git root, else cwd); create the folder if missing. Keep it out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report the path, the parts and edges you assumed, and what you left out.
+5. Save in one folder per visual: `.visuals/<name>/<name>-map.html` at the project root (git root, else cwd), with `sources/` for raw inputs you fetched, `build/` for scripts, and `SOURCES.md` naming each source, its date and licence. Keep the folder out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report the path, the parts and edges you assumed, and what you left out.
 
 ## Verify
 

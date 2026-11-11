@@ -40,4 +40,4 @@ Signals that tip toward `visual-explain-3d` over `visual-explain`: the explanati
 
 ## 4. Hand off
 
-Invoke the chosen skill via the Skill tool with the user's original request as `args`. From there the chosen skill owns the work: its file layout, review steps and screenshots apply, not anything here.
+Invoke the chosen skill via the Skill tool with the user's original request as `args`. From there the chosen skill owns the work: its file layout, review steps and screenshots apply, not anything here. Whichever skill builds the page, its text follows the **Prose** rules of `visual-explain`, including ASD-STE100.

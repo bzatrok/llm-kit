@@ -65,5 +65,6 @@ Anatomy warns that stacked plates and labelled boxes don't read as anything. Mod
   - one capture of each rejection path mid-move (`capture.mjs --key <n> --times ...`)
   - `lines.mjs` must print `line ends: 0`
 - Check the camera early. A long line of stations at azimuth 45–60 runs diagonally and shrinks the figure, and a part that faces ±x almost disappears at high azimuth. Move the camera or turn the part so it faces the viewer.
-- Save as `.visuals/<name>-render/` (`build.mjs` plus the HTML) at the project root, kept out of git through `.git/info/exclude`, as in `visual-explain`. If the user wants a standalone repo instead, create one with a thin `CLAUDE.md`.
+- All text in the figure and the page follows the **Prose** rules of `visual-explain`, including ASD-STE100.
+- Save as `.visuals/<name>/` (`build.mjs`, `<name>-render.html`, `sources/` with the config or code you read, `SOURCES.md`) at the project root, kept out of git through `.git/info/exclude`, as in `visual-explain`. If the user wants a standalone repo instead, create one with a thin `CLAUDE.md`.
 - Hand over: the path, the inventory with its sources, what was not drawn and why, and the checks you ran or skipped.

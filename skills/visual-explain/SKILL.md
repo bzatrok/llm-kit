@@ -37,6 +37,8 @@ Walk one concrete example through the mechanism: real hostnames, real values, th
 
 3D only when the camera adds information (interior, depth, angle of a part). A box-and-arrow diagram in 3D is a gimmick. Skip CSS 3D transforms on flat SVG for the same reason.
 
+Real geography (a grid, a route, a region): read `maps.md` in this folder before you draw. It covers sources, preparation, and the two symbols a map may carry.
+
 ## Procedure, both renderers
 
 1. **Scope and trace** (above).
@@ -46,11 +48,14 @@ Walk one concrete example through the mechanism: real hostnames, real values, th
 5. **Write the prose.** One `<div class="step" data-step="N">` per step, bold lead-in, 2–3 sentences. Depth in layers: the step text is plain language, a `<details>` under the step holds the deeper detail, the raw source (RFC section, file:line, command output) is one click away. The `<details>` glossary at the top stays.
 6. **Scrollama stays as in the template.** No GSAP, no timeline library. Only unpkg CDN deps. Offline needed → inline the scripts. When the page links an external stylesheet (a teach lesson does), the graphic-state CSS still stays inline as the page's first `<style>` block: `check.sh` reads that block.
 7. **Verify** (section below). Mandatory for 3D: a wrong import map gives a silent black canvas.
-8. Save as `.visuals/<topic>-explain.html` at the project root (git root, else cwd); create the folder if missing. Keep it out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report path, the one-line question, and the assumptions.
+8. Save in one folder per visual: `.visuals/<name>/<name>-explain.html` at the project root (git root, else cwd). Beside it: `sources/` with every raw fetch (API responses, TopoJSON, spec text), `build/` with the queries and scripts that reduce them, and `SOURCES.md` with the URL or query, the fetch date and the licence per file. The page rebuilds without the network. Keep the folder out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report path, the one-line question, and the assumptions.
 
 ## Prose
 
-- Present tense, active voice, one idea per sentence, under 20 words. Lead with the fact.
+- All text follows the structural rules of ASD-STE100 (the `asd-ste100` skill): present tense, active voice, one instruction per sentence, no semicolons, no phrasal verbs, 20 words or fewer. Lead with the fact. One name per thing for the whole page. Verify: extract the visible text and run `scripts/ste-lint.py` from that skill. Hard violations fail the build.
+- Introduce every domain word before the sentence that uses it. The glossary `<details>` holds every domain word of the page, one line each.
+- The header is one line: the title and a subtitle of 12 words or fewer. Everything else goes into step 1 or the assumptions block.
+- Each step ends with a `<details>` of 3–5 questions a learner is likely to ask at that step, each with a short answer. Write them from the predict step and from what the step leaves open.
 - Pre-empt common misreadings ("the root is not sent; if it were, the client would ignore it").
 - Every arrow in the graphic has a verb, in its label or in the step text: signs, sends, looks up, rejects.
 - Remove these tells: "not just X, it's Y", "at its core", "here's the thing", a rhetorical question as a transition, metaphor nouns (spine, throughline), em-dash chains, a closing aphorism.
