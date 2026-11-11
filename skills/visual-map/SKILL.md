@@ -43,7 +43,7 @@ collapsed: [group ids closed on first load]
 - **edge label is a verb phrase** ≤ 3 words, read as `from <label> to`: "calls REST", "polls outbox", "webhook". An edge points in the direction the data or request goes. A request/response pair is one sync edge from the caller.
 - **kind**: `sync` = caller waits; `async` = poll, queue, webhook, cron, fire-and-forget; `data` = read/write to a store. Four colours at most, the template already uses them.
 - `kind:'db'` draws a cylinder (databases, buckets, queues as storage). `external:true` draws a dashed border: anything you do not operate.
-- **flow edges** in the order the request travels. A flow can reuse edges and go back (webhook returning). 3–7 hops.
+- **flow edges** in the order the request travels. A flow can reuse edges and go back (webhook returning). Aim for 3–7 hops, but never drop a real hop to hit that: a flow that skips a step it really takes is wrong. If a flow runs long, split it into two named flows at a natural seam (e.g. "Order: fetch" and "Order: lock and write"), or keep it whole and longer. Parallel calls are separate edges from the same source, each one counted.
 
 ## Size budget
 
