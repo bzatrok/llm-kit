@@ -57,7 +57,7 @@ If scrubbing back and forth teaches nothing (the in-between frames are meaningle
 
 ## Verify
 
-1. `bash shots.sh <file> 0 0.2 0.38 0.5 0.66 0.84 0.95` from this skill's folder. It writes `/tmp/ve3d-<t>.png` with headless Chrome (SwiftShader WebGL). Read every PNG. Pick moments in the middle of each step window and at the edges where something switches on.
+1. `bash shots.sh <file> 0 0.2 0.38 0.5 0.66 0.84 0.95` from this skill's folder. It prints the path of each PNG, written to a fresh private temp folder with headless Chrome (SwiftShader WebGL). Read every PNG. Pick moments in the middle of each step window and at the edges where something switches on.
 2. For each shot, check that the picture matches the prose of that step, that the HUD numbers match the model, and that no solid hides the slice and no line runs past the edge of the slice.
 3. Check the inset against the source's own words at each step. A model tuned until it "looks right" can still show the wrong thing: the template's first draft showed a yellow zenith at sunset because ozone was missing. That is exactly the error the source describes, which is how it was caught.
 4. Open the page and scrub end to end in both directions, fast and slow. Nothing may pop or depend on the scroll direction.
