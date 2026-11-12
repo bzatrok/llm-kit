@@ -23,5 +23,5 @@ Models
 - Sketchfab with downloadable + CC0 filter; https://blendswap.com (CC-tagged .blend, export glTF from Blender). Paid cutaway engines on free3d/cgtrader if fidelity matters.
 
 Next tiers not in the templates
-- Scrub instead of steps: GSAP ScrollTrigger `scrub:true` mapping scroll to the driving variable. Reader controls time.
+- Scrub instead of steps: use the `visual-explain-3d` skill (scrubber, optional scroll clock, no GSAP).
 - Pre-rendered frames from Blender swapped on scroll (Apple product pages). Best look, zero runtime cost, heavy to produce.

@@ -50,7 +50,7 @@ You should be careful to split between two types of learning:
 - **Fluency strength**: in-the-moment retrieval of knowledge
 - **Storage strength**: long-term retention of knowledge
 
-Fluency can give the user an illusory sense of mastery, but storage strength is the real goal. Try to design lessons which build long-term retention by desirable difficulty:
+Fluency can give the user an illusory sense of mastery, but storage strength is the real goal. Design lessons that build long-term retention through desirable difficulty:
 
 - Using retrieval practice (recall from memory)
 - Spacing (distributing practice over time)
@@ -84,7 +84,7 @@ Each lesson should recommend a primary source for the user to read or watch. Thi
 
 Each lesson should contain a reminder to ask followup questions to the agent. The agent is their teacher, and can assist with anything that's unclear.
 
-When the `visual-explain` skill is installed, the knowledge half of a lesson is a scrolly explainer whenever the concept has a row in that skill's shape table: a flow, a comparison, a cycle, a trade-off, or a data format (the anatomy shape: one sticky artifact, one region per step). Recall-only review sessions and pure command drills stay plain HTML. Build the scrolly, save it as the lesson file in `./lessons/`, take page styles from `./assets/course.css` but keep the graphic-state CSS inline as the first `<style>` block so its `check.sh` works. Then append the practice half (quiz, exercise, the terminal instruction above). The explainer's predict step counts toward the lesson's practice. Run visual-explain's Verify section before you open the lesson. Every glossary term gets a `data-tip` callout at its first use.
+When the `visual-explain` skill is installed, the knowledge half of a lesson is a scrolly explainer whenever the concept has a row in that skill's shape table: a flow, a comparison, a cycle, a trade-off, or a data format (the anatomy shape: one sticky artifact, one region per step). Recall-only review sessions and pure command drills stay plain HTML. Build the scrolly, save it as the lesson file in `./lessons/`, take page styles from `./assets/course.css` but keep the graphic-state CSS inline as the first `<style>` block so its `check.sh` works. Then append the practice half (quiz, exercise, the terminal instruction from [Skills](#skills)). The explainer's predict step counts toward the lesson's practice. Run visual-explain's Verify section before you open the lesson. Every glossary term gets a `data-tip` callout at its first use.
 
 ## Assets
 
