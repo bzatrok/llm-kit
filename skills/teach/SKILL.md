@@ -23,6 +23,7 @@ The state of their learning is captured in the workspace in several files:
 - `./assets/*`: Reusable **components** shared across lessons. See [Assets](#assets).
 - `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes. The learner profile from the first session lives here too (see [Session flow](#session-flow)).
 - `REVIEW-QUEUE.md`: One markdown table that schedules spaced recall. See [Review queue](#review-queue).
+- `KNOWLEDGE-MAP.md`: One markdown table of the concepts the mission needs and the user's measured level on each. The diagnostic writes it; every lesson updates it. See [Diagnostic](#diagnostic).
 
 ## Philosophy
 
@@ -38,10 +39,39 @@ Some topics may require more skills than knowledge. Learning more about theoreti
 
 ## Session flow
 
-1. **First session only: profile the learner.** Four questions, answers into `NOTES.md`: current level (beginner / some exposure / intermediate / advanced); how they learn best (examples, analogies, step by step, visual, connecting to what they know); confusion tolerance (resolve fast, or sit with uncertainty); an analogy domain, a field they know well that metaphors can borrow from. If they answer "visual", write the rule in `NOTES.md`: every lesson gets a scrolly, and a reference doc reuses the lesson's SVG when it fits. Then the mission interview.
+1. **First session only: profile the learner.** Four questions, answers into `NOTES.md`: self-rated level (beginner / some exposure / intermediate / advanced; only used to pick where the diagnostic starts); how they learn best (examples, analogies, step by step, visual, connecting to what they know); confusion tolerance (resolve fast, or sit with uncertainty); an analogy domain, a field they know well that metaphors can borrow from. If they answer "visual", write the rule in `NOTES.md`: every lesson gets a scrolly, and a reference doc reuses the lesson's SVG when it fits. Then the mission interview, then the [diagnostic](#diagnostic). A workspace that has a mission but no `KNOWLEDGE-MAP.md` gets the diagnostic at the start of its next session.
 2. **Every session: recall first.** Read `REVIEW-QUEUE.md`. Quiz every concept that is due, in the terminal, before any new material. Update the queue from the result.
-3. **Then the lesson** in the zone of proximal development.
-4. **Close the loop.** Grade the lesson's practice in the terminal (see [Skills](#skills)), write learning records, add the lesson's concepts to the queue, update the glossary.
+3. **Then the lesson** in the zone of proximal development, picked from `KNOWLEDGE-MAP.md`.
+4. **Close the loop.** Grade the lesson's practice in the terminal (see [Skills](#skills)), write learning records, add the lesson's concepts to the queue, update the concept's row in `KNOWLEDGE-MAP.md`, update the glossary.
+
+## Diagnostic
+
+A self-rating is a guess. The diagnostic measures what the user knows, so lessons go where the gaps are and skip what is already solid. Run it in the first session after the mission interview. Run it again when the user asks ("test me", "what do I know?"), when the mission changes, or when lessons keep landing at 0 hints or 3+ hints, which means the map is wrong.
+
+1. **Map the mission.** From `MISSION.md`'s "Success looks like", list the 6-12 concepts the mission needs, prerequisites first. Take the structure from a syllabus or table of contents in `RESOURCES.md` when one exists, not from memory alone. Write the map with every status `untested`.
+2. **Set the rules.** Tell the user, in one short message: it is not graded, "don't know" is the most useful answer, no looking things up, and about how long it takes.
+3. **Make it a conversation, not a form.** It runs in the terminal, in the shape of the `discuss` skill. Your turns are 1-3 lines. Each turn ends on ONE question. No preamble, no recap of the answer, no menu of options. Wait for each answer before you write the next turn.
+4. **Dig into every answer before you move on.** One answer seldom shows the level. Follow it up:
+   - Right but thin: push one level deeper. Ask "why?", give an edge case, ask "what breaks if…?".
+   - Vague: ask for a concrete example from their own work or the mission.
+   - Wrong or "don't know": stop digging. Step back to its prerequisite.
+
+   Give a concept 1-3 turns, then set its status and move on. Use an adaptive staircase: start at the concept the self-rated level points at. A solid concept jumps ahead two; a gap steps back one. Stop at about 15 turns, or when every concept has a status.
+5. **Ask the questions that show understanding.** Mix explain-it-back, predict-what-happens, apply-it-to-a-mission-scenario and spot-the-error. Use multiple choice only to find the floor fast. Recognising the answer is not knowing it, so a concept is never `solid` on multiple choice alone.
+6. **Find the confident errors.** A wrong answer given with confidence is a misconception. It is the most valuable thing the diagnostic finds, because it predicts where later lessons will stall. Usually the tone of the answer tells you the confidence. When it does not, ask "sure, or a guess?". Ask it after right answers as well, so the question gives nothing away.
+7. **Do not teach during the test.** No hints, no corrections, no "close!". Follow-ups dig; they never lead. Feedback in the middle of the test changes the answers after it.
+8. **Report, then correct.** Show the map as a table in the terminal. Name each misconception and correct it in two or three sentences. Ask the user if the map looks right; they can dispute a status, but they must give evidence ("I use X daily" is evidence, "I think I know it" is not).
+9. **Write it down.** Write the statuses in `KNOWLEDGE-MAP.md`. Write a learning record for each `solid` concept (prior knowledge, with the answer as evidence) and each misconception. Gaps get no record; they are the curriculum.
+
+`KNOWLEDGE-MAP.md` is one table:
+
+```md
+| Concept | Needs | Status | Evidence | Updated |
+|---|---|---|---|---|
+| closures | functions | shaky | explained capture, missed the loop-variable case | 2026-11-14 |
+```
+
+Status is one of `untested`, `gap`, `shaky`, `misconception`, `solid`. After each lesson, set the concept's status from the graded practice in the terminal, never from the lesson having covered it.
 
 ### Fluency vs Storage Strength
 
@@ -110,6 +140,7 @@ Each lesson, the user should always feel as if they are being challenged 'just e
 
 The user may specify an exact thing they want to learn. If they don't, figure out their zone of proximal development by:
 
+- Reading `KNOWLEDGE-MAP.md`: teach the first concept, in prerequisite order, that is not `solid`. A `misconception` comes before a `gap` at the same depth, because a wrong model blocks everything built on it
 - Reading their `learning-records`
 - Figuring out the right thing to teach them based on their mission
 - Teach the most relevant thing that fits in their zone of proximal development
