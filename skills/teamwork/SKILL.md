@@ -1,6 +1,6 @@
 ---
 name: teamwork
-description: Use when work should be split across agents with Claude as lead — one fresh agent per board row (the Lead loop), Claude subagents (which model, how many) and OpenCode agents (DeepSeek, GLM, gpt-6-luna). Triggers: /teamwork, "split this up", "use subagents", "fan out", "use opencode", "use GLM", "use ollama cloud", "fire up Luna", "use OpenAI agents", "use the local model", "save my Claude limits", "keep working while limits reset", or any task with several independent parts. Every repo that fans out has a shared task board file (`TASKS.md`) changed only through a claim script. Covers routing, models and effort, budgets, briefs, sizing, launching, monitoring, review and the failures seen on game-port work.
+description: Use when work should be split across agents with Claude as lead — one fresh agent per board row (the Lead loop), Claude subagents first (Sonnet by default; which model, how many) and OpenCode agents (DeepSeek, GLM, gpt-6-luna) only after that. Triggers: /teamwork, "split this up", "use subagents", "fan out", "use opencode", "use GLM", "use ollama cloud", "fire up Luna", "use OpenAI agents", "use the local model", "save my Claude limits", "keep working while limits reset", or any task with several independent parts. Every repo that fans out has a shared task board file (`TASKS.md`) changed only through a claim script. Covers routing, models and effort, budgets, briefs, sizing, launching, monitoring, review and the failures seen on game-port work.
 ---
 
 # Teamwork
@@ -71,23 +71,28 @@ the right size.
 
 ## Route each part
 
-Rule of thumb: **if a test pass or fail can judge the result and the brief fits in one paragraph,
-it goes to OpenCode. If it needs judgement midway, it stays on Claude.**
+Order of preference: **Claude subagents first, Sonnet by default** (Opus, Haiku or Explore where
+the table says so). **OpenCode only after that**, in one of three cases: the Claude window is
+strained or near its reset, the Claude parallel cap (Budgets) is full and more independent rows are
+ready, or the user asks for it.
 
-Mechanical transcription rows go to OpenCode (the opencode subagent plugin defaults to
+When OpenCode is in play, only rows that a test pass or fail can judge and whose brief fits in one
+paragraph go there. A row that needs judgement midway stays on Claude.
+
+Mechanical transcription rows sent to OpenCode (the opencode subagent plugin defaults to
 `opencode-go/deepseek-v4.1-flash`; confirm the provider with `opencode models` before the first launch). Spend rules (which providers are allowed, caps, who approves spend) come from the user's CLAUDE.md; with none there, ask before any paid run.
 
 | Executor | Use for | Cost |
 |---|---|---|
-| OpenCode `ollama-cloud/deepseek-v4.1-flash` | **Default** for mechanical bundle rows since 2026-10-16: same quality as GLM-low on script-command rows at a quarter of the price; larger rows unmeasured. | Ollama Cloud plan. |
+| Claude **Sonnet** subagent | **Default executor.** Every row unless the table below names a better fit: ports, fixes, real merge conflicts, link failures, crash debugging, reviews of OpenCode output. | Claude window. |
+| Claude **Opus** subagent | Design-heavy parts: architecture, splitting a big unit into rows, a gnarly cross-cutting bug. Rare. | Claude window, most expensive. |
+| Claude **Haiku** subagent, effort `max` | Parts made only of small functions (< ~2 KB each). It stubs anything bigger and declines rows with very many functions (one port: ~120 fns refused). | Claude window, cheapest. |
+| Explore subagent | Wide read-only searches where you only need the conclusion. | Claude window. |
+| OpenCode `ollama-cloud/deepseek-v4.1-flash` | **First OpenCode choice**, only in the cases above. Mechanical bundle rows: same quality as GLM-low on script-command rows at a quarter of the price (2026-10-16); larger rows unmeasured. | Ollama Cloud plan. |
 | OpenCode `ollama-cloud/glm-5.3-flash#low` | Second choice for mechanical rows: ports, split parts, stub follow-ups, script/config fixes, bulk renames, rebases with regenerated files, long unattended runs while Claude limits reset. | Ollama Cloud plan. |
 | OpenCode `ollama-cloud/glm-5.3-flash#high` | Same kind of row, but harder: larger parts, tricky logic, a row `#low` got sent back on. | Ollama Cloud plan, slower. |
 | OpenCode `openai/gpt-6-luna` | Fallback when Ollama Cloud fails (auth, quota, outage) or GLM rows keep failing review. | OpenAI credit. |
 | OpenCode `ollama/qwen3.6:35b-a3b` | **Last resort.** Small, exactly specified edits (file + change named), when remote is unavailable or the material is private. Use the regular tag, not `-q6k`. | Free, local, slow. |
-| Claude **Sonnet** subagent | Default Claude worker. Hard one-offs: real merge conflicts, link failures, crash debugging, reviews of GLM/Luna output. Fallback when the remote OpenCode models are gone. | Claude window. |
-| Claude **Opus** subagent | Design-heavy parts: architecture, splitting a big unit into rows, a gnarly cross-cutting bug. Rare. | Claude window, most expensive. |
-| Claude **Haiku** subagent, effort `max` | Parts made only of small functions (< ~2 KB each). It stubs anything bigger and declines rows with very many functions (one port: ~120 fns refused). | Claude window, cheapest. |
-| Explore subagent | Wide read-only searches where you only need the conclusion. | Claude window. |
 
 `fable` is selectable on the Agent tool but untried here; do not route to it without the user asking.
 
@@ -99,7 +104,7 @@ Other OpenCode models listed by `opencode models`: `gpt-6-luna-fast`, `gpt-6-lun
 `ollama/qwen3.6:35b-a3b-q6k`, `ollama/qwen3-coder:30b`. Not trialled; do not route to them
 without the user asking.
 
-The precondition for OpenCode and cheap models alike: **a test suite that acts as the review gate.**
+The precondition for OpenCode and Haiku alike: **a test suite that acts as the review gate.**
 No tests in the repo → keep the work on Sonnet, or make a test row first.
 
 ## Effort
@@ -130,12 +135,12 @@ No tests in the repo → keep the work on Sonnet, or make a test row first.
 | Subagents inside a worker | Only for parts > ~100 KB; none for rows < ~15 KB | Every extra agent re-reads CLAUDE.md and the sources. |
 | Worker reports | ~100 words, no timing tables | Long reports and relays multiply cost. The lead writes the handover entry from the row notes, so workers add nothing to the log. |
 
-Before a batch, tell the user the plan as `rows × executor` (e.g. "4 rows → 3 DeepSeek, 1 Sonnet").
+Before a batch, tell the user the plan as `rows × executor` (e.g. "4 rows → 3 Sonnet, 1 Haiku").
 Stop chaining new rows after a batch unless the user says go on.
 
-The user's priority: **prefer OpenCode agents where you can, to
-preserve Claude context — DeepSeek first, Luna as the fallback.** Claude subagents split
-big rows into small parts for OpenCode, keeping only design and integration.
+The user's priority: **Claude subagents first, Sonnet by default.** OpenCode only after that
+(window strained, Claude parallel cap full, or on the user's word); there DeepSeek first, Luna as
+the fallback, within the spend rules in the user's CLAUDE.md.
 
 ## Claude subagents and teammates
 
@@ -323,7 +328,7 @@ row in ten (and every row on a critical path) a Sonnet review pass.
 
 | Symptom | Action |
 |---|---|
-| `Unauthorized` / `429` / quota error from `ollama-cloud` | GLM workers stop. Reset claims to `open`, tell the user, fall back to Luna, then Claude. Local Qwen only for small exact edits. |
+| `Unauthorized` / `429` / quota error from `ollama-cloud` | GLM workers stop. Reset claims to `open`, tell the user, fall back to Claude if the window allows, else Luna. Local Qwen only for small exact edits. |
 | `credit_balance_exhausted` in a log | All OpenAI workers stop. Reset their claims to `open` with a note naming WIP commits on `task/<row>`, tell the user, fall back to 3–4 Claude workers. |
 | "too large for one sitting" | Split the unit (~16 KB parts). |
 | 8 parallel Luna workers each reading 100 KB+ files | Burned the OpenAI credit fast. Default to **2–4 parallel**; when credit is low, 2. Say the planned count × model to the user before a batch. |
