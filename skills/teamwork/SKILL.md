@@ -96,8 +96,8 @@ Mechanical transcription rows sent to OpenCode (the opencode subagent plugin def
 
 `fable` is selectable on the Agent tool but untried here; do not route to it without the user asking.
 
-`opencode models` also lists `opencode/glm-5.3-flash-free` and `opencode/deepseek-v4.1-flash-free`:
-untried (2026-10-16); do not route there without the user asking.
+`opencode models` also lists `opencode/glm-5.3-flash-free`: untried (2026-10-16); do not route
+there without the user asking.
 
 Other OpenCode models listed by `opencode models`: `gpt-6-luna-fast`, `gpt-6-luna-pro`,
 `gpt-5.6-luna*`, other `ollama-cloud/*` (glm-5.3, kimi, deepseek, qwen3.5…),
