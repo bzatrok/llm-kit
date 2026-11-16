@@ -59,7 +59,7 @@ collapsed: [group ids closed on first load]
 2. **Write the model.** Edges first, then check every node has at least one edge. A part with no edge is either missing an edge or does not belong on the map.
 3. **Write flows**, one per question from scope step 2.
 4. **Verify** (below).
-5. Save in one folder per visual: `.visuals/<name>/<name>-map.html` at the project root (git root, else cwd), with `sources/` for raw inputs you fetched, `build/` for scripts, and `SOURCES.md` naming each source, its date and licence. Keep the folder out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. Report the path, the parts and edges you assumed, and what you left out.
+5. Save in one folder per visual: `.visuals/<name>/<name>-map.html` at the project root (git root, else cwd), with `sources/` for raw inputs you fetched, `build/` for scripts, and `SOURCES.md` naming each source, its date and licence. Keep the folder out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. In a learning vault, save to the folder that `explain` names instead (**Where the page goes**), and skip the exclude step. Report the path, the parts and edges you assumed, and what you left out.
 
 ## Verify
 

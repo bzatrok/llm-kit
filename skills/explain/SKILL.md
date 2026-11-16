@@ -41,3 +41,5 @@ Signals that tip toward `visual-explain-3d` over `visual-explain`: the explanati
 ## 4. Hand off
 
 Invoke the chosen skill via the Skill tool with the user's original request as `args`. From there the chosen skill owns the work: its file layout, review steps and screenshots apply, not anything here. Whichever skill builds the page, its text follows the **Prose** rules of `visual-explain`, including ASD-STE100.
+
+**Where the page goes.** The visual skills save to `.visuals/<name>/` at the project root, with one exception: inside a learning vault. That is the case when the caller (for example `learn`) names an output folder, or when the working directory or the subject sits in a domain folder of an Obsidian vault (a folder `<Domain>/` with a hub note `<Domain>.md` whose properties have `kind: hub`). Then save to `<Domain>/_Files/visuals/<name>/`, with the same `sources/`, `build/` and `SOURCES.md` inside, and skip the `.git/info/exclude` step: the vault is the store and stays in git. Obsidian hides dot folders, so a `.visuals/` folder in a vault is never seen. Pass this folder to the chosen skill in `args`.
