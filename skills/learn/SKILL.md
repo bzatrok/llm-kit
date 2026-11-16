@@ -22,13 +22,14 @@ The rest of this skill names parts of the workspace by role. Find the layout fir
 | `GLOSSARY.md`, `NOTES.md`, `RESOURCES.md` | in `.teach/` | in `_Files/` |
 
 - **Which layout.** A domain folder is a folder `<Domain>/` with a note `<Domain>.md` whose properties have `kind: hub` (for example an Obsidian vault). Anything else uses `.teach/` in the directory I invoked this from, with the formats of the `teach` skill (`../teach/*-FORMAT.md`).
-- **A concept's entry** has a status (`untested`, `gap`, `shaky`, `misconception`, `solid`, `applied`), dated evidence in my words, and what it needs. In `KNOWLEDGE-MAP.md` those are the `Status`, `Evidence`, `Needs` and `Updated` columns. In a concept note they are the `status` and `updated` properties, the `## Evidence` lines and the `needs [[Concept]]: reason.` lines under `## Connections`.
+- **A concept's entry** has a status (`untested`, `gap`, `shaky`, `misconception`, `solid`, `applied`), my current understanding, the date it was last checked, and what it needs. In `KNOWLEDGE-MAP.md` those are the `Status`, `Evidence`, `Updated` and `Needs` columns. In a concept note they are the `status` and `updated` properties, the `## Understanding` lines and the `needs [[Concept]]: reason.` lines under `## Connections`.
+- **Understanding is state, not a log.** It says what I hold now: `Holds:`, `Shaky:`, `Not held:`, `Watch for:` (a wrong model I held), and one `Last said:` line with my own words, date and record. Overwrite it when it changes; never append dated history. Git keeps the old versions, and the session records keep the events. A `Watch for:` line stays until a later session shows the wrong model is gone.
 - **Guidelines win.** If the repo has a guideline file for its notes (look in `.claude/rules/`, or for a `CLAUDE.md` that points at one), read it and follow it over this summary.
 
 ## Open the session
 
 1. Find the workspace: the directory I invoked this from, or the domain I named. From the root of a vault, a named domain is the folder whose hub note matches the name or one of its `aliases`; several match → ask which one. Read the mission and path, the concept entries of the thread and its neighbours, `NOTES.md`, `GLOSSARY.md`, `RESOURCES.md` and the last 3 session records. List the visuals and lessons folders by file name, so you know which pictures exist. Do this silently; do not summarise them back to me.
-2. No workspace yet: ask me one question, why I want to learn this, and go on. Create the workspace only at close (see below).
+2. No workspace yet: ask me one question, why I want to learn this, and go on. Create the workspace the first time there is something to record (see below).
 3. Pick the thread. If I gave a topic, that is the thread. If not, follow the path, in prerequisite order, to the first concept that is not `solid` or `applied` (a `misconception` before a `gap`). Name it in one line and start.
 4. **Recall through what a concept needs.** When the thread needs a concept that it lists as a prerequisite, and that concept is not `solid`, ask me to recall it in one question before you build on it. If I cannot, give a two-line refresher and go on. In a vault, this works across domains too.
 5. A `.teach/` workspace that still has a `REVIEW-QUEUE.md`: do not run a quiz block from it. When the thread touches a concept in it, use step 4.
@@ -46,7 +47,7 @@ The rest of this skill names parts of the workspace by role. Find the layout fir
 
 - **Predict before reveal.** Before you tell me how something behaves, ask me to predict it. This is for ideas that you bring up. Questions that I ask follow the next rule.
 - **My questions get an answer first.** When I ask what something is, or why it works, answer at once in 2 to 4 lines. Do not turn my question into a prediction, and do not answer it with a question. After the answer, ask ONE check question to see that it landed. Then go back to the thread.
-- **My questions are evidence.** A question that shows a missing or shaky prerequisite goes on your list for close: set the status of that concept's entry, or add an entry for it.
+- **My questions are evidence.** A question that shows a missing or shaky prerequisite is recorded at once: set the status of that concept's entry, or add an entry for it.
 - **Dig into my answers.** Right but thin: push one level deeper ("why?", an edge case, "what breaks if…?"). Vague: ask for a concrete example from my work or the mission. Wrong: do not correct at once. Give a hint, then let me try again.
 - **Hints escalate in three levels:** a conceptual nudge; a narrowed set of options; a fill-in-the-blank. Explain directly only after the third, then ask a fresh prediction on the same idea.
 - **Explain when I land it.** When I reach the answer, or after the third hint, give the mechanism in 2 to 4 lines: why it behaves that way, with one real value. Then the next question. A right answer without the why is a guess that I will lose.
@@ -76,9 +77,21 @@ Rules for all three:
 
 Do not trust parametric knowledge for facts I will rely on. Prefer sources in `RESOURCES.md`; fetch or search when a claim matters and no source covers it, and give the link in the turn. Read-only tools are fine at any time. Add a good new source to `RESOURCES.md` at close.
 
+## Record as you go
+
+A session can end at any moment: I walk away, the call drops, the context is compacted. So the workspace is kept current during the talk, not at close.
+
+- **When my understanding of a concept moves** (I explain it back, land or miss a prediction, show a wrong model with confidence, or ask a question that shows a gap), overwrite that concept's understanding, status and date in the same turn. One small edit, then go on talking; do not mention it unless the write failed.
+- **Status comes from what I said or did**, never from the fact that we covered it.
+- **The session record** is created at the first such moment and gets one line per insight, misconception fixed, or prior knowledge I showed, in the `teach` skill's `LEARNING-RECORD-FORMAT.md`.
+- **Check the write.** If an edit did not land, say so in one line and put the text in the reply, so it survives in the transcript.
+
+## Where I stand
+
+When I ask where I stand, measure by mastery (how many concepts are `solid` or `applied`), not by how far along the path the thread is. If the workspace has a status overview (a table or view that reads the statuses), point me to it and add a 3-line summary.
+
 ## What you do not do during the talk
 
-- Do not write or edit workspace files until close. The talk is the work. The one exception is a visual in the visuals folder (see [Pictures](#pictures)).
 - Do not produce lessons or reference docs. If I ask for one, say so in one line and suggest `/teach` for it.
 
 ## Close the loop
@@ -86,11 +99,10 @@ Do not trust parametric knowledge for facts I will rely on. Prefer sources in `R
 When I say stop, or the thread reaches a natural end and I agree to stop:
 
 1. Say in 1-3 lines what I now hold, and the one thing that is still shaky.
-2. Write to the workspace:
-   - **Concepts we worked on:** add dated evidence in my words (not yours), then set status and date from my answers, never from the fact that we covered it. In a concept note, also fill in or correct the body when the talk made it clearer; every number and named source needs a link.
+2. Finish the workspace. The concepts are already current (see [Record as you go](#record-as-you-go)); check that every concept we touched was updated, then:
+   - **Concept bodies:** fill in or correct the body when the talk made it clearer; every number and named source needs a link.
    - **A concept the talk showed is missing:** a new entry with what it needs, in the right place on the path. In a vault: a new note in the right branch, added to that branch's path; a link to a note that does not exist yet is fine, so do not make empty notes.
-   - **A connection I made** to another concept or domain: in a vault, a `like` or `needs` line in `## Connections`, with my reason; in `.teach/`, a line in the concept's evidence.
-   - A session record for each non-obvious insight, misconception fixed, or prior knowledge I showed, in the `teach` skill's `LEARNING-RECORD-FORMAT.md`.
+   - **A connection I made** to another concept or domain: in a vault, a `like` or `needs` line in `## Connections`, with my reason; in `.teach/`, a line in the concept's understanding.
    - `GLOSSARY.md`: terms I now use correctly. `NOTES.md`: preferences I stated, and parked tangents.
    - A visual built in this session stays in the visuals folder. Name it in the session record that it supports; in a vault, also link it from the branch note.
    - No workspace yet: create a `.teach/` workspace with `MISSION.md` from my answer at open, plus the files above. Inside a vault, create a domain folder with its hub note instead.
