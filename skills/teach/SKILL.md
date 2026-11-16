@@ -1,6 +1,6 @@
 ---
 name: teach
-description: Teach the user a topic over multiple sessions, with a .teach/ workspace, spaced recall and graded practice. Use when the user says /teach, "teach me", "I want to learn", or agrees to learn a topic the conversation raised.
+description: Teach the user a topic over multiple sessions, in a domain folder of a learning vault (or a .teach/ workspace), with recall and graded practice. Use when the user says /teach, "teach me", "I want to learn", or agrees to learn a topic the conversation raised.
 argument-hint: "What would you like to learn about?"
 ---
 
@@ -8,9 +8,24 @@ The user has asked you to teach them something. This is a stateful request - the
 
 ## Teaching Workspace
 
-The teaching workspace is a `.teach/` directory inside the directory the user invoked this skill from. Create it if it does not exist, and never write teaching files outside it — the surrounding directory may be an unrelated project.
+There are two layouts. Find out which one applies before you write anything.
 
-All workspace paths below (`MISSION.md`, `./lessons/`, `./assets/`, …) are relative to that `.teach/` root — so a lesson lives at `.teach/lessons/0001-<name>.html`. The exception is the `*-FORMAT.md` links, which point at files in this skill's own directory.
+**A domain folder in a notes vault.** The user invoked this skill inside an Obsidian vault of learning domains (a folder `<Domain>/` with a hub note `<Domain>.md` whose properties have `kind: hub`), or from the vault root with a domain name. The workspace is that domain folder. If the vault has a guideline file for notes (look for `.claude/rules/` in the repo, or a `CLAUDE.md` that points at one), read it first; it wins over this section. Obsidian hides dot folders, so nothing goes in `.teach/` here. Where this skill names a workspace file, write it here instead:
+
+| This skill says | In a vault domain |
+|---|---|
+| `MISSION.md` | the hub note `<Domain>.md`: `## Why`, `## Done when`, `## Path` |
+| `KNOWLEDGE-MAP.md` | one concept note per concept, in branch folders, each branch with a `<Branch>.md` path note (see [Diagnostic](#diagnostic)) |
+| `./lessons/`, `./reference/`, `./assets/`, `./labs/` | `_Files/lessons/`, `_Files/reference/`, `_Files/assets/`, `_Files/labs/` |
+| `./learning-records/` | `_Files/records/sessions/` |
+| `GLOSSARY.md`, `RESOURCES.md`, `NOTES.md` | `_Files/GLOSSARY.md`, `_Files/RESOURCES.md`, `_Files/NOTES.md` |
+| `REVIEW-QUEUE.md` | none: recall runs through the graph (see [Review queue](#review-queue)) |
+
+A new domain: make `<Domain>/<Domain>.md` and `<Domain>/_Files/` in the vault. Link lessons and reference docs from the branch note's `## Files` section with relative markdown links (`[Lesson](../_Files/lessons/0001-x.html)`).
+
+**`.teach/` (the default).** Anywhere else, the workspace is a `.teach/` directory inside the directory the user invoked this skill from. Create it if it does not exist, and never write teaching files outside it — the surrounding directory may be an unrelated project. All workspace paths below (`MISSION.md`, `./lessons/`, `./assets/`, …) are relative to that `.teach/` root — so a lesson lives at `.teach/lessons/0001-<name>.html`.
+
+In both layouts, the `*-FORMAT.md` links point at files in this skill's own directory.
 
 The state of their learning is captured in the workspace in several files:
 
@@ -40,7 +55,7 @@ Some topics may require more skills than knowledge. Learning more about theoreti
 ## Session flow
 
 1. **First session only: profile the learner.** Four questions, answers into `NOTES.md`: self-rated level (beginner / some exposure / intermediate / advanced; only used to pick where the diagnostic starts); how they learn best (examples, analogies, step by step, visual, connecting to what they know); confusion tolerance (resolve fast, or sit with uncertainty); an analogy domain, a field they know well that metaphors can borrow from. If they answer "visual", write the rule in `NOTES.md`: every lesson gets a scrolly, and a reference doc reuses the lesson's SVG when it fits. Then the mission interview, then the [diagnostic](#diagnostic). A workspace that has a mission but no `KNOWLEDGE-MAP.md` gets the diagnostic at the start of its next session.
-2. **Every session: recall first.** Read `REVIEW-QUEUE.md`. Quiz every concept that is due, in the terminal, before any new material. Update the queue from the result.
+2. **Every session: recall first.** In a vault, recall through the graph (see [Review queue](#review-queue)). Otherwise read `REVIEW-QUEUE.md`. Quiz every concept that is due, in the terminal, before any new material. Update the queue from the result.
 3. **Then the lesson** in the zone of proximal development, picked from `KNOWLEDGE-MAP.md`.
 4. **Close the loop.** Grade the lesson's practice in the terminal (see [Skills](#skills)), write learning records, add the lesson's concepts to the queue, update the concept's row in `KNOWLEDGE-MAP.md`, update the glossary.
 
@@ -71,7 +86,9 @@ A self-rating is a guess. The diagnostic measures what the user knows, so lesson
 | closures | functions | shaky | explained capture, missed the loop-variable case | 2026-11-14 |
 ```
 
-Status is one of `untested`, `gap`, `shaky`, `misconception`, `solid`. After each lesson, set the concept's status from the graded practice in the terminal, never from the lesson having covered it.
+Status is one of `untested`, `gap`, `shaky`, `misconception`, `solid`, and `applied` (the user used it in a lab, a project or real code). After each lesson, set the concept's status from the graded practice in the terminal, never from the lesson having covered it.
+
+In a vault, each row is a concept note instead: the concept is the title, `Status` and `Updated` are the `status` and `updated` properties, `Evidence` is a dated line under `## Evidence` in the user's own words, and `Needs` is a `needs [[Concept]]: reason.` line under `## Connections`. The prerequisite order is the `## Path` list in the branch notes and the hub note. Before you make a note, check that no note of that name exists anywhere in the vault; if one does, link to it.
 
 ### Fluency vs Storage Strength
 
@@ -95,6 +112,8 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 |---|---|---|---|---|
 | progressive overload | 0003 | 2026-11-10 | 3d | 2026-11-13 |
 ```
+
+In a vault there is no queue. Recall runs through the graph: when a lesson needs a concept from a `needs` link, and that note is not `solid`, ask the user to recall it in one question before you build on it; blank gets a two-line refresher. Same for a concept from another domain. In a vault, skip the rest of this section and step 2 of the session flow is this recall.
 
 At the start of a session, quiz every row whose `Due` is today or earlier. Recalled: advance the interval 3d → 7d → 21d, then delete the row, it is in storage. Fuzzy: keep the interval, try again next time. Blank: reset to 3d and give a one-paragraph refresher before the new lesson. Each quiz answer counts as evidence for a learning record only on the 7d or 21d pass; a 3d recall is fluency, not storage.
 
