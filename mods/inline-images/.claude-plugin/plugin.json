@@ -1,0 +1,6 @@
+{
+  "name": "inline-images",
+  "version": "0.2.0",
+  "description": "Draws PNG images inline, above any assistant message that mentions their absolute path, once scrolling stops",
+  "types": "./types/index.d.ts"
+}

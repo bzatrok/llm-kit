@@ -9,6 +9,7 @@ with a `.claude-plugin/plugin.json` — a new mod folder loads without touching 
 | `context-bar/` | `/context-bar` shows a stacked context-window bar above the prompt, `/context-bar off` hides it; per session, starts hidden |
 | `handover-report/` | `/handover-report` opens a pane with the state of `.handovers/handover_log.md` |
 | `tldr/` | `/tldr [extra ask]` summarises the last reply with haiku in a bordered box above the prompt (under context-bar, cleared on the next turn); `/tldr auto` does it after every reply (per session, starts off); `/tldr eli5|eli8|eli12|eli15` sets the reading level (persisted, default eli12); `/tldr tune <level> <feedback>` has sonnet rewrite that level's rules into the `/config` field `tldr.<level>`, `/tldr reset <level>` clears it; the model never reads it |
+| `inline-images/` | draws PNGs inline above any assistant reply that names their absolute path (max 3, 80×30 cells, shrunk to 480 px with `sips`); swapped for same-size placeholders while scrolling and redrawn 300 ms after it stops; a picture scrolled partly off the top is drawn as an ImageMagick crop of its visible rows (needs `magick`; iTerm2 3.5+ fullscreen, kitty or Ghostty) |
 | `cockpit/` | situation band above the prompt (gauge, goal/now/done/next/constraints, workers) and auto-compaction with a resume prompt. Read `cockpit/PROJECT_CONTEXT.md` and `.handovers/handover_log.md` before working on it |
 
 ## Commands (per mod folder)
