@@ -52,11 +52,10 @@ Charts, maps and image slots follow the same rule as numbers: captured, dated, i
 
 Searched during **phase 1 only**, for facts already established:
 
-- `~/.claude/projects/*.jsonl` — coding and technical history. `grep -l` to find the
+- `~/.claude/projects/*/*.jsonl` — coding and technical history. `grep -l` to find the
   session, then read that one.
 - `~/_Claude_Chat_Backup/<date-range>/conversations.json` — background and non-coding
-  history. 178 MB on one line. Use `jq`, never `Read`. See
-  `your memory notes on the chat backup`.
+  history. 178 MB on one line. Use `jq`, never `Read`.
 
 Also grep the adjacent topic folders. A boiler model for a heating question is already in
 `Energy/sources/AcmeHeat_Model200_install-guide_2024-09.txt`.

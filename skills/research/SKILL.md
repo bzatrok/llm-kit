@@ -42,7 +42,7 @@ with real numbers.
 Legwork first, in this order:
 
 1. Grep the adjacent topic folders for facts already established.
-2. Grep the two past-context archives named in `~/.claude/CLAUDE.md`. Phase 1 only.
+2. Grep the past-context archives in `references/sourcing.md` §Past-context archives. Phase 1 only.
 3. Cheap open-web orientation — enough to know the shape of the option space.
 
 Then **one** grilling round: numbered questions, each with a recommended answer,
@@ -137,7 +137,7 @@ A claim that appears only in the HTML is a bug.
 ## Never
 
 - No credentials, no login forms, no CAPTCHA solving.
-- No message, email or contact form sent without the user approving that exact text.
+- No email or contact form, even approval-gated. Chat messages only with approval of the exact text.
 - No invented numbers. An unknown prints as unknown.
 - No option dropped for being inconvenient.
 - `trash`, never `rm`.

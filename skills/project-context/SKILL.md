@@ -82,7 +82,7 @@ Six from the map, project-scoped, plus one the map has no counterpart for, under
 - **Invariants** — what must stay true across every effort. Hosting, stack constraints, the
   thing the client will not budge on.
 - **Decisions so far** — index only. Gist plus the rejected alternative, linking the ADR or
-  handover map that holds the detail. Never a second copy.
+  handover log that holds the detail. Never a second copy.
 - **Not yet specified** — the fog. In-scope questions you can see coming but cannot yet
   state sharply, and work **deliberately unfinished** with the reason it is unfinished.
 - **Out of scope** — ruled out for the *project*, with the reason. It never graduates.
@@ -136,7 +136,7 @@ is a prose change: propose it, do not do it silently.
 telling the agent to read this file before acting, because it holds the hard rules. That is
 an instruction, which cannot drift; a restated rule can.
 
-**Index, not store.** Link the handover maps and ADRs; never copy a decision out of them.
+**Index, not store.** Link the handover logs and ADRs; never copy a decision out of them.
 The same rule that binds `handover_log.md` binds this one level up.
 
 ## The ensure pass
@@ -225,7 +225,7 @@ Direct invocation always works, for a check or a first run.
 <what must stay true across every effort — hosting, stack, the client's hard line>
 
 ## Decisions so far
-<!-- index only: gist + rejected alternative, linking the ADR or handover map -->
+<!-- index only: gist + rejected alternative, linking the ADR or handover log -->
 - [<slug>](.handovers/handover_00N_<slug>.md) — <gist>. Rejected: <alternative>.
 
 ## Not yet specified
@@ -245,12 +245,12 @@ Direct invocation always works, for a check or a first run.
 | Invented a new field schema | Exposure line, six map sections plus Stakeholders. Nothing else. |
 | Guessed Exposure from the folder or stack | Ask. `play/` can hold a published port. |
 | Wrote a field as current status | Write the standing condition. See *Write it to age*. |
-| Copied a decision out of a handover map | Index, not store. Gist and link. |
+| Copied a decision out of a handover log | Index, not store. Gist and link. |
 | Created the file but never linked it from `CLAUDE.md` | Step 2. Unlinked is unread is dead. |
 | Guessed a Destination to avoid a blank section | Blank beats invented. Ask, or leave it. |
 | Rewrote Intent or Stakeholders without asking | Propose and wait. Mechanical only is silent. |
 | Used commit count as the staleness signal | Structural change. Volume cries wolf. |
-| Extended the pass to `CLAUDE.md` or the handover maps | Only this file rots. |
+| Extended the pass to `CLAUDE.md` or the handover logs | Only this file rots. |
 | Copied a durable line out of `CLAUDE.md` instead of moving it | Move and delete. A summary left behind is how the two files come to contradict each other. |
 | Left a `pending` sha in the decision index | Mechanical drift. Backfill from the log before reporting clean. |
 | Printed a full report on a clean project | One line. It runs as another skill's step 0. |
