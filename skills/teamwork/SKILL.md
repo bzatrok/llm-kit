@@ -187,7 +187,7 @@ big rows into small parts for OpenCode, keeping only design and integration.
 - **Merging**: default is set the row `review` and stop. Never merge a row another session owns.
 - **Scratch**: `/tmp/<project>-scratch/<sid>/`. Nothing from it goes into the repo.
 - **Shared devices** (simulators, ports, DBs): touch only your own. Never `shutdown all` / erase.
-- **Before you stop**: append a dated handover entry, commit it on master. Idle session: no entry.
+- **Before you stop**: append a dated handover entry. Do not commit it: the log stays untracked (`.git/info/exclude`). Idle session: no entry.
 - **Deleting files**: `trash <path>`, never `rm`.
 ```
 
@@ -197,13 +197,13 @@ One worker per row, in the background, output to a log in the lead's scratchpad:
 
 ```sh
 S=<scratchpad>; n=5; row=U-foo
-(opencode run -m "ollama-cloud/glm-5.3-flash#low" --auto --title proj-opencode-$n "$(cat $S/oc$n.txt)" \
+(opencode run -m "ollama-cloud/deepseek-v4.1-flash" --auto --title proj-opencode-$n "$(cat $S/oc$n.txt)" \
    > $S/oc$n.log 2>&1 &)
 ```
 
-- Swap `-m` for `"ollama-cloud/glm-5.3-flash#high"` or `openai/gpt-6-luna` per the routing table.
+- Swap `-m` for `"ollama-cloud/glm-5.3-flash#low"`, `"ollama-cloud/glm-5.3-flash#high"` or `openai/gpt-6-luna` per the routing table.
   Quote the model: `#` starts a comment in some shells.
-- Before the first GLM batch, smoke-test auth: `opencode run -m "ollama-cloud/glm-5.3-flash#low" "Reply OK."`.
+- Before the first batch, smoke-test auth: `opencode run -m "ollama-cloud/deepseek-v4.1-flash" "Reply OK."`.
   Working key: the stored "Ollama Cloud" credential (`opencode auth login`, 2026-10-12). The stale
   `OLLAMA_API_KEY` env var returned `Unauthorized`; if auth breaks, check `opencode auth list`.
 
@@ -328,7 +328,7 @@ row in ten (and every row on a critical path) a Sonnet review pass.
 | "too large for one sitting" | Split the unit (~16 KB parts). |
 | 8 parallel Luna workers each reading 100 KB+ files | Burned the OpenAI credit fast. Default to **2–4 parallel**; when credit is low, 2. Say the planned count × model to the user before a batch. |
 | Merge conflict only in a generated file | Send a Luna worker to rebase and regenerate. |
-| Stale uncommitted handover log in the main checkout | Workers raced on master. Restore from HEAD if HEAD has every entry. |
+| Handover log lost entries in the main checkout | Workers raced on the file. Re-append the lost entries from the workers' reports. |
 | Shared device shut down repeatedly | Brief every worker to touch only its own simulator/port. |
 | Worker exits with its row still `claimed` | Check `git log master..task/<row>`, reset to `open` with a note, relaunch. |
 

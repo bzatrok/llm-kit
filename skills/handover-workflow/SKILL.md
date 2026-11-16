@@ -216,8 +216,8 @@ files.
    approach.
 3. **Not yet specified** — the question is not sharp, so it becomes one line in the log.
 
-The closing message then says three things only: the doc path, what the doc covers, and
-the handoff command from step 8. If the user must choose between two real options, that choice
+The closing message then says three things: the doc path, what the doc covers, and
+the handoff command from step 8. One line on what you did not verify is allowed; a paragraph is not. If the user must choose between two real options, that choice
 belongs in the grill, before the doc exists.
 
 The same rule binds the executor's final message. Anything unfinished goes in the log row
@@ -246,15 +246,7 @@ the final turn will be judged against.
 
 **If the gate is OFF**, say so in one line in the shared context. Then ask the user if they want
 the gate installed before the handover runs. Do not install it without their answer. If they
-say yes, run this from the repo root:
-
-```bash
-~/.claude/hooks/install-review-gate.sh
-```
-
-The installer copies the hook from `~/.claude/hooks/review-gate.sh`. It merges the Stop
-hook into any existing `.claude/settings.json` and leaves the rest of that file alone. It
-creates `reviews/` and ignores it. Running it twice is safe.
+say yes, tell them the installer (`~/.claude/hooks/install-review-gate.sh`) is not on this machine, and continue with the gate OFF.
 
 To disable the gate later, run `chmod -x .claude/hooks/review-gate.sh`.
 
@@ -383,9 +375,9 @@ leaves them out.
 7. Run the doc's completion footer. Set the log row to ✅ done with the date. Add the
    decision gists to the log's **Decisions so far**. Update **Not yet specified** and
    **Out of scope**.
-8. Commit the work in small commits. Push the branch. Open a pull request. Put the
-   handover number and title in the PR title. Summarize the acceptance checklist result in
-   the PR body. Give the user the PR URL.
+8. Commit the work in small commits. Push the branch. Show the user the exact PR title
+   (handover number and title) and body (acceptance checklist result), and wait for
+   approval before you open the PR. Then give the user the PR URL.
 
 ## Common mistakes
 
