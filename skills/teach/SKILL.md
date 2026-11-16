@@ -88,7 +88,9 @@ A self-rating is a guess. The diagnostic measures what the user knows, so lesson
 
 Status is one of `untested`, `gap`, `shaky`, `misconception`, `solid`, and `applied` (the user used it in a lab, a project or real code). After each lesson, set the concept's status from the graded practice in the terminal, never from the lesson having covered it.
 
-In a vault, each row is a concept note instead: the concept is the title, `Status` and `Updated` are the `status` and `updated` properties, `Evidence` is a dated line under `## Evidence` in the user's own words, and `Needs` is a `needs [[Concept]]: reason.` line under `## Connections`. The prerequisite order is the `## Path` list in the branch notes and the hub note. Before you make a note, check that no note of that name exists anywhere in the vault; if one does, link to it.
+`Evidence` holds the user's current understanding of the concept: state, not a log. Overwrite it when it changes, with the date in `Updated` (last checked); never append dated history. The session's events go in learning records.
+
+In a vault, each row is a concept note instead: the concept is the title, `Status` and `Updated` are the `status` and `updated` properties, `Evidence` is the `## Understanding` block: up to four lines (`Holds:`, `Shaky:`, `Not held:`, `Watch for:` for a wrong model) and one `Last said:` line with the user's own words, date and record, all overwritten when the understanding changes (git keeps the old versions; a `Watch for:` line stays until a later session shows the wrong model is gone), and `Needs` is a `needs [[Concept]]: reason.` line under `## Connections`. The prerequisite order is the `## Path` list in the branch notes and the hub note. Before you make a note, check that no note of that name exists anywhere in the vault; if one does, link to it.
 
 ### Fluency vs Storage Strength
 
