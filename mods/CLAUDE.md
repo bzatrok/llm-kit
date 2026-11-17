@@ -23,3 +23,4 @@ npx -p typescript@5 tsc -p <mod>   # after the engine has laid .claude-plugin/ty
 - `$` never crosses an import: anything calling `$.…` lives in `register.tsx`; pure logic goes in sibling `.ts` files.
 - Mod values live in `$.state` (declared in `types/index.d.ts`), persisted preferences in `$.store`.
 - Actions that change repos or files only fill the prompt box (`$.prompt.fill`); the mod never writes on its own.
+- Terminal `Image` limits found the hard way (iTerm2): a PNG side over 4096 px is refused (the render hook is skipped, the pane goes grey); a picture whose top row is above the screen is skipped, and so is any picture in a pane that is scrolled at all, so draw only the visible rows; every redraw resends the bytes, so draw a same-sized blank box while the view moves (`inline-images/`).
