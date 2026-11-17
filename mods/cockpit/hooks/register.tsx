@@ -128,6 +128,8 @@ export const register: Register = (on, options) => {
         },
         required: ['now'],
       },
+      // behind ToolSearch the model skips the update in a fresh chat and the band stays empty
+      isDeferred: false,
     })
     tick?.cancel()
     tick = $.clock.every(REFRESH_MS, () => {
