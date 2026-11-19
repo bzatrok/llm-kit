@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>nginx2root Triage</title>
+<title>nginx2root Attack Chain</title>
 <style>
 :root{
   --bg:#f6f5f2; --panel:#ffffff; --ink:#22252b; --muted:#6b7079; --line:#d9d7d1; --group:#eceae4;
@@ -71,6 +71,7 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
 .paths button[aria-pressed="true"]{border-color:var(--next);box-shadow:inset 3px 0 0 var(--next)}
 .paths button small{display:flex;align-items:center;gap:5px;color:var(--muted)}
 .paths button small i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.terms summary{cursor:pointer;list-style:none}.terms summary h2{display:inline;margin:0}.terms[open] summary{margin-bottom:8px}.terms dl{margin:0;font-size:12px}.terms dt{font-weight:600;margin-top:6px}.terms dt:first-child{margin-top:0}.terms dd{margin:0;color:var(--muted)}
 #detail p{margin:0 0 8px} #detail ul{margin:0;padding-left:18px} #detail li{margin:2px 0}
 #detail code{font:11.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--group);padding:1px 4px;border-radius:4px;word-break:break-word}
 .hint{color:var(--muted);font-size:12px}
@@ -132,8 +133,8 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
 </head>
 <body>
 <header>
-  <h1>nginx2root: check one nginx and fix it</h1>
-  <p>Five nginx CVEs disclosed on 18 Nov 2026 (<a href="https://blog.qualys.com/product-tech/patch-management/2026/11/18/nginx2root-five-nginx-flaws-led-by-cve-2026-123007-how-to-find-mitigate-and-patch-now">Qualys</a>, <a href="https://www.sophos.com/en-us/security-advisories/sophos-sa-20261118-nginx2root">Sophos</a>). Run this once per nginx you find. Pick a path to play it. Click a step, an input or a state for detail. Scroll to pan, pinch to zoom.</p>
+  <h1>nginx2root: from one HTTP/2 connection to root</h1>
+  <p>This page shows each stage of the published attack chain and where each defense stops it. The data comes from <a href="https://xint.io/blog/nginx2root-remote-code-execution">Xint</a>, <a href="https://blog.qualys.com/product-tech/patch-management/2026/11/18/nginx2root-five-nginx-flaws-led-by-cve-2026-123007-how-to-find-mitigate-and-patch-now">Qualys</a> and <a href="https://socprime.com/active-threats/nginx2root-critical-nginx-rce-flaws-require-urgent-patching/">SOC Prime</a>. The page does not show exploit details. The sources report lab tests only. Select a path to start it.</p>
 </header>
 <div class="wrap">
   <div class="col">
@@ -147,12 +148,12 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
             <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="3" fill="none" stroke="currentColor"/></svg>step</div>
             <div><svg viewBox="0 0 44 16"><path d="M8 2H36L42 8L36 14H8L2 8Z" fill="none" stroke="currentColor"/></svg>decision</div>
             <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="3" fill="none" stroke="currentColor" stroke-dasharray="4 2"/></svg>wait</div>
-            <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="6" fill="none" stroke="var(--good)" stroke-width="2"/></svg>end, coloured by final state</div>
+            <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="6" fill="none" stroke="var(--good)" stroke-width="2"/></svg>end: the colour shows the last state</div>
             <div><svg viewBox="0 0 44 16"><path d="M6 2H34L40 7V14H6Z" fill="none" stroke="var(--io)"/></svg>input or output</div>
             <div><svg viewBox="0 0 44 16"><path class="edge next" d="M2 8H42"/></svg>next step</div>
-            <div><svg viewBox="0 0 44 16"><path class="edge loop" d="M2 8H42"/></svg>goes back (loop)</div>
-            <div><svg viewBox="0 0 44 16"><path class="edge io" d="M2 8H42"/></svg>goes in / comes out</div>
-            <p class="hint" style="margin:6px 0 0">Coloured bar on a step = the step puts the subject in that state. Dashed border on an input = comes from outside.</p>
+            <div><svg viewBox="0 0 44 16"><path class="edge loop" d="M2 8H42"/></svg>goes back to an earlier step</div>
+            <div><svg viewBox="0 0 44 16"><path class="edge io" d="M2 8H42"/></svg>input or output link</div>
+            <p class="hint" style="margin:6px 0 0">A coloured bar on a step shows the state that the step sets. A dashed border on an input shows that it comes from outside the process.</p>
           </div>
         </div>
       </div>
@@ -162,6 +163,7 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
   <aside>
     <div class="card paths"><h2>Paths</h2><div id="paths"></div></div>
     <div class="card" id="detail"><h2>Selected</h2><p class="hint">Click a step or an input.</p></div>
+    <details class="card terms" id="terms" hidden><summary><h2>Terms</h2></summary><dl></dl></details>
   </aside>
 </div>
 <div id="tip"></div>
@@ -170,103 +172,97 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
 <script>
 // ---- model: the only part an agent writes per process ----
 const MODEL = {
-  subject: 'one nginx instance',       // what the states belong to
-  collapsed: [],                       // lane ids closed on first load; ?collapse=a,b overrides
-  showIO: true,                        // inputs/outputs drawn on first load; ?io=0 overrides
-  states: [                            // in the order the subject usually moves through them
-    {id:'unchecked',  tone:'neutral', label:'Unchecked',        tip:'Found, but not looked at yet.'},
-    {id:'vulnerable', tone:'warn',    label:'Affected version', tip:'The version is in the affected range. The config decides if any CVE applies.'},
-    {id:'atrisk',     tone:'bad',     label:'At risk',          tip:'Affected version and at least one feature a CVE needs is on.'},
-    {id:'mitigated',  tone:'warn',    label:'Mitigated',        tip:'A temporary workaround is on. The binary is still vulnerable.'},
-    {id:'notaffected',tone:'good',    label:'Not affected',     tip:'Fixed version, or no feature that any of the five CVEs needs.', terminal:true},
-    {id:'removed',    tone:'good',    label:'Removed',          tip:'Stopped or uninstalled because nothing needs it.', terminal:true},
-    {id:'patched',    tone:'good',    label:'Patched',          tip:'Fixed build installed, restarted and checked.', terminal:true},
+  subject: "the attacker's access",
+  collapsed: [],
+  showIO: true,
+  terms: [                            // every technical word on the page, defined once
+    {term:"Worker", def:"The nginx process that handles requests. It runs as a normal user, not as root."},
+    {term:"Window", def:"The HTTP/2 flow-control window: the number of bytes that one side can send before it must wait for more credit."},
+    {term:"Heap", def:"The memory that a program reserves while it runs."},
+    {term:"ASLR", def:"A protection that puts program memory at a random address each time the program starts."},
+    {term:"Use-after-free", def:"A bug where a program uses memory after it releases that memory."},
+    {term:"Cleanup pointer", def:"An address that nginx keeps so that it can run code when it closes a stream."},
+    {term:"SCTP", def:"A network protocol. The Linux kernel can include it as a module."},
+  ],
+  states: [
+    {id:'outside',   tone:'good',    label:'No access',        tip:'The attacker is on the internet. The attacker has no login and no access.'},
+    {id:'connected', tone:'neutral', label:'Connected',        tip:'The attacker holds an HTTP/2 connection to nginx. It looks like a slow client.'},
+    {id:'primed',    tone:'warn',    label:'Window too large', tip:'The connection window is larger than its limit. Memory is still intact.'},
+    {id:'corrupted', tone:'bad',     label:'Heap corrupted',   tip:'The attacker changed heap metadata. The attacker also knows nginx memory addresses.'},
+    {id:'worker',    tone:'bad',     label:'Runs as worker',   tip:'The attacker runs commands with the permissions of the worker. This is not root.'},
+    {id:'root',      tone:'bad',     label:'Root on host',     tip:'The attacker has root on the host. In the Xint tests, this also worked from inside a container.', terminal:true},
+    {id:'blocked',   tone:'good',    label:'Blocked',          tip:'A condition is missing. This route stops here.', terminal:true},
   ],
   lanes: [
-    {id:'find',   label:'Find'},
-    {id:'assess', label:'Assess'},
-    {id:'act',    label:'Act'},
+    {id:'net',    label:'Network'},
+    {id:'nginx',  label:'nginx worker'},
+    {id:'kernel', label:'Linux kernel'},
   ],
-  // kind: start | step | decision | wait | end.  state = the state the subject is in after this step.
   steps: [
-    {id:'start', lane:'find', kind:'start', label:'Advisory out', sub:'18 Nov 2026', state:'unchecked',
-      tip:'Five CVEs, all nginx memory corruption. F5 scores each 9.2 (CVSS 4.0).', out:['adv']},
-    {id:'find', lane:'find', label:'Find every nginx', sub:'hosts, images, pods',
-      tip:'Include nginx inside other images and products. OpenResty and Kubernetes ingress controllers need their own updates.',
-      cmd:'docker ps, then nginx -v inside each container', in:['hosts','adv'], out:['inv']},
-    {id:'version', lane:'find', label:'Read the version', sub:'per instance',
-      cmd:'nginx -v', in:['inv'], out:['ver']},
-    {id:'inrange', lane:'assess', kind:'decision', label:'Affected version?', sub:'1.9.5 – 1.31.8',
-      tip:'Fixed in 1.30.7 and 1.31.9. A distro package can carry the fix without a new version number: check the distro advisory.',
-      in:['ver','adv']},
-    {id:'config', lane:'assess', label:'Dump the config', sub:'all included files', state:'vulnerable',
-      cmd:'nginx -T', in:['inv'], out:['conf']},
-    {id:'feature', lane:'assess', kind:'decision', label:'Affected feature on?', sub:'HTTP/2, HTTP/3, mail, proxy',
-      tip:'Each CVE needs one: HTTP/2 (123007, 123633), HTTP/3 (121810), mail proxy (113425), proxy_pass with variables plus SSI or mirror (123634).',
-      in:['conf','adv']},
-    {id:'exposure', lane:'assess', label:'Rank by exposure', sub:'internet-facing first', state:'atrisk',
-      tip:'Fix internet-facing instances first, most of all those that accept HTTP/2 or HTTP/3 from clients. Test the nginx port directly if a CDN or load balancer is in front.',
-      cmd:'openssl s_client -connect HOST:443 -servername HOST -alpn h2', in:['inv'], out:['rank']},
-    {id:'needed', lane:'act', kind:'decision', label:'Still needed?', sub:'anything uses it',
-      tip:'An nginx nothing uses is cheaper to remove than to patch.'},
-    {id:'remove', lane:'act', label:'Stop or remove', sub:'container or package'},
-    {id:'build', lane:'act', kind:'decision', label:'Fixed build out?', sub:'package or image tag',
-      tip:'Branches 1.9.5 – 1.29.x have no fixed build: move to 1.30.7 or 1.31.9, or a vendor package with the fix.',
-      in:['fixed']},
-    {id:'mitigate', lane:'act', label:'Turn off HTTP/2', sub:'temporary', state:'mitigated',
-      tip:'Blocks 123007 and 123633. Sophos says turning off HTTP/3 reportedly blocks 121810. No workaround is listed for 123634 or 113425. gRPC and other HTTP/2 services break: test first.',
-      in:['conf','rank']},
-    {id:'wait', lane:'act', kind:'wait', label:'Wait for the build', sub:'distro or image',
-      tip:'Ubuntu and Debian had not shipped fixed packages on 18 Nov 2026.', out:['fixed']},
-    {id:'patch', lane:'act', label:'Update nginx', sub:'1.30.7 or 1.31.9',
-      tip:'Patch in the order of the exposure ranking.', in:['fixed','rank']},
-    {id:'restart', lane:'act', label:'Restart nginx', sub:'a reload is not enough',
-      tip:'A reload keeps the old binary in memory, so the flaw stays live until a full restart.'},
-    {id:'verify', lane:'act', label:'Check again', sub:'version and ALPN', cmd:'nginx -v'},
-    {id:'end_na',  lane:'assess', kind:'end', label:'Not affected', sub:'no change needed', state:'notaffected',
-      tip:'On an affected version with no affected feature, nothing is exploitable today. Upgrade at the next normal update.'},
-    {id:'end_rm',  lane:'act', kind:'end', label:'Removed', sub:'nothing to patch', state:'removed'},
-    {id:'end_ok',  lane:'act', kind:'end', label:'Patched', sub:'closed', state:'patched'},
+    {id:'start', lane:'net', kind:'start', label:'Attacker', sub:'on the internet', state:'outside',
+      tip:'Xint says that the attacker needs no login. The attacker needs only a TLS port with HTTP/2 that they can reach.'},
+    {id:'ver', lane:'net', kind:'decision', label:'Affected version?', sub:'1.9.5 – 1.31.8',
+      tip:'nginx 1.30.7 and 1.31.9 fix the bug. A distribution package can include the fix but still show the old version in nginx -v.'},
+    {id:'feat', lane:'net', kind:'decision', label:'Which feature is on?', sub:'per listener',
+      tip:'HTTP/2 starts the main chain, CVE-2026-123007. HTTP/3, the mail proxy, or the resolver with mirror start the other four CVEs.'},
+    {id:'stall', lane:'nginx', label:'Stop reading data', sub:'HTTP/2 connection', state:'connected',
+      tip:'The attacker opens an HTTP/2 connection and stops reading, so nginx keeps the response data in its queue. To detect it, look for one long connection where received bytes increase and sent bytes stay low.',
+      in:['port']},
+    {id:'overfill', lane:'nginx', label:'Increase the window', sub:'past its limit', state:'primed',
+      tip:'When the attacker cancels streams, nginx gives back their window credit without an upper limit. So the window becomes larger than its limit. nginx does not log these control frames as requests.'},
+    {id:'copy', lane:'nginx', label:'Start a large copy', sub:'TLS output', state:'corrupted',
+      tip:'nginx turns the large window into a very large copy length. The copy writes past the buffer over heap metadata. It also sends nginx memory to the attacker, which shows addresses and defeats ASLR.',
+      out:['leak','heap']},
+    {id:'hijack', lane:'nginx', label:'Replace cleanup pointer', sub:'runs at cleanup',
+      tip:'The attacker uses the addresses and the corrupted heap to replace a cleanup pointer. When nginx runs the cleanup, it runs the attacker\'s command.',
+      in:['leak','heap']},
+    {id:'uaf', lane:'nginx', label:'Use another CVE', sub:'four use-after-free bugs',
+      tip:'CVE-2026-123633 needs HTTP/2 and a proxy. CVE-2026-121810 needs HTTP/3 and a proxy. CVE-2026-113425 needs the mail proxy. CVE-2026-123634 needs the resolver, proxy_pass and mirror. Each one gives the same worker access.',
+      in:['port']},
+    {id:'worker', lane:'nginx', label:'Run commands', sub:'as the worker user', state:'worker',
+      tip:'The commands run with the worker permissions. The attacker does not control the master process. To detect it, add auditd execve rules for programs that the worker starts. Also look for worker crashes and core dumps.',
+      out:['shell']},
+    {id:'sctp', lane:'kernel', kind:'decision', label:'SCTP available?', sub:'loaded or loadable',
+      tip:'The line "install sctp /bin/false" stops only modprobe from loading SCTP. It does not remove a loaded module. It does not disable SCTP that is built into the kernel.'},
+    {id:'kbug', lane:'kernel', label:'Use the SCTP bug', sub:'a separate kernel bug',
+      tip:'This is a use-after-free or double-free bug in the kernel SCTP code. Xint says that it works with all five nginx CVEs. In their tests, it gave root reliably.',
+      in:['shell']},
+    {id:'end_root',  lane:'kernel', kind:'end', label:'Root on host', sub:'also from a container', state:'root',
+      tip:'In the Xint tests, the chain also left a Docker container and got root on the host. This depends on the kernel, the modules and the container limits.'},
+    {id:'end_worker',lane:'kernel', kind:'end', label:'Worker access', sub:'no root access', state:'worker',
+      tip:'The attacker can read all data that the worker can read, such as configuration and upstream traffic. This impact is an assumption. The sources do not state it.'},
+    {id:'end_block', lane:'net', kind:'end', label:'Blocked', sub:'a condition is missing', state:'blocked',
+      tip:'If you disable HTTP/2, you block only CVE-2026-123007 and CVE-2026-123633. This is a temporary fix. An nginx update is the full fix.'},
   ],
-  // inputs and outputs: the things a step reads (in) or makes (out). Drawn as chips beside each step that uses them.
   artifacts: [
-    {id:'adv',   external:true, label:'Advisory', sub:'5 CVEs, fixed versions', tip:'Qualys and Sophos write-ups of the F5 advisories.'},
-    {id:'hosts', label:'Host list', sub:'VMs, clusters', tip:'Every machine and cluster you run.'},
-    {id:'inv',   label:'nginx instances', sub:'host, container, pod', tip:'One row per running nginx, including ones inside other images.'},
-    {id:'ver',   label:'Version', sub:'nginx -v output'},
-    {id:'conf',  label:'Full config', sub:'nginx -T output', tip:'The merged config with every include, as nginx sees it.'},
-    {id:'rank',  label:'Exposure list', sub:'public or internal', tip:'Which instances answer from the internet, and which speak HTTP/2.'},
-    {id:'fixed', external:true, label:'Fixed build', sub:'package or image tag', tip:'Comes from nginx.org, the distro or the image publisher.'},
+    {id:'port',  external:true, label:'TLS port', sub:'reachable by the attacker', tip:'This can be any nginx listener that the attacker can reach: a public IP, a private network, or a system in the same cloud.'},
+    {id:'leak',  label:'Memory addresses', sub:'nginx image and heap', tip:'nginx sends part of its memory back in the TLS response.'},
+    {id:'heap',  label:'Corrupted heap', sub:'allocator metadata', tip:'The write past the TLS buffer changes this metadata.'},
+    {id:'shell', label:'Worker command', sub:'chosen by the attacker', tip:'The kernel step starts from this access.'},
   ],
-  // control flow. label is the answer on a decision branch. kind:'loop' for a link that goes back.
   links: [
-    {from:'start',    to:'find'},
-    {from:'find',     to:'version'},
-    {from:'version',  to:'inrange'},
-    {from:'inrange',  to:'config',   label:'yes'},
-    {from:'inrange',  to:'end_na',   label:'no'},
-    {from:'config',   to:'feature'},
-    {from:'feature',  to:'exposure', label:'yes'},
-    {from:'feature',  to:'end_na',   label:'no'},
-    {from:'exposure', to:'needed'},
-    {from:'needed',   to:'remove',   label:'no'},
-    {from:'remove',   to:'end_rm'},
-    {from:'needed',   to:'build',    label:'yes'},
-    {from:'build',    to:'patch',    label:'yes'},
-    {from:'build',    to:'mitigate', label:'no'},
-    {from:'mitigate', to:'wait'},
-    {from:'wait',     to:'build',    kind:'loop', label:'retry'},
-    {from:'patch',    to:'restart'},
-    {from:'restart',  to:'verify'},
-    {from:'verify',   to:'end_ok'},
+    {from:'start', to:'ver'},
+    {from:'ver',   to:'feat',      label:'yes'},
+    {from:'ver',   to:'end_block', label:'no'},
+    {from:'feat',  to:'stall',     label:'HTTP/2'},
+    {from:'feat',  to:'uaf',       label:'other'},
+    {from:'feat',  to:'end_block', label:'none'},
+    {from:'stall', to:'overfill'},
+    {from:'overfill', to:'copy'},
+    {from:'copy',  to:'hijack'},
+    {from:'hijack',to:'worker'},
+    {from:'uaf',   to:'worker'},
+    {from:'worker',to:'sctp'},
+    {from:'sctp',  to:'kbug',      label:'yes'},
+    {from:'sctp',  to:'end_worker',label:'no'},
+    {from:'kbug',  to:'end_root'},
   ],
-  // named runs through the process, step ids in order. Every pair must be a link.
   paths: [
-    {id:'fixedver', label:'Already on a fixed version', steps:['start','find','version','inrange','end_na']},
-    {id:'nofeat',   label:'Affected version, feature off', steps:['start','find','version','inrange','config','feature','end_na']},
-    {id:'unused',   label:'At risk and not needed', steps:['start','find','version','inrange','config','feature','exposure','needed','remove','end_rm']},
-    {id:'patch',    label:'At risk, fix available', steps:['start','find','version','inrange','config','feature','exposure','needed','build','patch','restart','verify','end_ok']},
-    {id:'wait',     label:'At risk, no fix yet', steps:['start','find','version','inrange','config','feature','exposure','needed','build','mitigate','wait','build','patch','restart','verify','end_ok']},
+    {id:'full',    label:'HTTP/2 chain to root', steps:['start','ver','feat','stall','overfill','copy','hijack','worker','sctp','kbug','end_root']},
+    {id:'nosctp',  label:'HTTP/2 chain, no SCTP', steps:['start','ver','feat','stall','overfill','copy','hijack','worker','sctp','end_worker']},
+    {id:'other',   label:'Other CVE to root', steps:['start','ver','feat','uaf','worker','sctp','kbug','end_root']},
+    {id:'patched', label:'Fixed version', steps:['start','ver','end_block']},
+    {id:'nofeat',  label:'No affected feature', steps:['start','ver','feat','end_block']},
   ],
 };
 
@@ -595,6 +591,13 @@ for(const p of MODEL.paths){
   b.onclick=()=>{path=path===p.id?null:p.id;focus=null;stateSel=null;view.user=false;applyState()}; pl.appendChild(b);
 }
 svg.onclick=()=>{if(view.dragged) return; focus=null;path=null;stateSel=null;applyState()};
+
+// terms: one line per technical word, collapsed under the detail panel
+if(MODEL.terms?.length){
+  const tc=document.getElementById('terms'); tc.hidden=false;
+  tc.querySelector('dl').innerHTML=MODEL.terms.map(x=>`<dt>${esc(x.term)}</dt><dd>${esc(x.def)}</dd>`).join('');
+}
+
 
 const ioBtn=document.getElementById('io');
 ioBtn.setAttribute('aria-pressed',showIO);
