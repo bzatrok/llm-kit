@@ -744,7 +744,9 @@ for(const s of steps){ if(s.state&&!stateBy[s.state]) console.error('unknown sta
 
 // ?path=<id>&focus=<step id|art:id>&state=<id>&collapse=a,b&io=0&view=fit for screenshots / deep links
 (q.has('collapse')?q.get('collapse'):(MODEL.collapsed||[]).join(',')).split(',').filter(Boolean).forEach(g=>collapsed.add(LID(g)));
-path=q.get('path'); focus=q.get('focus'); stateSel=q.get('state');
+focus=q.get('focus'); stateSel=q.get('state');
+// open on the first path so the step numbers show at once; ?path=none opens the plain diagram
+path=q.has('path')?(q.get('path')==='none'?null:q.get('path')):(focus||stateSel?null:MODEL.paths[0]?.id??null);
 render();
 </script>
 </body>
