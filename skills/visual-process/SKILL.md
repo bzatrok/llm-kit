@@ -10,6 +10,7 @@ Produce ONE self-contained HTML file: a process diagram. ELK.js lays it out, so 
 - **Decisions** branch the flow. The branch label is the answer ("yes", "no", "retry").
 - **Inputs and outputs** sit beside each step as small document chips: inputs on the left, outputs on the right.
 - **States** belong to one subject (an order, a ticket, an nginx instance). A rail above the diagram lists them. When a path plays, the rail lights the state the subject is in at each step.
+- **Step numbers** belong to a path, not to a step, because one step can sit at a different place on each path. When a path is selected, each of its steps gets a number badge that matches the numbered list in the side panel. The rail shows "Step 3 of 7" with Previous, Next and Play/Pause. ← and → step by hand.
 
 **visual-process, visual-map or visual-explain?** A map answers "what talks to what". A process answers "what do we do, in what order, with what, and where does the thing end up". An explainer answers "how does this mechanism work". A procedure someone carries out, a lifecycle something goes through, or an attack chain an attacker moves along (the subject is the attacker's access) is a process. If the steps run across systems the reader also needs to see, make the map and the process and link them from the intro line.
 
@@ -78,12 +79,12 @@ showIO:    true                                  // chips on first load
 
 ## Verify
 
-The template reads URL params so every state can be screenshotted: `?path=<id>`, `?focus=<step id>`, `?focus=art:<artifact id>`, `?state=<state id>`, `?collapse=<lane ids>`, `?io=0`, `?view=fit` (whole diagram instead of the readable opening view).
+The template reads URL params so every state can be screenshotted: `?path=<id>`, `?focus=<step id>`, `?focus=art:<artifact id>`, `?state=<state id>`, `?collapse=<lane ids>`, `?io=0`, `?view=fit`, `?step=<n>` (with `?path=`: open paused at step n) (whole diagram instead of the readable opening view).
 
-1. Screenshot `?view=fit`, the default view, each path, `?io=0&view=fit` and each lane collapsed:
+1. Screenshot `?view=fit`, the default view, each path (add `&step=<n>` for a middle step), `?io=0&view=fit` and each lane collapsed:
    `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --window-size=1300,900 --virtual-time-budget=5000 --screenshot=<out>.png "file://<abs path>?view=fit"`
    Read every PNG. Look for: an edge with no arrow between two steps that should connect, a branch label far from its branch, a chip that overlaps another box, a box outside its lane, a dead end that is not an `end`.
-2. **Playback needs a real browser.** Headless screenshots do not advance `requestAnimationFrame`, so the rail, the current-step highlight and the camera stay on step 1. Serve the folder (`python3 -m http.server`) and check in Chrome that the rail, the step list and the view move with the token.
+2. **Playback needs a real browser.** Headless screenshots do not advance `requestAnimationFrame`, so the camera does not pan and auto-play stays on step 1. `?path=<id>&step=<n>` shows the badges, the rail and the current step without playback. Serve the folder (`python3 -m http.server`) and check in Chrome that the rail, the badges, the step list and the view move with the token, and that Previous, Next and ← → step correctly.
 3. **Fresh eyes.** A subagent that did not write the model reads the HTML, the PNGs and the sources, and answers: is every step, branch and fact traceable to a source or marked assumed, is any branch missing (what happens when the check fails?), does every path match the source, is any state unreachable. Ranked blocker / should-fix / optional. Fix blockers.
 4. Hand over: path, assumptions, what the check did not cover.
 
@@ -95,4 +96,6 @@ The template reads URL params so every state can be screenshotted: `?path=<id>`,
 - **Lane ids get an internal `lane:` prefix**, because ELK edges are positioned relative to their container and a lane and step with the same id overwrote each other's offset.
 - **`cycleBreaking: MODEL_ORDER`** keeps loops pointing back up, so the main flow reads top to bottom in model order.
 - **Opening view.** If the whole diagram would render below 80% scale, the page opens at a readable scale, top first, centred on the first step. Fit shows everything. Plain scroll pans; pinch or ctrl/⌘ + scroll zooms (a process is tall; a map is wide, which is why the map zooms on scroll).
-- **Playback** runs one `requestAnimationFrame` loop per path: the hop index sets the current step, the rail state, the highlighted list item, and pans the view when the step leaves it. Any zoom, pan or drag by the reader stops the auto-pan until another path is picked.
+- **Playback** runs one `requestAnimationFrame` loop per path: the hop index sets the current step, the rail state, the current badge, the highlighted list item, and pans the view when the step leaves it. Any zoom, pan or drag by the reader stops the auto-pan until another path is picked or the reader steps by hand.
+- **Manual stepping** pauses the loop and freezes each token animation at the moment the current step's token lands, so Play resumes from that step. Clicking a badge or a list item jumps to that step. Reduced motion opens paused on step 1.
+- **Badges** are drawn per selected path in their own top layer at the core's top-left corner (inset on decisions). A step the path visits twice shows both numbers. A collapsed lane shows the range ("4–7").
