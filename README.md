@@ -25,7 +25,7 @@ Skills, mods and plugins for [Claude Code](https://claude.com/claude-code), one 
 | `visual-explain-3d` | One 3D explainer per concept in a readable one-screen player: a continuous timeline stepped with Next/Back and a scrubber (scroll as an option), shader cross-sections, additive beams and particles computed from one shared model, an observer inset and frozen-moment screenshots |
 | `visual-render` | One animated isometric figure of a real system read from its own config or code, built on the Anatomy kit: an inventory with sources first, then a machine or crafted modules, tokens on the real paths, outcomes as places |
 | `visual-map` | One static HTML map per system: ELK auto-layout, animated dashed edges showing data direction, click-to-focus, collapsible groups for large systems and named flows traced end to end |
-| `visual-process` | One HTML process diagram per procedure or lifecycle: steps and decisions laid out by ELK, inputs and outputs as chips beside each step, a state rail for the subject, named paths that play end to end with the view following |
+| `visual-process` | One HTML process diagram per procedure, lifecycle or attack chain: steps and decisions laid out by ELK, inputs and outputs as chips beside each step, a state rail for the subject, named paths that play end to end with the view following |
 | `marktplaats` | Sell-and-check-up workflow for Marktplaats via the Chrome extension; every outgoing message is approval-gated |
 
 ## Mods

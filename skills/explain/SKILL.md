@@ -9,13 +9,13 @@ A router. It decides which of the five `visual-*` skills fits the subject, then 
 
 ## 1. Explicit request wins
 
-If the user names a format, use it and skip the rest: "scrollytelling", "steps" → `visual-explain`; "3D", "scrubbable", "effects", "camera" → `visual-explain-3d`; "map", "architecture diagram", "stack", "data flow" → `visual-map`; "process", "procedure", "runbook", "flowchart", "lifecycle", "states" → `visual-process`; "render", "isometric", "draw my <system>", "Anatomy" → `visual-render`. Saying `/visual-<x>` is also explicit.
+If the user names a format, use it and skip the rest: "scrollytelling", "steps" → `visual-explain`; "3D", "scrubbable", "effects", "camera" → `visual-explain-3d`; "map", "architecture diagram", "stack", "data flow" → `visual-map`; "process", "procedure", "runbook", "flowchart", "lifecycle", "states", "attack chain", "kill chain" → `visual-process`; "render", "isometric", "draw my <system>", "Anatomy" → `visual-render`. Saying `/visual-<x>` is also explicit.
 
 ## 2. Otherwise classify the subject
 
 Ask three questions about the subject, in order.
 
-**Is it a procedure people carry out, or a lifecycle one thing goes through (a runbook, a patch or incident procedure, an approval flow, an order or ticket status flow)?** Then `visual-process`, with or without source. The tell: you can name one subject whose state changes, and the steps have inputs and outputs.
+**Is it a procedure people carry out, a lifecycle one thing goes through, or a chain an attacker moves along (a runbook, a patch or incident procedure, an approval flow, an order or ticket status flow, how an exploit reaches code execution or root)?** Then `visual-process`, with or without source. The tell: you can name one subject whose state changes (for an exploit, the attacker's access), and the steps have inputs, outputs and conditions that can stop them. "How does this CVE work" is an attack chain, not a mechanism for `visual-explain`, unless the reader wants the bug itself, such as a memory layout or a protocol frame.
 
 **Is it a real system with source at hand (config, code, infra files in the repo or pasted)?**
 
