@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>nginx2root Triage</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#22252b; --muted:#6b7079; --line:#d9d7d1; --group:#eceae4;
+  --next:#2f6fdb; --io:#7a5bc7;
+  --neutral:#8a8f98; --warn:#c27a12; --bad:#c8402f; --good:#2e8b57;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181c; --panel:#1f2227; --ink:#e8e6e1; --muted:#9aa0a9; --line:#363a41; --group:#23262c;
+    --next:#6c9dff; --io:#a68cf0;
+    --neutral:#8d939c; --warn:#e5a43d; --bad:#ff7a66; --good:#5cc08a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181c; --panel:#1f2227; --ink:#e8e6e1; --muted:#9aa0a9; --line:#363a41; --group:#23262c;
+  --next:#6c9dff; --io:#a68cf0;
+  --neutral:#8d939c; --warn:#e5a43d; --bad:#ff7a66; --good:#5cc08a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+  height:100vh;display:flex;flex-direction:column}
+header{padding:10px 16px 6px}
+h1{font-size:17px;margin:0 0 2px}
+header p{margin:0;color:var(--muted);font-size:12.5px}
+header a{color:var(--next)}
+.wrap{flex:1;min-height:0;padding:6px 16px 12px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto}.col{height:75vh}}
+.col{display:flex;flex-direction:column;gap:8px;min-height:0}
+
+/* state rail: every state the subject can be in, lit as a path plays */
+.rail{display:flex;flex-wrap:wrap;align-items:center;gap:4px 2px;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:7px 10px}
+.rail .of{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:8px}
+.rail .of b{color:var(--ink);text-transform:none;letter-spacing:0;font-weight:600}
+.st{display:flex;align-items:center;gap:6px;font:12px system-ui;color:var(--ink);padding:3px 9px;border:1px solid var(--line);
+  border-radius:999px;background:transparent;cursor:pointer;transition:opacity .2s,box-shadow .2s,background .2s}
+.st i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.st.terminal{border-style:dashed}
+.rail .sep{color:var(--line);font-size:11px;padding:0 1px}
+.rail.live .st{opacity:.35}
+.rail.live .st.seen{opacity:.75}
+.rail.live .st.on{opacity:1;border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 12%,transparent)}
+.st[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+.stage{flex:1;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-height:0}
+#g{display:block;width:100%;height:100%;cursor:grab;touch-action:none;user-select:none}
+#g.panning{cursor:grabbing}
+.ctl{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:2}
+.ctl button,.ctl .chip{font:12px system-ui;min-width:28px;height:28px;padding:0 8px;border:1px solid var(--line);border-radius:6px;
+  background:var(--panel);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ctl button[aria-pressed="true"]{border-color:var(--io);color:var(--io)}
+.legend{position:relative}
+.legend .pop{display:none;position:absolute;right:0;top:32px;width:260px;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:default}
+.legend:hover .pop,.legend:focus-within .pop{display:block}
+.legend .pop div{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+.legend svg{width:44px;height:16px;flex:none;display:block;overflow:visible}
+
+aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+.paths button{display:block;width:100%;text-align:left;margin:0 0 6px;padding:7px 10px;border:1px solid var(--line);
+  border-radius:6px;background:transparent;color:var(--ink);font:inherit;cursor:pointer}
+.paths button[aria-pressed="true"]{border-color:var(--next);box-shadow:inset 3px 0 0 var(--next)}
+.paths button small{display:flex;align-items:center;gap:5px;color:var(--muted)}
+.paths button small i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+#detail p{margin:0 0 8px} #detail ul{margin:0;padding-left:18px} #detail li{margin:2px 0}
+#detail code{font:11.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--group);padding:1px 4px;border-radius:4px;word-break:break-word}
+.hint{color:var(--muted);font-size:12px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:1px 7px;border-radius:999px;
+  border:1px solid var(--c);color:var(--ink);background:color-mix(in srgb,var(--c) 10%,transparent)}
+.tag i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+
+/* path steps: numbered, each with what goes in, what comes out, and the state after */
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps>li{position:relative;margin:0 0 12px 8px;padding:0 0 0 24px;border-left:1px solid var(--line);transition:opacity .2s}
+.steps>li:last-child{margin-bottom:0;border-left-color:transparent}
+.steps>li::before{counter-increment:s;content:counter(s);position:absolute;left:-9px;top:0;width:18px;height:18px;
+  border:1px solid var(--line);border-radius:50%;background:var(--panel);color:var(--muted);
+  font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.steps>li.cur::before{border-color:var(--next);color:var(--next)}
+.steps .hop{display:block;font-size:12.5px;font-weight:600;line-height:1.3}
+.steps .verb{display:block;color:var(--next);font-size:11.5px;margin:1px 0 5px}
+.io{display:flex;gap:6px;font-size:11.5px;color:var(--muted);margin:2px 0 0}
+.io b{flex:none;width:34px;color:var(--ink);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+.io .tag{margin-top:-1px}
+
+/* --- graphic --- */
+.grp rect{fill:var(--group);stroke:var(--line)}
+.grp text{fill:var(--muted);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.grp .toggle{cursor:pointer}
+.node{transition:opacity .25s}
+.node .core,.node.collapsed{cursor:pointer}
+.node .box{fill:var(--panel);stroke:var(--ink);stroke-width:1.2}
+.node.wait .box{stroke-dasharray:5 3}
+.node.start .box{fill:var(--group)}
+.node.end .box{stroke:var(--c);stroke-width:2.2;fill:color-mix(in srgb,var(--c) 12%,var(--panel))}
+.node.collapsed .box{stroke-width:2}
+.node .bar{fill:var(--c)}
+.node .t{fill:var(--ink);font-size:13px;font-weight:600}
+.node .s{fill:var(--muted);font-size:11px}
+.chip{cursor:pointer}
+.chip .doc{fill:var(--panel);stroke:var(--io);stroke-width:1}
+.chip.external .doc{stroke-dasharray:4 3}
+.chip text{fill:var(--ink);font-size:11px;font-weight:500}
+.chip.hot .doc{stroke-width:2.2;fill:color-mix(in srgb,var(--io) 12%,var(--panel))}
+.stub{stroke:var(--next);stroke-width:1.6;fill:none}
+.edge{fill:none;stroke-width:1.6;transition:opacity .25s}
+.edge.next{stroke:var(--next);stroke-dasharray:7 5;animation:march .9s linear infinite}
+.edge.loop{stroke:var(--next);stroke-dasharray:2 6;stroke-linecap:round;animation:march 2.4s linear infinite}
+.edge.io{stroke:var(--io);stroke-width:1.2;stroke-dasharray:3 4;animation:march 1.6s linear infinite}
+.edge.mixed{stroke:var(--muted);stroke-dasharray:5 4;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-12}}
+.elabel rect{fill:var(--panel)}
+.elabel text{fill:var(--ink);font-size:11px;font-weight:600}
+.dim{opacity:.13}
+.hot{stroke-width:2.6}
+.edge.io.hot{stroke-width:1.8}
+.tok{fill:var(--ink);opacity:0}
+.node.sel .core .box,.node.cur .core .box{stroke:var(--next);stroke-width:2.6}
+#tip{position:fixed;pointer-events:none;max-width:280px;background:var(--ink);color:var(--bg);padding:6px 9px;border-radius:6px;
+  font-size:12px;opacity:0;transition:opacity .12s;z-index:9}
+@media (prefers-reduced-motion: reduce){ .edge{animation:none!important} .tok{display:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>nginx2root: check one nginx and fix it</h1>
+  <p>Five nginx CVEs disclosed on 18 Nov 2026 (<a href="https://blog.qualys.com/product-tech/patch-management/2026/11/18/nginx2root-five-nginx-flaws-led-by-cve-2026-123007-how-to-find-mitigate-and-patch-now">Qualys</a>, <a href="https://www.sophos.com/en-us/security-advisories/sophos-sa-20261118-nginx2root">Sophos</a>). Run this once per nginx you find. Pick a path to play it. Click a step, an input or a state for detail. Scroll to pan, pinch to zoom.</p>
+</header>
+<div class="wrap">
+  <div class="col">
+    <div class="rail" id="rail"></div>
+    <div class="stage">
+      <div class="ctl">
+        <button id="io" title="Show or hide inputs and outputs" aria-pressed="true">I/O</button>
+        <button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">−</button><button id="zfit" title="Fit to screen">Fit</button>
+        <div class="legend"><span class="chip" tabindex="0">Legend</span>
+          <div class="pop">
+            <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="3" fill="none" stroke="currentColor"/></svg>step</div>
+            <div><svg viewBox="0 0 44 16"><path d="M8 2H36L42 8L36 14H8L2 8Z" fill="none" stroke="currentColor"/></svg>decision</div>
+            <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="3" fill="none" stroke="currentColor" stroke-dasharray="4 2"/></svg>wait</div>
+            <div><svg viewBox="0 0 44 16"><rect x="2" y="2" width="40" height="12" rx="6" fill="none" stroke="var(--good)" stroke-width="2"/></svg>end, coloured by final state</div>
+            <div><svg viewBox="0 0 44 16"><path d="M6 2H34L40 7V14H6Z" fill="none" stroke="var(--io)"/></svg>input or output</div>
+            <div><svg viewBox="0 0 44 16"><path class="edge next" d="M2 8H42"/></svg>next step</div>
+            <div><svg viewBox="0 0 44 16"><path class="edge loop" d="M2 8H42"/></svg>goes back (loop)</div>
+            <div><svg viewBox="0 0 44 16"><path class="edge io" d="M2 8H42"/></svg>goes in / comes out</div>
+            <p class="hint" style="margin:6px 0 0">Coloured bar on a step = the step puts the subject in that state. Dashed border on an input = comes from outside.</p>
+          </div>
+        </div>
+      </div>
+      <svg id="g" role="img" aria-label="Process diagram"></svg>
+    </div>
+  </div>
+  <aside>
+    <div class="card paths"><h2>Paths</h2><div id="paths"></div></div>
+    <div class="card" id="detail"><h2>Selected</h2><p class="hint">Click a step or an input.</p></div>
+  </aside>
+</div>
+<div id="tip"></div>
+
+<script src="https://unpkg.com/elkjs@0.9.3/lib/elk.bundled.js" integrity="sha384-KO35c6PFq7tFxAEx6FtATwL9vOBOmCzQYr7GM0iTr3oO22s7Jc9OkclOH4AV7jwK" crossorigin="anonymous"></script>
+<script>
+// ---- model: the only part an agent writes per process ----
+const MODEL = {
+  subject: 'one nginx instance',       // what the states belong to
+  collapsed: [],                       // lane ids closed on first load; ?collapse=a,b overrides
+  showIO: true,                        // inputs/outputs drawn on first load; ?io=0 overrides
+  states: [                            // in the order the subject usually moves through them
+    {id:'unchecked',  tone:'neutral', label:'Unchecked',        tip:'Found, but not looked at yet.'},
+    {id:'vulnerable', tone:'warn',    label:'Affected version', tip:'The version is in the affected range. The config decides if any CVE applies.'},
+    {id:'atrisk',     tone:'bad',     label:'At risk',          tip:'Affected version and at least one feature a CVE needs is on.'},
+    {id:'mitigated',  tone:'warn',    label:'Mitigated',        tip:'A temporary workaround is on. The binary is still vulnerable.'},
+    {id:'notaffected',tone:'good',    label:'Not affected',     tip:'Fixed version, or no feature that any of the five CVEs needs.', terminal:true},
+    {id:'removed',    tone:'good',    label:'Removed',          tip:'Stopped or uninstalled because nothing needs it.', terminal:true},
+    {id:'patched',    tone:'good',    label:'Patched',          tip:'Fixed build installed, restarted and checked.', terminal:true},
+  ],
+  lanes: [
+    {id:'find',   label:'Find'},
+    {id:'assess', label:'Assess'},
+    {id:'act',    label:'Act'},
+  ],
+  // kind: start | step | decision | wait | end.  state = the state the subject is in after this step.
+  steps: [
+    {id:'start', lane:'find', kind:'start', label:'Advisory out', sub:'18 Nov 2026', state:'unchecked',
+      tip:'Five CVEs, all nginx memory corruption. F5 scores each 9.2 (CVSS 4.0).', out:['adv']},
+    {id:'find', lane:'find', label:'Find every nginx', sub:'hosts, images, pods',
+      tip:'Include nginx inside other images and products. OpenResty and Kubernetes ingress controllers need their own updates.',
+      cmd:'docker ps, then nginx -v inside each container', in:['hosts','adv'], out:['inv']},
+    {id:'version', lane:'find', label:'Read the version', sub:'per instance',
+      cmd:'nginx -v', in:['inv'], out:['ver']},
+    {id:'inrange', lane:'assess', kind:'decision', label:'Affected version?', sub:'1.9.5 – 1.31.8',
+      tip:'Fixed in 1.30.7 and 1.31.9. A distro package can carry the fix without a new version number: check the distro advisory.',
+      in:['ver','adv']},
+    {id:'config', lane:'assess', label:'Dump the config', sub:'all included files', state:'vulnerable',
+      cmd:'nginx -T', in:['inv'], out:['conf']},
+    {id:'feature', lane:'assess', kind:'decision', label:'Affected feature on?', sub:'HTTP/2, HTTP/3, mail, proxy',
+      tip:'Each CVE needs one: HTTP/2 (123007, 123633), HTTP/3 (121810), mail proxy (113425), proxy_pass with variables plus SSI or mirror (123634).',
+      in:['conf','adv']},
+    {id:'exposure', lane:'assess', label:'Rank by exposure', sub:'internet-facing first', state:'atrisk',
+      tip:'Fix internet-facing instances first, most of all those that accept HTTP/2 or HTTP/3 from clients. Test the nginx port directly if a CDN or load balancer is in front.',
+      cmd:'openssl s_client -connect HOST:443 -servername HOST -alpn h2', in:['inv'], out:['rank']},
+    {id:'needed', lane:'act', kind:'decision', label:'Still needed?', sub:'anything uses it',
+      tip:'An nginx nothing uses is cheaper to remove than to patch.'},
+    {id:'remove', lane:'act', label:'Stop or remove', sub:'container or package'},
+    {id:'build', lane:'act', kind:'decision', label:'Fixed build out?', sub:'package or image tag',
+      tip:'Branches 1.9.5 – 1.29.x have no fixed build: move to 1.30.7 or 1.31.9, or a vendor package with the fix.',
+      in:['fixed']},
+    {id:'mitigate', lane:'act', label:'Turn off HTTP/2', sub:'temporary', state:'mitigated',
+      tip:'Blocks 123007 and 123633. Sophos says turning off HTTP/3 reportedly blocks 121810. No workaround is listed for 123634 or 113425. gRPC and other HTTP/2 services break: test first.',
+      in:['conf','rank']},
+    {id:'wait', lane:'act', kind:'wait', label:'Wait for the build', sub:'distro or image',
+      tip:'Ubuntu and Debian had not shipped fixed packages on 18 Nov 2026.', out:['fixed']},
+    {id:'patch', lane:'act', label:'Update nginx', sub:'1.30.7 or 1.31.9',
+      tip:'Patch in the order of the exposure ranking.', in:['fixed','rank']},
+    {id:'restart', lane:'act', label:'Restart nginx', sub:'a reload is not enough',
+      tip:'A reload keeps the old binary in memory, so the flaw stays live until a full restart.'},
+    {id:'verify', lane:'act', label:'Check again', sub:'version and ALPN', cmd:'nginx -v'},
+    {id:'end_na',  lane:'assess', kind:'end', label:'Not affected', sub:'no change needed', state:'notaffected',
+      tip:'On an affected version with no affected feature, nothing is exploitable today. Upgrade at the next normal update.'},
+    {id:'end_rm',  lane:'act', kind:'end', label:'Removed', sub:'nothing to patch', state:'removed'},
+    {id:'end_ok',  lane:'act', kind:'end', label:'Patched', sub:'closed', state:'patched'},
+  ],
+  // inputs and outputs: the things a step reads (in) or makes (out). Drawn as chips beside each step that uses them.
+  artifacts: [
+    {id:'adv',   external:true, label:'Advisory', sub:'5 CVEs, fixed versions', tip:'Qualys and Sophos write-ups of the F5 advisories.'},
+    {id:'hosts', label:'Host list', sub:'VMs, clusters', tip:'Every machine and cluster you run.'},
+    {id:'inv',   label:'nginx instances', sub:'host, container, pod', tip:'One row per running nginx, including ones inside other images.'},
+    {id:'ver',   label:'Version', sub:'nginx -v output'},
+    {id:'conf',  label:'Full config', sub:'nginx -T output', tip:'The merged config with every include, as nginx sees it.'},
+    {id:'rank',  label:'Exposure list', sub:'public or internal', tip:'Which instances answer from the internet, and which speak HTTP/2.'},
+    {id:'fixed', external:true, label:'Fixed build', sub:'package or image tag', tip:'Comes from nginx.org, the distro or the image publisher.'},
+  ],
+  // control flow. label is the answer on a decision branch. kind:'loop' for a link that goes back.
+  links: [
+    {from:'start',    to:'find'},
+    {from:'find',     to:'version'},
+    {from:'version',  to:'inrange'},
+    {from:'inrange',  to:'config',   label:'yes'},
+    {from:'inrange',  to:'end_na',   label:'no'},
+    {from:'config',   to:'feature'},
+    {from:'feature',  to:'exposure', label:'yes'},
+    {from:'feature',  to:'end_na',   label:'no'},
+    {from:'exposure', to:'needed'},
+    {from:'needed',   to:'remove',   label:'no'},
+    {from:'remove',   to:'end_rm'},
+    {from:'needed',   to:'build',    label:'yes'},
+    {from:'build',    to:'patch',    label:'yes'},
+    {from:'build',    to:'mitigate', label:'no'},
+    {from:'mitigate', to:'wait'},
+    {from:'wait',     to:'build',    kind:'loop', label:'retry'},
+    {from:'patch',    to:'restart'},
+    {from:'restart',  to:'verify'},
+    {from:'verify',   to:'end_ok'},
+  ],
+  // named runs through the process, step ids in order. Every pair must be a link.
+  paths: [
+    {id:'fixedver', label:'Already on a fixed version', steps:['start','find','version','inrange','end_na']},
+    {id:'nofeat',   label:'Affected version, feature off', steps:['start','find','version','inrange','config','feature','end_na']},
+    {id:'unused',   label:'At risk and not needed', steps:['start','find','version','inrange','config','feature','exposure','needed','remove','end_rm']},
+    {id:'patch',    label:'At risk, fix available', steps:['start','find','version','inrange','config','feature','exposure','needed','build','patch','restart','verify','end_ok']},
+    {id:'wait',     label:'At risk, no fix yet', steps:['start','find','version','inrange','config','feature','exposure','needed','build','mitigate','wait','build','patch','restart','verify','end_ok']},
+  ],
+};
+
+// ---- renderer ----
+const SVGNS='http://www.w3.org/2000/svg', svg=document.getElementById('g');
+const q=new URLSearchParams(location.search);
+const collapsed=new Set(); let focus=null, path=null, stateSel=null, showIO=q.has('io')?q.get('io')!=='0':MODEL.showIO!==false;
+const ctx=document.createElement('canvas').getContext('2d');
+const measure=(t,font)=>{ctx.font=font;return ctx.measureText(t).width};
+const el=(tag,attrs={},parent)=>{const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e};
+const stateBy=Object.fromEntries(MODEL.states.map(s=>[s.id,s]));
+const toneVar=st=>`var(--${stateBy[st]?.tone||'neutral'})`;
+// lanes get an internal 'lane:' prefix so a lane and a step may share a name
+const LID=id=>'lane:'+id, laneOf=gid=>MODEL.lanes.find(l=>LID(l.id)===gid);
+const steps=MODEL.steps.map(s=>({...s,kind:s.kind||'step',group:s.lane&&LID(s.lane),in:s.in||[],out:s.out||[]}));
+const byId=Object.fromEntries(steps.map(n=>[n.id,n]));
+const artBy=Object.fromEntries(MODEL.artifacts.map(a=>[a.id,a]));
+const links=MODEL.links.map((l,i)=>({...l,id:'l'+i,kind:l.kind||'next',label:l.label||''}));
+const linkOf=(a,b)=>links.find(l=>l.from===a&&l.to===b);
+// state the subject is in after each step of a path, carried forward from the last step that set one
+const stateSeq=p=>{let cur=null;return p.steps.map(id=>cur=byId[id].state||cur)};
+const grpOf=id=>byId[id]?.group;
+const visible=id=>collapsed.has(grpOf(id))?grpOf(id):id;
+
+// A step node = its core shape, input chips on the left, output chips on the right.
+// Control edges attach to ports on the core, so they never land on a chip.
+const CH=22, CG=5, GAP=20;
+const chipW=a=>Math.ceil(measure(artBy[a].label,'500 11px system-ui'))+26;
+function coreSize(n){
+  const w=Math.max(measure(n.label,'600 13px system-ui'),measure(n.sub||'','11px system-ui'));
+  const extra=n.kind==='decision'?44:n.kind==='start'||n.kind==='end'?40:32;
+  return {w:Math.ceil(Math.max(w+extra,120)), h:n.kind==='decision'?54:48};
+}
+function geom(n){
+  const core=coreSize(n), ins=showIO?n.in:[], outs=showIO?n.out:[];
+  const stack=k=>k?k*CH+(k-1)*CG:0;
+  const inW=ins.length?Math.max(...ins.map(chipW)):0, outW=outs.length?Math.max(...outs.map(chipW)):0;
+  const H=Math.max(core.h,stack(ins.length),stack(outs.length));
+  const cx=inW?inW+GAP:0, cy=(H-core.h)/2;
+  const place=(list,right)=>{const y0=(H-stack(list.length))/2;
+    return list.map((a,i)=>({a,w:chipW(a),y:y0+i*(CH+CG),x:right?cx+core.w+GAP:inW-chipW(a)}))};
+  return {width:cx+core.w+(outW?GAP+outW:0), height:H, core:{x:cx,y:cy,...core}, ins:place(ins,false), outs:place(outs,true)};
+}
+
+function visibleEdges(){
+  const out=new Map();
+  for(const e of links){
+    const s=visible(e.from), t=visible(e.to);
+    if(s===t) continue;
+    const k=s+'>'+t;
+    if(out.has(k)){const v=out.get(k); v.ids.push(e.id); if(v.kind!==e.kind) v.kind='mixed'}
+    else out.set(k,{id:'v'+out.size, s, t, kind:e.kind, label:e.label, ids:[e.id]});
+  }
+  for(const v of out.values()) if(v.ids.length>1) v.label=v.ids.length+' links';
+  return [...out.values()];
+}
+
+function elkNode(n){
+  const g=geom(n); render.geo[n.id]=g;
+  const px=g.core.x+g.core.w/2-1;
+  return {id:n.id,width:g.width,height:g.height,layoutOptions:{'elk.portConstraints':'FIXED_POS'},
+    ports:[{id:n.id+'.n',x:px,y:-2,width:2,height:2,layoutOptions:{'elk.port.side':'NORTH'}},
+           {id:n.id+'.s',x:px,y:g.height,width:2,height:2,layoutOptions:{'elk.port.side':'SOUTH'}}]};
+}
+const laneBox=g=>{const w=Math.max(measure(g.label,'600 13px system-ui'),measure('00 steps · click to open','11px system-ui'))+32;return {width:Math.ceil(w),height:48}};
+function elkGraph(edges){
+  const kids=[];
+  for(const g of MODEL.lanes){
+    const gid=LID(g.id), members=steps.filter(n=>n.group===gid);
+    if(!members.length) continue;
+    if(collapsed.has(gid)) kids.push({id:gid,...laneBox(g)});
+    else kids.push({id:gid, layoutOptions:{'elk.padding':'[top=34,left=16,bottom=16,right=16]'}, children:members.map(elkNode)});
+  }
+  for(const n of steps) if(!n.group) kids.push(elkNode(n));
+  const end=(id,side)=>byId[id]?id+'.'+side:id;   // collapsed lanes have no ports
+  return {id:'root', layoutOptions:{
+      'elk.algorithm':'layered','elk.direction':'DOWN','elk.hierarchyHandling':'INCLUDE_CHILDREN',
+      'elk.edgeRouting':'ORTHOGONAL','elk.layered.spacing.nodeNodeBetweenLayers':'44',
+      'elk.spacing.nodeNode':'30','elk.spacing.edgeLabel':'4','elk.layered.edgeLabels.sideSelection':'ALWAYS_UP',
+      'elk.layered.cycleBreaking.strategy':'MODEL_ORDER','elk.layered.considerModelOrder.strategy':'NODES_AND_EDGES',
+      },
+    children:kids,
+    edges:edges.map(e=>({id:e.id, sources:[end(e.s,'s')], targets:[end(e.t,'n')],
+      labels:e.label?[{text:e.label, width:Math.ceil(measure(e.label,'600 11px system-ui'))+8, height:15}]:[]}))};
+}
+
+const elk=new ELK();
+async function render(){
+  render.geo={};
+  const edges=visibleEdges();
+  const L=await elk.layout(elkGraph(edges));
+  const pad=16, prevBoxes=render.boxes, prevView=view.cur, first=!prevBoxes; svg.innerHTML=''; render.boxes={};
+  view.home={x:-pad,y:-pad-30,w:L.width+2*pad,h:L.height+2*pad+30};   // 30 = room for the controls
+  const defs=el('defs',{},svg);
+  for(const k of ['next','loop','io','mixed']){
+    const m=el('marker',{id:'m-'+k,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:k==='io'?6:7,markerHeight:k==='io'?6:7,orient:'auto-start-reverse'},defs);
+    el('path',{d:'M0 0L10 5L0 10z',style:`fill:var(--${k==='mixed'?'muted':k==='loop'?'next':k})`},m);
+  }
+  const lg=el('g',{},svg), le=el('g',{},svg), ll=el('g',{},svg), lt=el('g',{},svg), ln=el('g',{},svg);
+  const pos={};
+  for(const c of L.children){
+    pos[c.id]=c;
+    if(c.children){
+      const g=el('g',{class:'grp','data-id':c.id},lg); render.boxes[c.id]=c;
+      el('rect',{x:c.x,y:c.y,width:c.width,height:c.height,rx:8},g);
+      const t=el('text',{x:c.x+12,y:c.y+20,class:'toggle','data-tip':'Collapse this lane'},g);
+      t.textContent='▾ '+laneOf(c.id).label;
+      t.onclick=ev=>{ev.stopPropagation();collapsed.add(c.id);focus=null;render()};
+      // ELK returns children relative to their group, edges relative to e.container
+      for(const n of c.children){const a={...n,x:n.x+c.x,y:n.y+c.y};pos[n.id]=a;drawStep(ln,a,byId[n.id])}
+    }else if(byId[c.id]) drawStep(ln,c,byId[c.id]);
+    else drawLane(ln,c,laneOf(c.id));
+  }
+  const paths={};
+  for(const e of L.edges){
+    const v=edges.find(x=>x.id===e.id); const sec=e.sections[0];
+    const o=(e.container&&e.container!=='root'&&pos[e.container])||{x:0,y:0};
+    const pts=[sec.startPoint,...(sec.bendPoints||[]),sec.endPoint];
+    const d='M'+pts.map(p=>(p.x+o.x).toFixed(1)+' '+(p.y+o.y).toFixed(1)).join('L');
+    const p=el('path',{d,class:'edge '+v.kind,'marker-end':`url(#m-${v.kind})`,'data-ids':v.ids.join(' '),'data-s':v.s,'data-t':v.t},le);
+    p.dataset.tip=v.ids.map(id=>{const m=links.find(x=>x.id===id);return `${byId[m.from].label} → ${byId[m.to].label}${m.label?' ('+m.label+')':''}`}).join(' · ');
+    for(const id of v.ids) paths[id]=p;
+    const lb=e.labels?.[0]; if(lb){
+      const g=el('g',{class:'elabel','data-ids':v.ids.join(' ')},ll);
+      const lx=lb.x+o.x, ly=lb.y+o.y;
+      el('rect',{x:lx,y:ly,width:lb.width,height:lb.height,rx:3},g);
+      const t=el('text',{x:lx+4,y:ly+11.5},g); t.textContent=lb.text;
+    }
+  }
+  render.paths=paths; render.tokens=lt;
+  view.start=first&&q.get('view')==='fit'?view.home:readableView(view.home);
+  if(first||!prevView) setView(view.start);
+  applyState();
+  if(prevBoxes) morph(prevBoxes,prevView);
+}
+
+// Expand/collapse and the I/O toggle: boxes glide from their last place, the view tweens, edges fade in.
+const MORPH_MS=450, EASE='cubic-bezier(.33,1,.68,1)';
+function morph(prev,fromView){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){setView(view.start);return}
+  for(const g of svg.querySelectorAll('.node,.grp')){
+    const id=g.dataset.id, now=render.boxes[id], was=prev[id]||prev[grpOf(id)];
+    if(!now) continue;
+    if(!was){g.animate([{opacity:0},{opacity:1}],{duration:MORPH_MS,easing:EASE});continue}
+    const born=!prev[id];
+    const r=Math.min(was.width/now.width,was.height/now.height);
+    const s=born||r<.8||r>1.25?Math.min(Math.max(r,.5),2):1;
+    const dx=was.x+was.width/2-s*(now.x+now.width/2), dy=was.y+was.height/2-s*(now.y+now.height/2);
+    g.animate([{transform:`translate(${dx}px,${dy}px) scale(${s})`,transformOrigin:'0 0',opacity:born?0:1},
+      {transform:'none',transformOrigin:'0 0',opacity:1}],{duration:MORPH_MS,easing:EASE});
+  }
+  for(const e of svg.querySelectorAll('.edge,.elabel'))
+    e.animate([{opacity:0},{opacity:0,offset:.6},{opacity:1}],{duration:MORPH_MS+250,easing:'ease-out'});
+  tweenView(fromView,view.start,MORPH_MS);
+}
+
+function drawShape(g,n,x,y,w,h){
+  if(n.kind==='decision') el('path',{class:'box',d:`M${x+16} ${y}H${x+w-16}L${x+w} ${y+h/2}L${x+w-16} ${y+h}H${x+16}L${x} ${y+h/2}Z`},g);
+  else el('rect',{class:'box',x,y,width:w,height:h,rx:n.kind==='start'||n.kind==='end'?h/2:6},g);
+  if(n.state && n.kind!=='end' && n.kind!=='start') el('rect',{class:'bar',x:x+1,y:y+6,width:4,height:h-12,rx:2},g);
+  const cy=y+h/2;
+  el('text',{class:'t',x:x+w/2,y:cy-3,'text-anchor':'middle'},g).textContent=n.label;
+  el('text',{class:'s',x:x+w/2,y:cy+12,'text-anchor':'middle'},g).textContent=n.sub||'';
+}
+function drawChip(g,c,ox,oy,toX,toY,coreH,isIn){
+  const a=artBy[c.a], x=ox+c.x, y=oy+c.y, w=c.w, f=7, my=y+CH/2;
+  // connector: chip → core for inputs, core → chip for outputs, orthogonal with one jog
+  const tx=isIn?toX:x, sx=isIn?x+w:toX, ty=Math.min(Math.max(my,toY+10),toY+coreH-10), mx=(sx+tx)/2;
+  const d=isIn?`M${sx} ${my}H${mx}V${ty}H${tx}`:`M${sx} ${ty}H${mx}V${my}H${tx}`;
+  el('path',{class:'edge io',d,'marker-end':'url(#m-io)'},g);
+  const k=el('g',{class:'chip'+(a.external?' external':''),'data-art':c.a,'data-tip':(a.tip||a.sub||a.label)},g);
+  el('path',{class:'doc',d:`M${x} ${y}H${x+w-f}L${x+w} ${y+f}V${y+CH}H${x}Z M${x+w-f} ${y}V${y+f}H${x+w}`},k);
+  el('text',{x:x+9,y:y+15},k).textContent=a.label;
+  k.onclick=ev=>{ev.stopPropagation(); if(view.dragged) return; const id='art:'+c.a; focus=focus===id?null:id; path=null; stateSel=null; applyState()};
+}
+function drawStep(layer,b,n){
+  const geo=render.geo[n.id], c=geo.core;
+  const g=el('g',{class:'node '+n.kind,'data-id':n.id},layer);
+  if(n.state) g.style.setProperty('--c',toneVar(n.state));
+  render.boxes[n.id]=b;
+  const core=el('g',{class:'core',tabindex:0,'data-tip':n.tip||n.sub||''},g);
+  drawShape(core,n,b.x+c.x,b.y+c.y,c.w,c.h);
+  // stubs from the ports to the core when chips make the node taller than its core
+  if(c.y>0){const px=b.x+c.x+c.w/2; el('path',{class:'stub',d:`M${px} ${b.y}V${b.y+c.y}M${px} ${b.y+c.y+c.h}V${b.y+b.height}`},g)}
+  for(const ch of geo.ins) drawChip(g,ch,b.x,b.y,b.x+c.x,b.y+c.y,c.h,true);
+  for(const ch of geo.outs) drawChip(g,ch,b.x,b.y,b.x+c.x+c.w,b.y+c.y,c.h,false);
+  core.onclick=ev=>{ev.stopPropagation(); if(view.dragged) return; focus=focus===n.id?null:n.id; path=null; stateSel=null; applyState()};
+  core.onkeydown=ev=>{if(ev.key==='Enter')core.onclick(ev)};
+}
+function drawLane(layer,b,lane){
+  const gid=LID(lane.id), cnt=steps.filter(n=>n.group===gid).length;
+  const g=el('g',{class:'node collapsed','data-id':gid,tabindex:0,'data-tip':'Click to open'},layer);
+  render.boxes[gid]=b;
+  drawShape(g,{label:lane.label,sub:cnt+' steps · click to open',kind:'step'},b.x,b.y,b.width,b.height);
+  g.onclick=ev=>{ev.stopPropagation(); if(view.dragged) return; collapsed.delete(gid); render()};
+}
+
+function applyState(){
+  const nodes=svg.querySelectorAll('.node'), edges=svg.querySelectorAll('.edge:not(.io)'), labels=svg.querySelectorAll('.elabel');
+  [...nodes,...edges,...labels,...svg.querySelectorAll('.chip')].forEach(x=>x.classList.remove('dim','hot','sel','cur'));
+  render.tokens.innerHTML=''; stopRail();
+  document.querySelectorAll('#paths button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===path));
+  document.querySelectorAll('.st').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===stateSel));
+  const dimExcept=keep=>{
+    edges.forEach(p=>{if(!(keep.has(p.dataset.s)&&keep.has(p.dataset.t)))p.classList.add('dim')});
+    labels.forEach(l=>{const p=svg.querySelector(`.edge[data-ids="${l.dataset.ids}"]`);if(p?.classList.contains('dim'))l.classList.add('dim')});
+    nodes.forEach(n=>{if(!keep.has(n.dataset.id))n.classList.add('dim')});
+  };
+  const art=focus?.startsWith('art:')?focus.slice(4):null;
+  if(art){
+    dimExcept(new Set(steps.filter(s=>s.in.includes(art)||s.out.includes(art)).map(s=>visible(s.id))));
+    edges.forEach(p=>p.classList.add('dim'));
+    svg.querySelectorAll(`.chip[data-art="${art}"]`).forEach(c=>c.classList.add('hot'));
+    showArtDetail(art);
+  }else if(focus){
+    const keep=new Set([focus]);
+    edges.forEach(p=>{if(p.dataset.s===focus||p.dataset.t===focus){keep.add(p.dataset.s);keep.add(p.dataset.t);p.classList.add('hot')}});
+    dimExcept(keep);
+    svg.querySelector(`.node[data-id="${focus}"]`)?.classList.add('sel');
+    showDetail(focus);
+  }else if(stateSel){
+    dimExcept(new Set(steps.filter(s=>s.state===stateSel).map(s=>visible(s.id))));
+    showStateDetail(stateSel);
+  }else if(path){
+    const p=MODEL.paths.find(x=>x.id===path), hops=[];
+    for(let i=1;i<p.steps.length;i++){const l=linkOf(p.steps[i-1],p.steps[i]); const hop=l&&render.paths[l.id];
+      if(hop && hops.at(-1)!==hop) hops.push(hop)}
+    edges.forEach(e=>{if(hops.includes(e)) e.classList.add('hot')});
+    dimExcept(new Set(p.steps.map(visible)));
+    edges.forEach(e=>{if(!hops.includes(e)) e.classList.add('dim')});
+    showPath(p);
+    runTokens(hops,p,hops.length===p.steps.length-1);
+  }else document.getElementById('detail').innerHTML='<h2>Selected</h2><p class="hint">Click a step or an input.</p>';
+}
+
+// One token per hop, each starts when the previous lands. The state rail, the step list and the view follow it.
+const HOP=850;
+function runTokens(hops,p,synced){
+  const seq=stateSeq(p);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||!synced){ lightRail(seq,seq.length-1); return }
+  const T=hops.length*HOP+1100;
+  hops.forEach((h,i)=>{
+    const c=el('circle',{class:'tok',r:5},render.tokens);
+    c.style.offsetPath=`path('${h.getAttribute('d')}')`;
+    const a=i*HOP/T, b=(i+1)*HOP/T;
+    c.animate([{offset:0,offsetDistance:'0%',opacity:0},{offset:a,offsetDistance:'0%',opacity:0},
+      {offset:Math.min(a+.01,b),offsetDistance:'0%',opacity:1},{offset:b,offsetDistance:'100%',opacity:1},
+      {offset:Math.min(b+.01,1),offsetDistance:'100%',opacity:0},{offset:1,offsetDistance:'100%',opacity:0}],
+      {duration:T,iterations:Infinity,easing:'linear'});
+  });
+  const t0=performance.now(), token=rail.run={}; let last=-1;
+  (function tick(now){
+    if(rail.run!==token) return;
+    const idx=Math.min(Math.floor(((now-t0)%T)/HOP),p.steps.length-1);
+    if(idx!==last){ last=idx; lightRail(seq,idx);
+      svg.querySelectorAll('.node.cur').forEach(n=>n.classList.remove('cur'));
+      svg.querySelector(`.node[data-id="${p.steps[idx]}"]`)?.classList.add('cur');
+      document.querySelectorAll('#detail .steps>li').forEach((li,i)=>{li.classList.toggle('cur',i===idx); if(i===idx&&!view.user) li.scrollIntoView({block:'nearest',behavior:'smooth'})});
+      follow(p.steps[idx]);
+    }
+    requestAnimationFrame(tick)})(t0);
+}
+function lightRail(seq,idx){
+  rail.classList.add('live');
+  const seen=new Set(seq.slice(0,idx+1));
+  document.querySelectorAll('.st').forEach(b=>{b.classList.toggle('seen',seen.has(b.dataset.id)); b.classList.toggle('on',b.dataset.id===seq[idx])});
+}
+function stopRail(){ rail.run=null; rail.classList.remove('live'); document.querySelectorAll('.st').forEach(b=>b.classList.remove('seen','on')) }
+
+// model text: escape before it reaches innerHTML
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const stateTag=id=>id?`<span class="tag" style="--c:${toneVar(id)}"><i></i>${esc(stateBy[id].label)}</span>`:'';
+const artList=ids=>ids.map(a=>esc(artBy[a].label)).join(', ');
+const ioRow=(k,v)=>v?`<div class="io"><b>${k}</b><span>${v}</span></div>`:'';
+const setDetail=h=>document.getElementById('detail').innerHTML=h;
+function showDetail(id){
+  const n=byId[id];
+  if(!n){setDetail(`<h2>Selected</h2><p><b>${esc(laneOf(id)?.label)}</b></p>`);return}
+  const outs=links.filter(l=>l.from===id).map(l=>`<li>${l.label?`<b>${esc(l.label)}</b> → `:'→ '}${esc(byId[l.to].label)}</li>`).join('');
+  setDetail(`<h2>Selected</h2><p><b>${esc(n.label)}</b><br>${esc(n.tip||n.sub)}</p>`
+    +(n.cmd?`<p><code>${esc(n.cmd)}</code></p>`:'')
+    +ioRow('in',artList(n.in))+ioRow('out',artList(n.out))+ioRow('state',stateTag(n.state))
+    +(outs?`<ul style="margin-top:8px">${outs}</ul>`:''));
+}
+function showArtDetail(id){
+  const a=artBy[id];
+  const makers=steps.filter(s=>s.out.includes(id)).map(s=>esc(s.label)).join(', ');
+  const readers=steps.filter(s=>s.in.includes(id)).map(s=>esc(s.label)).join(', ');
+  setDetail(`<h2>Input / output</h2><p><b>${esc(a.label)}</b> · <span class="hint">${esc(a.sub)}</span><br>${esc(a.tip||'')}</p>`
+    +ioRow('from',makers||(a.external?'outside this process':''))+ioRow('to',readers));
+}
+function showStateDetail(id){
+  const s=stateBy[id], setters=steps.filter(x=>x.state===id).map(x=>`<li>${esc(x.label)}</li>`).join('');
+  setDetail(`<h2>State</h2><p>${stateTag(id)}</p><p>${esc(s.tip)}</p>`+(setters?`<p class="hint" style="margin-bottom:4px">Set by</p><ul>${setters}</ul>`:''));
+}
+function showPath(p){
+  const seq=stateSeq(p);
+  const items=p.steps.map((id,i)=>{
+    const n=byId[id], nx=p.steps[i+1], l=nx&&linkOf(id,nx);
+    const verb=l?.label?`<span class="verb">${esc(l.label)}</span>`:'';
+    return `<li><span class="hop">${esc(n.label)}</span>${verb}`
+      +ioRow('in',artList(n.in))+ioRow('out',artList(n.out))
+      +(n.state&&n.state!==seq[i-1]?ioRow('state',stateTag(n.state)):'')+'</li>';
+  }).join('');
+  setDetail(`<h2>${esc(p.label)}</h2><ol class="steps">${items}</ol>`);
+}
+
+// state rail
+const rail=document.getElementById('rail');
+rail.innerHTML=`<span class="of">State of <b>${esc(MODEL.subject)}</b></span>`;
+MODEL.states.forEach((s,i)=>{
+  if(i) rail.insertAdjacentHTML('beforeend','<span class="sep">›</span>');
+  const b=document.createElement('button'); b.className='st'+(s.terminal?' terminal':''); b.dataset.id=s.id;
+  b.style.setProperty('--c',toneVar(s.id)); b.dataset.tip=s.tip; b.setAttribute('aria-pressed','false');
+  b.innerHTML=`<i></i>${esc(s.label)}`;
+  b.onclick=()=>{stateSel=stateSel===s.id?null:s.id;focus=null;path=null;applyState()};
+  rail.appendChild(b);
+});
+
+// paths list: each says where it ends
+const pl=document.getElementById('paths');
+for(const p of MODEL.paths){
+  const end=stateSeq(p).at(-1);
+  const b=document.createElement('button'); b.dataset.id=p.id; b.setAttribute('aria-pressed','false');
+  b.innerHTML=`${esc(p.label)}<small style="--c:${toneVar(end)}"><i></i>ends ${esc(stateBy[end]?.label||'')} · ${p.steps.length} steps</small>`;
+  b.onclick=()=>{path=path===p.id?null:p.id;focus=null;stateSel=null;view.user=false;applyState()}; pl.appendChild(b);
+}
+svg.onclick=()=>{if(view.dragged) return; focus=null;path=null;stateSel=null;applyState()};
+
+const ioBtn=document.getElementById('io');
+ioBtn.setAttribute('aria-pressed',showIO);
+ioBtn.onclick=()=>{showIO=!showIO; ioBtn.setAttribute('aria-pressed',showIO); if(focus?.startsWith('art:'))focus=null; render()};
+
+// View: opens at a readable zoom (text ≥ ~80%), top first; Fit shows everything.
+// Scroll pans, pinch or ctrl/⌘ + scroll zooms, drag pans. A playing path pans to keep its current step in view.
+const view={home:null,start:null,cur:null,dragged:false,user:false};
+const MIN_K=.8;
+function setView(v){view.cur=v; svg.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`)}
+function readableView(home){
+  const r=svg.getBoundingClientRect(); if(!r.width) return home;
+  if(Math.min(r.width/home.w,r.height/home.h)>=MIN_K) return home;
+  const k=Math.max(Math.min(r.width/home.w,1),MIN_K), w=r.width/k, h=r.height/k;
+  // centre on the first step, but never past the edges of the drawing
+  const b=render.boxes[visible(steps[0].id)], cx=b?b.x+b.width/2:home.x+home.w/2;
+  const x=w>=home.w?home.x+(home.w-w)/2:Math.min(Math.max(cx-w/2,home.x),home.x+home.w-w);
+  return {x, y:home.y, w, h};
+}
+function toSvg(cx,cy){const r=svg.getBoundingClientRect(),v=view.cur,k=Math.max(v.w/r.width,v.h/r.height);
+  return {x:v.x+(cx-r.left-(r.width-v.w/k)/2)*k, y:v.y+(cy-r.top-(r.height-v.h/k)/2)*k, k}}
+function tweenView(from,to,ms){
+  const t0=performance.now(), ease=t=>1-Math.pow(1-t,3), lerp=(a,b,t)=>a+(b-a)*t, token=view.morph={};
+  (function step(now){
+    if(view.morph!==token) return;
+    const t=Math.min(1,(now-t0)/ms), k=ease(t);
+    setView({x:lerp(from.x,to.x,k),y:lerp(from.y,to.y,k),w:lerp(from.w,to.w,k),h:lerp(from.h,to.h,k)});
+    if(t<1) requestAnimationFrame(step); else view.morph=null})(t0);
+}
+function follow(id){
+  const b=render.boxes[visible(id)]; if(!b||view.user) return;
+  const r=svg.getBoundingClientRect(), a=toSvg(r.left,r.top), z=toSvg(r.right,r.bottom), m=30;
+  const inX=b.x>=a.x+m&&b.x+b.width<=z.x-m, inY=b.y>=a.y+m&&b.y+b.height<=z.y-m;
+  if(inX&&inY) return;
+  const dx=inX?0:b.x+b.width/2-(a.x+z.x)/2, dy=inY?0:b.y+b.height/2-(a.y+z.y)/2;
+  tweenView(view.cur,{...view.cur,x:view.cur.x+dx,y:view.cur.y+dy},500);
+}
+function zoom(f,cx,cy){view.morph=null; const r=svg.getBoundingClientRect(); cx??=r.left+r.width/2; cy??=r.top+r.height/2;
+  const v=view.cur, w=Math.min(Math.max(v.w*f,view.home.w/8),view.home.w*2), a=w/v.w, p=toSvg(cx,cy);
+  setView({x:p.x-(p.x-v.x)*a, y:p.y-(p.y-v.y)*a, w, h:v.h*a})}
+svg.addEventListener('wheel',e=>{e.preventDefault(); view.user=true;
+  if(e.ctrlKey||e.metaKey) return zoom(Math.exp(e.deltaY*.01),e.clientX,e.clientY);
+  view.morph=null; const k=toSvg(0,0).k, v=view.cur; setView({...v,x:v.x+e.deltaX*k,y:v.y+e.deltaY*k})},{passive:false});
+let drag=null;
+svg.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,v:view.cur}; view.dragged=false});
+addEventListener('pointermove',e=>{if(!drag) return; const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  if(!view.dragged && Math.hypot(dx,dy)<4) return; view.dragged=true; view.user=true; view.morph=null; svg.classList.add('panning');
+  const k=toSvg(0,0).k; setView({...drag.v, x:drag.v.x-dx*k, y:drag.v.y-dy*k})});
+addEventListener('pointerup',()=>{drag=null; svg.classList.remove('panning'); setTimeout(()=>view.dragged=false)});
+document.getElementById('zin').onclick=()=>{view.user=true;zoom(1/1.25)};
+document.getElementById('zout').onclick=()=>{view.user=true;zoom(1.25)};
+document.getElementById('zfit').onclick=()=>{view.user=true;view.morph=null;setView(view.home)};
+
+// tooltips
+const tip=document.getElementById('tip');
+document.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');if(!t||!t.dataset.tip||t.closest('.dim')){tip.style.opacity=0;return}
+  tip.textContent=t.dataset.tip;tip.style.opacity=1});
+document.addEventListener('pointermove',e=>{tip.style.left=Math.min(e.clientX+14,innerWidth-290)+'px';tip.style.top=(e.clientY+14)+'px'});
+
+// model checks: a broken path or a dangling id is a model bug, say so loudly
+for(const p of MODEL.paths) for(let i=1;i<p.steps.length;i++) if(!linkOf(p.steps[i-1],p.steps[i])) console.error(`path ${p.id}: no link ${p.steps[i-1]} → ${p.steps[i]}`);
+for(const l of links) if(!byId[l.from]||!byId[l.to]) console.error('link to unknown step',l);
+for(const s of steps){ if(s.state&&!stateBy[s.state]) console.error('unknown state',s.id,s.state);
+  for(const a of [...s.in,...s.out]) if(!artBy[a]) console.error('unknown input/output',s.id,a) }
+
+// ?path=<id>&focus=<step id|art:id>&state=<id>&collapse=a,b&io=0&view=fit for screenshots / deep links
+(q.has('collapse')?q.get('collapse'):(MODEL.collapsed||[]).join(',')).split(',').filter(Boolean).forEach(g=>collapsed.add(LID(g)));
+path=q.get('path'); focus=q.get('focus'); stateSel=q.get('state');
+render();
+</script>
+</body>
+</html>
