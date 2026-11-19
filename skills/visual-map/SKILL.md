@@ -33,7 +33,7 @@ Copy `template.html`. Change the `<title>`, the `<h1>`, the intro line and the `
 ```js
 groups: [{id, label}]                      // a box around parts: a host, a cloud account, a bounded context
 nodes:  [{id, group?, label, sub, tip, kind?:'db', external?:true}]
-edges:  [{id, from, to, kind:'sync'|'async'|'data', label}]
+edges:  [{id, from, to, kind:'sync'|'async'|'data', label, input?, output?}]
 flows:  [{id, label, sub, edges:[edge ids in order]}]
 collapsed: [group ids closed on first load]
 ```
@@ -42,6 +42,10 @@ collapsed: [group ids closed on first load]
 - **tip** 1–2 sentences: what it owns or why it exists. No new term inside a tip.
 - All text (labels, subs, tips, intro) follows the **Prose** rules of `visual-explain`, including ASD-STE100.
 - **edge label is a verb phrase** ≤ 3 words, read as `from <label> to`: "calls REST", "polls outbox", "webhook". An edge points in the direction the data or request goes. A request/response pair is one sync edge from the caller.
+- **input / output** say what a step takes and what it gives back, in the reader's words, not the code's
+  ("page URL with `__priceListId=3`", "HTML with group 3 prices"). They are the answer to "what does this
+  step actually do". A step with neither is a hop the reader cannot check, and it is the first thing
+  people complain about. Use the code's own nouns for the data when they exist.
 - **kind**: `sync` = caller waits; `async` = poll, queue, webhook, cron, fire-and-forget; `data` = read/write to a store. Four colours at most, the template already uses them.
 - `kind:'db'` draws a cylinder (databases, buckets, queues as storage). `external:true` draws a dashed border: anything you do not operate.
 - **flow edges** in the order the request travels. A flow can reuse edges and go back (webhook returning). Aim for 3–7 hops, but never drop a real hop to hit that: a flow that skips a step it really takes is wrong. If a flow runs long, split it into two named flows at a natural seam (e.g. "Order: fetch" and "Order: lock and write"), or keep it whole and longer. Parallel calls are separate edges from the same source, each one counted.
@@ -57,7 +61,7 @@ collapsed: [group ids closed on first load]
 
 1. **Scope and ground** (above). List parts and edges with the file each came from, in your notes.
 2. **Write the model.** Edges first, then check every node has at least one edge. A part with no edge is either missing an edge or does not belong on the map.
-3. **Write flows**, one per question from scope step 2.
+3. **Write flows**, one per question from scope step 2. Give every hop an `input` and an `output`. Read each one back as a sentence: "the renderer takes X and gives Y". If the output of a hop does not feed the input of the next, the flow order is wrong or a step is missing.
 4. **Verify** (below).
 5. Save in one folder per visual: `.visuals/<name>/<name>-map.html` at the project root (git root, else cwd), with `sources/` for raw inputs you fetched, `build/` for scripts, and `SOURCES.md` naming each source, its date and licence. Keep the folder out of the repo: in a git repo where `git check-ignore -q .visuals` fails, append `.visuals/` to `.git/info/exclude`, never to `.gitignore`, and never stage it. In a learning vault, save to the folder that `explain` names instead (**Where the page goes**), and skip the exclude step. Report the path, the parts and edges you assumed, and what you left out.
 
@@ -67,7 +71,7 @@ The template reads URL params so every state can be screenshotted: `?flow=<id>`,
 
 1. Screenshot the default state, every flow, and each group collapsed:
    `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --window-size=1300,900 --virtual-time-budget=4000 --screenshot=<out>.png "file://<abs path>?flow=<id>"`
-   Read every PNG. Look for: a label crossing a box or another label, an edge entering the wrong box, a box sitting outside its group, a flow whose lit path skips a hop.
+   Read every PNG. Look for: a label crossing a box or another label, an edge entering the wrong box, a box sitting outside its group, a flow whose lit path skips a hop, and a flow step whose output does not feed the next step's input.
 2. **Fresh eyes.** A subagent that did not write the model reads the HTML, the PNGs and the source files you named, and answers: is every edge traceable to a source or marked assumed, does any edge point the wrong way, is any important part missing, does each flow match the code path. Ranked blocker / should-fix / optional. Fix blockers.
 3. Hand over: path, assumptions, what the check did not cover.
 
