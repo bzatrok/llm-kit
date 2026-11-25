@@ -1,0 +1,377 @@
+{
+  "query": "dotnet api in docker can't connect to postgres localhost",
+  "threads": [
+    {
+      "id": "node-econnrefused",
+      "angle": "same problem, different language",
+      "title": "Node.js app in Docker: connect ECONNREFUSED 127.0.0.1:5432",
+      "tags": [
+        "node.js",
+        "docker",
+        "postgresql",
+        "node-postgres"
+      ],
+      "asked": "7 years ago",
+      "modified": "1 year ago",
+      "views": "184k",
+      "question": {
+        "votes": 241,
+        "author": {
+          "name": "mkessler",
+          "rep": "1,204"
+        },
+        "body": "My Express app connects to Postgres fine when I run it with `node index.js`. When I build an image and run it, I get:\n\n```\nError: connect ECONNREFUSED 127.0.0.1:5432\n    at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1141:16)\n```\n\nPostgres is running on my machine, not in a container. My pool config:\n\n```js\nconst pool = new Pool({\n  host: 'localhost',\n  port: 5432,\n  user: 'app',\n  database: 'shop'\n});\n```\n\nI run the container with `docker run -p 3000:3000 shop-api`. Why can't it see Postgres?",
+        "comments": [
+          {
+            "votes": 3,
+            "author": "jvdberg",
+            "ago": "7 years ago",
+            "text": "Which OS? The answer is different on Linux and on Docker Desktop."
+          }
+        ]
+      },
+      "answers": [
+        {
+          "votes": 412,
+          "accepted": false,
+          "author": {
+            "name": "tsoren",
+            "rep": "38.9k"
+          },
+          "ago": "7 years ago",
+          "edited": "2 years ago",
+          "body": "Inside the container, `localhost` is the container itself, not your machine. Each container gets its own network namespace, so `127.0.0.1` points at the container's own loopback interface. Nothing listens on 5432 there, so the connection is refused.\n\nYou have two options:\n\n**1. Run Postgres in a container too** and put both on one network. With Compose, the service name becomes the host name:\n\n```yaml\nservices:\n  api:\n    build: .\n    environment:\n      PGHOST: db\n  db:\n    image: postgres:16\n```\n\n**2. Keep Postgres on the host** and point the app at the host instead of `localhost`. On Docker Desktop (Mac and Windows) the name `host.docker.internal` resolves to the host.\n\n**EDIT:** on Linux, `host.docker.internal` is not there by default. See the comments.",
+          "comments": [
+            {
+              "votes": 96,
+              "author": "ilya.p",
+              "ago": "4 years ago",
+              "text": "On Linux, add `--add-host=host.docker.internal:host-gateway` to `docker run`, or `extra_hosts` with the same value in Compose."
+            },
+            {
+              "votes": 58,
+              "author": "rkhan",
+              "ago": "3 years ago",
+              "text": "Also check that Postgres on the host listens on more than 127.0.0.1. `listen_addresses` in postgresql.conf, and a matching line in pg_hba.conf. Took me a day."
+            }
+          ]
+        },
+        {
+          "votes": 167,
+          "accepted": true,
+          "author": {
+            "name": "mkessler",
+            "rep": "1,204"
+          },
+          "ago": "7 years ago",
+          "body": "Running the container with `--network host` fixed it for me:\n\n```\ndocker run --network host shop-api\n```\n\nNow `localhost` works.",
+          "comments": [
+            {
+              "votes": 71,
+              "author": "tsoren",
+              "ago": "7 years ago",
+              "text": "This works on Linux because the container shares the host's network stack. It also turns off network isolation and makes `-p` meaningless. Fine for a quick test, not for anything you deploy."
+            },
+            {
+              "votes": 22,
+              "author": "nl_dev",
+              "ago": "5 years ago",
+              "text": "Did not work for me on Docker Desktop for Mac."
+            }
+          ]
+        },
+        {
+          "votes": -4,
+          "accepted": false,
+          "author": {
+            "name": "dev_guy_88",
+            "rep": "61"
+          },
+          "ago": "6 years ago",
+          "body": "You need to expose the Postgres port in your Dockerfile:\n\n```\nEXPOSE 5432\n```\n\nThen rebuild.",
+          "comments": [
+            {
+              "votes": 19,
+              "author": "tsoren",
+              "ago": "6 years ago",
+              "text": "`EXPOSE` is documentation. It does not publish or open anything. And Postgres is not in this container, so it is the wrong container anyway."
+            }
+          ]
+        },
+        {
+          "votes": 3,
+          "accepted": false,
+          "author": {
+            "name": "priya.s",
+            "rep": "340"
+          },
+          "ago": "4 years ago",
+          "body": "Restarting Docker Desktop fixed it for me.",
+          "comments": [
+            {
+              "votes": 6,
+              "author": "jvdberg",
+              "ago": "4 years ago",
+              "text": "It probably worked because something else changed at the same time. Restarting does not change what localhost means."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flask-mysql-compose",
+      "angle": "same mechanism, different stack and situation",
+      "title": "docker-compose: Flask can't connect to MySQL service, but it works with docker run",
+      "tags": [
+        "python",
+        "flask",
+        "docker-compose",
+        "mysql"
+      ],
+      "asked": "5 years ago",
+      "modified": "8 months ago",
+      "views": "61k",
+      "question": {
+        "votes": 88,
+        "author": {
+          "name": "anna_w",
+          "rep": "512"
+        },
+        "body": "I moved my Flask app and MySQL into one `docker-compose.yml`. The app starts and crashes at once:\n\n```\nsqlalchemy.exc.OperationalError: (2003, \"Can't connect to MySQL server on 'localhost'\")\n```\n\n```yaml\nservices:\n  web:\n    build: .\n    depends_on:\n      - db\n    environment:\n      DATABASE_URL: mysql://root:secret@localhost:3306/app\n  db:\n    image: mysql:8\n```\n\nI already have `depends_on`, so the database should be up first. What am I missing?",
+        "comments": []
+      },
+      "answers": [
+        {
+          "votes": 134,
+          "accepted": true,
+          "author": {
+            "name": "d.okafor",
+            "rep": "21.3k"
+          },
+          "ago": "5 years ago",
+          "edited": "1 year ago",
+          "body": "There are two problems here.\n\n### 1. The host name\n\nCompose puts every service on a shared network and gives each one a DNS name equal to its service name. From `web`, the database is `db`, not `localhost`:\n\n```\nDATABASE_URL: mysql://root:secret@db:3306/app\n```\n\n### 2. depends_on does not wait for \"ready\"\n\n`depends_on` only waits for the `db` container to *start*. MySQL needs a few more seconds before it accepts connections. Add a healthcheck and wait for it:\n\n```yaml\n  web:\n    depends_on:\n      db:\n        condition: service_healthy\n  db:\n    image: mysql:8\n    healthcheck:\n      test: [\"CMD\", \"mysqladmin\", \"ping\", \"-h\", \"localhost\"]\n      interval: 5s\n      retries: 10\n```\n\nNote that `localhost` is correct *inside* the healthcheck, because the healthcheck runs inside the `db` container.",
+          "comments": [
+            {
+              "votes": 17,
+              "author": "perezj",
+              "ago": "4 years ago",
+              "text": "`condition` only controls startup order. If the database restarts later, the app still needs to retry the connection itself."
+            },
+            {
+              "votes": 9,
+              "author": "anna_w",
+              "ago": "5 years ago",
+              "text": "Number 1 was it. Thank you."
+            }
+          ]
+        },
+        {
+          "votes": 2,
+          "accepted": false,
+          "author": {
+            "name": "old_school_ops",
+            "rep": "1,877"
+          },
+          "ago": "5 years ago",
+          "body": "Add a link from `web` to `db`:\n\n```yaml\n  web:\n    links:\n      - db\n```",
+          "comments": [
+            {
+              "votes": 14,
+              "author": "d.okafor",
+              "ago": "5 years ago",
+              "text": "Not needed. Services in one compose file already reach each other by name. It also does not fix the `localhost` in the URL, which is the actual problem."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "efcore-container-closed",
+      "angle": "same stack, closed as duplicate",
+      "title": "EF Core: Failed to connect to 127.0.0.1:5432 only when running in a container",
+      "tags": [
+        "c#",
+        "asp.net-core",
+        "entity-framework-core",
+        "npgsql",
+        "docker"
+      ],
+      "asked": "3 years ago",
+      "modified": "3 years ago",
+      "views": "9k",
+      "closed": {
+        "reason": "duplicate",
+        "of": "localhost-meaning",
+        "ago": "3 years ago"
+      },
+      "question": {
+        "votes": 4,
+        "author": {
+          "name": "user4471902",
+          "rep": "23"
+        },
+        "body": "My ASP.NET Core 7 API works with `dotnet run`. In Docker I get:\n\n```\nNpgsql.NpgsqlException: Failed to connect to 127.0.0.1:5432\n ---> System.Net.Sockets.SocketException: Connection refused\n```\n\n`appsettings.Development.json`:\n\n```json\n{\n  \"ConnectionStrings\": {\n    \"Default\": \"Host=localhost;Port=5432;Database=orders;Username=app;Password=app\"\n  }\n}\n```\n\nI changed `Host` to my machine's IP address, rebuilt the image, and still get the same error with 127.0.0.1. How?",
+        "comments": [
+          {
+            "votes": 12,
+            "author": "m.verhoef",
+            "ago": "3 years ago",
+            "text": "Which environment does the container run in? Without `ASPNETCORE_ENVIRONMENT` set, ASP.NET Core runs as Production, so `appsettings.Development.json` is never loaded. You edited a file the container does not read."
+          },
+          {
+            "votes": 5,
+            "author": "m.verhoef",
+            "ago": "3 years ago",
+            "text": "You can override the setting without touching any file: `-e ConnectionStrings__Default=\"Host=...\"`. A double underscore maps to the `:` in the config key."
+          },
+          {
+            "votes": 0,
+            "author": "user4471902",
+            "ago": "3 years ago",
+            "text": "@m.verhoef that explains why my change did nothing. Still don't know which host to use though."
+          }
+        ]
+      },
+      "answers": []
+    },
+    {
+      "id": "localhost-meaning",
+      "angle": "the general question behind it",
+      "title": "What does localhost mean inside a Docker container?",
+      "tags": [
+        "docker",
+        "networking",
+        "localhost"
+      ],
+      "asked": "9 years ago",
+      "modified": "6 months ago",
+      "views": "412k",
+      "question": {
+        "votes": 1206,
+        "author": {
+          "name": "hgreene",
+          "rep": "4,880"
+        },
+        "body": "If a process inside a container connects to `localhost` or `127.0.0.1`, where does that traffic go? To the container, or to the machine that runs Docker? And how do I reach a service on the host from inside a container?",
+        "comments": []
+      },
+      "answers": [
+        {
+          "votes": 1490,
+          "accepted": true,
+          "author": {
+            "name": "b.lindqvist",
+            "rep": "112k"
+          },
+          "ago": "9 years ago",
+          "edited": "6 months ago",
+          "body": "To the container.\n\nBy default every container gets its own **network namespace**: its own interfaces, its own routing table and its own loopback device. `127.0.0.1` inside the container is that container's loopback. It never leaves the container.\n\nPublishing a port (`-p 8080:80`) only works in the other direction: traffic from the host *into* the container.\n\nTo reach something outside the container, use an address that exists in the container's network:\n\n- **Another container:** put both on one user-defined network (Compose does this for you) and use the container or service name.\n- **The host:** `host.docker.internal` on Docker Desktop. On Linux, map it yourself with `host-gateway`, or use the bridge gateway address (often `172.17.0.1`, check with `docker network inspect bridge`).\n- **Share the host's network:** `--network host`. The container then has no network isolation at all, and on Docker Desktop it does not behave the same way as on Linux.\n\nWhichever you pick, the service you connect to must listen on an interface that address can reach. A service bound to `127.0.0.1` on the host is not reachable from a container, even with the right host name.",
+          "comments": [
+            {
+              "votes": 214,
+              "author": "c.ramos",
+              "ago": "6 years ago",
+              "text": "The last paragraph should be at the top. Half the duplicates of this question are a database bound to 127.0.0.1."
+            }
+          ]
+        },
+        {
+          "votes": 87,
+          "accepted": false,
+          "author": {
+            "name": "g.marino",
+            "rep": "6,203"
+          },
+          "ago": "7 years ago",
+          "body": "On Linux with the default bridge network you can find the host from inside the container:\n\n```\nip route | awk '/default/ { print $3 }'\n```\n\nThat is the gateway address, which is the host.",
+          "comments": [
+            {
+              "votes": 11,
+              "author": "ilya.p",
+              "ago": "4 years ago",
+              "text": "The gateway is different on user-defined networks, so do not hard-code what this prints. `host-gateway` is cleaner."
+            }
+          ]
+        },
+        {
+          "votes": -9,
+          "accepted": false,
+          "author": {
+            "name": "quickfix",
+            "rep": "12"
+          },
+          "ago": "3 years ago",
+          "body": "Use `0.0.0.0` instead of `localhost` in your connection string. `0.0.0.0` means all interfaces, so it will find the host.",
+          "comments": [
+            {
+              "votes": 33,
+              "author": "b.lindqvist",
+              "ago": "3 years ago",
+              "text": "`0.0.0.0` is something a *server* binds to. As a destination, Linux treats it as the local machine, which inside a container is the container. You end up exactly where `localhost` took you."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mac-host-old",
+      "angle": "outdated accepted answer",
+      "title": "From inside a Docker container on Mac, how do I connect to the host?",
+      "tags": [
+        "docker",
+        "macos",
+        "docker-for-mac"
+      ],
+      "asked": "8 years ago",
+      "modified": "2 years ago",
+      "views": "203k",
+      "question": {
+        "votes": 512,
+        "author": {
+          "name": "kpatel",
+          "rep": "2,341"
+        },
+        "body": "I have a service running on my Mac on port 8000. From a container, `curl localhost:8000` fails. In Docker Toolbox I used the VM's IP address. What is the right way with Docker for Mac?",
+        "comments": []
+      },
+      "answers": [
+        {
+          "votes": 301,
+          "accepted": true,
+          "author": {
+            "name": "fwalsh",
+            "rep": "9,044"
+          },
+          "ago": "8 years ago",
+          "body": "Docker for Mac provides a special DNS name for this:\n\n```\ncurl http://docker.for.mac.localhost:8000\n```",
+          "comments": [
+            {
+              "votes": 188,
+              "author": "hgreene",
+              "ago": "6 years ago",
+              "text": "This name is deprecated. Use `host.docker.internal`, which also works on Docker Desktop for Windows."
+            },
+            {
+              "votes": 40,
+              "author": "s.ito",
+              "ago": "2 years ago",
+              "text": "Can someone edit the accepted answer? People still copy this."
+            }
+          ]
+        },
+        {
+          "votes": 640,
+          "accepted": false,
+          "author": {
+            "name": "o.nwosu",
+            "rep": "15.7k"
+          },
+          "ago": "6 years ago",
+          "body": "Use `host.docker.internal`. It replaced the older `docker.for.mac.*` names:\n\n```\ncurl http://host.docker.internal:8000\n```\n\nThis name is meant for development on Docker Desktop. Do not rely on it in production.",
+          "comments": []
+        }
+      ]
+    }
+  ]
+}
