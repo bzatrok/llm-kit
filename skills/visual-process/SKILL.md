@@ -27,6 +27,17 @@ Before you scope, ground or build, write in 1–2 lines what the page will show.
 - **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
 - **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
 
+## Research the input and check the truth
+
+Follow `RESEARCH.md` in the `explain` skill folder. Read it before you collect anything. The hard rules:
+
+- After approval, write the claims that the page will make in `build/claims.md`, one row per claim, before you collect.
+- Read the deployed source, not the nearest one. Trust order: live state > deployed config > repo base > current doc > old doc > memory.
+- Save every raw output in `sources/` and cite it. Never write a model value from memory of a chat or a terminal.
+- Label every claim `live`, `config`, `doc` or `assumed`. Report a mismatch between two sources. Do not pick one value quietly.
+- Ask before you read production, read credentials or send traffic.
+- Screenshots check the layout, not the facts. Before the hand-over, run `check-claims.py`, run the fresh-eyes check on the facts, and show the evidence mix in the intro.
+
 ## Scope first: four questions
 
 Ask only what the prompt and the approved statement do not already answer.
@@ -64,7 +75,7 @@ showIO:    true                                  // chips on first load
 
 - **label** ≤ 3 words, an imperative verb phrase for a step ("Read the version"), a question for a decision ("Fixed build out?"), the outcome for an end ("Patched"). **sub** ≤ 4 words: the tool, the scope or the threshold ("nginx -T", "1.9.5 – 1.31.8").
 - **tip** 1–2 sentences: why the step exists or what the reader must not get wrong. No new term inside a tip.
-- **cmd** is the exact command or action when the reader carries the process out. It shows in the detail panel, never on the diagram.
+- **cmd** is the exact command or action when the reader carries the process out. It shows in the detail panel, in the step list of a path, and in the Commands card. It never shows on the diagram. A click on a command copies it.
 - **state** on a step is the state the subject is in *after* that step. Set it only where the state changes; the renderer carries it forward. Every `end` step has a state. A state no step sets is dead: remove it or add the step.
 - **tone**: `bad` = needs action, `warn` = in progress or temporary, `good` = closed, `neutral` = not known yet. Mark end states `terminal:true` (dashed chip).
 - **in / out** say what a step reads and what it makes, in the reader's words, using the source's own nouns. An output that no later step reads is fine only if it is a deliverable. An input that no step makes must be `external:true` (comes from outside the process).
@@ -84,7 +95,7 @@ showIO:    true                                  // chips on first load
 
 ## Procedure
 
-1. **Agree, scope and ground** (above). The approved statement comes first. List steps, decisions, states and artifacts with the source each came from, in your notes.
+1. **Agree, research, scope and ground** (above). The approved statement comes first, then `build/claims.md` and `sources/`. List steps, decisions, states and artifacts with the source each came from, in your notes.
 2. **Write states first**, then steps and links. Check: every step has a link in and out (start has none in, ends none out), every decision has ≥ 2 labelled links, every state is set by some step.
 3. **Write paths**, one per question from scope step 3. Read each back as a sentence per step: "Start a large copy makes Memory addresses and Corrupted heap, and the access is now Heap corrupted." If an input is not made by an earlier step on the path and is not external, a step is missing or the order is wrong.
 4. **Verify** (below).
@@ -98,8 +109,9 @@ The template reads URL params so every state can be screenshotted: `?path=<id>` 
    `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --window-size=1300,900 --virtual-time-budget=5000 --screenshot=<out>.png "file://<abs path>?view=fit"`
    Read every PNG. Look for: an edge with no arrow between two steps that should connect, a branch label far from its branch, a chip that overlaps another box, a box outside its lane, a dead end that is not an `end`.
 2. **Playback needs a real browser.** Headless screenshots do not advance `requestAnimationFrame`, so the camera does not pan and auto-play stays on step 1. `?path=<id>&step=<n>` shows the badges, the rail and the current step without playback. Serve the folder (`python3 -m http.server`) and check in Chrome that the rail, the badges, the step list and the view move with the token, and that Previous, Next and ← → step correctly.
-3. **Fresh eyes.** A subagent that did not write the model reads the HTML, the PNGs and the sources, and answers: is every step, branch and fact traceable to a source or marked assumed, is any branch missing (what happens when the check fails?), does every path match the source, is any state unreachable. Ranked blocker / should-fix / optional. Fix blockers.
-4. Hand over: path, assumptions, what the check did not cover.
+3. **Truth check.** Follow **Check the truth** in `RESEARCH.md` (`explain` skill folder): run `python3 -I check-claims.py <visual folder>`, check that every fact on the page has a ledger row, run the safe behaviour probes, save `build/refresh.sh`, and put the evidence mix in the intro. A failed ledger check fails the build.
+4. **Fresh eyes.** A subagent that did not write the model reads the HTML, the PNGs and the sources, and answers: is every step, branch and fact traceable to a source or marked assumed, is any branch missing (what happens when the check fails?), does every path match the source, is any state unreachable. Ranked blocker / should-fix / optional. Fix blockers. Give it `build/claims.md` and `sources/` too, and have it mark each fact on the page as traced, doc only, assumed, wrong or no row. Fix every wrong and every no row.
+5. Hand over: path, the evidence mix, the `doc` and `assumed` claims, every mismatch, what the check did not cover.
 
 ## Template mechanics (change only with reason)
 

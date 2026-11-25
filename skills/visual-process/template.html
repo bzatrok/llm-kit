@@ -83,6 +83,9 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
 #detail p{margin:0 0 8px} #detail ul{margin:0;padding-left:18px} #detail li{margin:2px 0}
 #detail code{font:11.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--group);padding:1px 4px;border-radius:4px;word-break:break-word}
 .hint{color:var(--muted);font-size:12px}
+.cmds summary{cursor:pointer;list-style:none}.cmds summary h2{display:inline;margin:0}.cmds[open] summary{margin-bottom:8px}.cmds ol{margin:0;padding-left:18px;font-size:12px}.cmds li{margin:0 0 8px}.cmds li b{cursor:pointer}
+code.cmd{display:block;position:relative;margin-top:2px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--group);padding:4px 6px;border-radius:4px;word-break:break-all;white-space:pre-wrap;cursor:copy}
+code.cmd:hover{outline:1px solid var(--next)}code.cmd.copied::after{content:"Copied";position:absolute;top:2px;right:4px;font:600 10px system-ui;color:var(--good);background:var(--panel);padding:0 4px;border-radius:3px}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:1px 7px;border-radius:999px;
   border:1px solid var(--c);color:var(--ink);background:color-mix(in srgb,var(--c) 10%,transparent)}
 .tag i{width:7px;height:7px;border-radius:50%;background:var(--c)}
@@ -177,6 +180,7 @@ aside{display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
   </div>
   <aside>
     <div class="card paths"><h2>Paths</h2><div id="paths"></div></div>
+    <details class="card cmds" id="cmds" open hidden><summary><h2>Commands</h2></summary><ol></ol><p class="hint" style="margin:6px 0 0">Click a command to copy it. Click a step name to show the step.</p></details>
     <div class="card" id="detail"><h2>Selected</h2><p class="hint">Click a step or an input.</p></div>
     <details class="card terms" id="terms" hidden><summary><h2>Terms</h2></summary><dl></dl></details>
   </aside>
@@ -611,7 +615,7 @@ function showDetail(id){
   if(!n){setDetail(`<h2>Selected</h2><p><b>${esc(laneOf(id)?.label)}</b></p>`);return}
   const outs=links.filter(l=>l.from===id).map(l=>`<li>${l.label?`<b>${esc(l.label)}</b> → `:'→ '}${esc(byId[l.to].label)}</li>`).join('');
   setDetail(`<h2>Selected</h2><p><b>${esc(n.label)}</b><br>${esc(n.tip||n.sub)}</p>`
-    +(n.cmd?`<p><code>${esc(n.cmd)}</code></p>`:'')
+    +(n.cmd?`<code class="cmd">${esc(n.cmd)}</code>`:'')
     +ioRow('in',artList(n.in))+ioRow('out',artList(n.out))+ioRow('state',stateTag(n.state))
     +(outs?`<ul style="margin-top:8px">${outs}</ul>`:''));
 }
@@ -632,7 +636,7 @@ function showPath(p){
     const n=byId[id], nx=p.steps[i+1], l=nx&&linkOf(id,nx);
     const verb=l?.label?`<span class="verb">${esc(l.label)}</span>`:'';
     return `<li><span class="hop">${esc(n.label)}</span>${verb}`
-      +ioRow('in',artList(n.in))+ioRow('out',artList(n.out))
+      +(n.cmd?`<code class="cmd">${esc(n.cmd)}</code>`:'')+ioRow('in',artList(n.in))+ioRow('out',artList(n.out))
       +(n.state&&n.state!==seq[i-1]?ioRow('state',stateTag(n.state)):'')+'</li>';
   }).join('');
   setDetail(`<h2>${esc(p.label)}</h2><ol class="steps">${items}</ol>`);
@@ -670,6 +674,26 @@ for(const p of MODEL.paths){
   b.onclick=()=>{path=path===p.id?null:p.id;focus=null;stateSel=null;view.user=false;applyState()}; pl.appendChild(b);
 }
 svg.onclick=()=>{if(view.dragged) return; focus=null;path=null;stateSel=null;applyState()};
+
+// commands: every step with a cmd, in model order. Click a command to copy it.
+{
+  const box=document.getElementById('cmds'), ol=box.querySelector('ol'), withCmd=steps.filter(s=>s.cmd);
+  box.hidden=!withCmd.length;
+  for(const n of withCmd){
+    const li=document.createElement('li');
+    li.innerHTML=`<b>${esc(n.label)}</b><code class="cmd">${esc(n.cmd)}</code>`;
+    li.querySelector('b').onclick=()=>{focus=n.id;path=null;stateSel=null;applyState()};
+    ol.appendChild(li);
+  }
+}
+// copy on click, for every command on the page; falls back to execCommand where the clipboard API is blocked
+document.addEventListener('click',ev=>{
+  const c=ev.target.closest('code.cmd'); if(!c) return;
+  ev.stopPropagation();
+  const text=c.textContent, done=()=>{c.classList.add('copied');setTimeout(()=>c.classList.remove('copied'),1200)};
+  const old=()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done()};
+  navigator.clipboard?.writeText(text).then(done,old)??old();
+},true);
 
 // terms: one line per technical word, collapsed under the detail panel
 if(MODEL.terms?.length){

@@ -9,7 +9,7 @@ Produce ONE self-contained HTML file: a WebGL stage beside a caption panel that 
 
 **Readability comes first.** When a rule below trades against an effect, the camera or density, the reader's ability to read the words and see the subject wins.
 
-This skill extends `visual-explain`. Its rules still apply here and are not repeated: **Agree on what to show** (1–2 lines, approved by the user before any build), **Scope first: three questions**, **Hand-trace before you draw**, the step list and predict step (**Procedure**, steps 1–3 and 5), **Prose**, the `.visuals/<name>/` folder (Procedure, step 8) and `maps.md` for real geography. Read that SKILL.md first. This file covers only what changes when the graphic is a continuous 3D timeline.
+This skill extends `visual-explain`. Its rules still apply here and are not repeated: **Agree on what to show** (1–2 lines, approved by the user before any build), **Research the input and check the truth** (`RESEARCH.md` in the `explain` folder), **Scope first: three questions**, **Hand-trace before you draw**, the step list and predict step (**Procedure**, steps 1–3 and 5), **Prose**, the `.visuals/<name>/` folder (Procedure, step 8) and `maps.md` for real geography. Read that SKILL.md first. This file covers only what changes when the graphic is a continuous 3D timeline.
 
 ## When to use which
 
@@ -80,4 +80,4 @@ Only when the user asks for scrollytelling. Put the steps in tall blocks beside 
 3. Check the inset against the source's own words at each step. A model tuned until it "looks right" can still show the wrong thing: the template's first draft showed a yellow zenith at sunset because ozone was missing. That is exactly the error the source describes, which is how it was caught.
 4. Open the page, step through with Next and Back, and drag the scrubber end to end in both directions, fast and slow. Nothing may pop or depend on the direction. The camera moves only when the caption changes subject.
 5. Extract the visible text (`<h1>`, `<h2>`, `<p>`, `<summary>`, `<details>`, labels, HUD strings) and run `ste-lint.py` from the `asd-ste100` skill. Hard violations fail the build.
-6. Fresh-eyes pass and handover as in `visual-explain` (Verify, steps 3–4).
+6. Truth check, fresh-eyes pass and handover as in `visual-explain` (Verify, steps 3–5).

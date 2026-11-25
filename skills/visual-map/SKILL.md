@@ -22,6 +22,17 @@ Before you scope, ground or build, write in 1–2 lines what the page will show.
 - **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
 - **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
 
+## Research the input and check the truth
+
+Follow `RESEARCH.md` in the `explain` skill folder. Read it before you collect anything. The hard rules:
+
+- After approval, write the claims that the page will make in `build/claims.md`, one row per claim, before you collect.
+- Read the deployed source, not the nearest one. Trust order: live state > deployed config > repo base > current doc > old doc > memory.
+- Save every raw output in `sources/` and cite it. Never write a model value from memory of a chat or a terminal.
+- Label every claim `live`, `config`, `doc` or `assumed`. Report a mismatch between two sources. Do not pick one value quietly.
+- Ask before you read production, read credentials or send traffic.
+- Screenshots check the layout, not the facts. Before the hand-over, run `check-claims.py`, run the fresh-eyes check on the facts, and show the evidence mix in the intro.
+
 ## Scope first: three questions
 
 Ask only what the prompt and the approved statement do not already answer.
@@ -72,7 +83,7 @@ collapsed: [group ids closed on first load]
 
 ## Procedure
 
-1. **Agree, scope and ground** (above). The approved statement comes first. List parts and edges with the file each came from, in your notes.
+1. **Agree, research, scope and ground** (above). The approved statement comes first, then `build/claims.md` and `sources/`. List parts and edges with the file each came from, in your notes.
 2. **Write the model.** Edges first, then check every node has at least one edge. A part with no edge is either missing an edge or does not belong on the map.
 3. **Write flows**, one per question from scope step 2. Give every hop an `input` and an `output`. Read each one back as a sentence: "the renderer takes X and gives Y". If the output of a hop does not feed the input of the next, the flow order is wrong or a step is missing.
 4. **Verify** (below).
@@ -85,8 +96,9 @@ The template reads URL params so every state can be screenshotted: `?flow=<id>`,
 1. Screenshot the default state, every flow, and each group collapsed:
    `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --window-size=1300,900 --virtual-time-budget=4000 --screenshot=<out>.png "file://<abs path>?flow=<id>"`
    Read every PNG. Look for: a label crossing a box or another label, an edge entering the wrong box, a box sitting outside its group, a flow whose lit path skips a hop, and a flow step whose output does not feed the next step's input.
-2. **Fresh eyes.** A subagent that did not write the model reads the HTML, the PNGs and the source files you named, and answers: is every edge traceable to a source or marked assumed, does any edge point the wrong way, is any important part missing, does each flow match the code path. Ranked blocker / should-fix / optional. Fix blockers.
-3. Hand over: path, assumptions, what the check did not cover.
+2. **Truth check.** Follow **Check the truth** in `RESEARCH.md` (`explain` skill folder): run `python3 -I check-claims.py <visual folder>`, check that every fact on the page has a ledger row, run the safe behaviour probes, save `build/refresh.sh`, and put the evidence mix in the intro. A failed ledger check fails the build.
+3. **Fresh eyes.** A subagent that did not write the model reads the HTML, the PNGs and the source files you named, and answers: is every edge traceable to a source or marked assumed, does any edge point the wrong way, is any important part missing, does each flow match the code path. Ranked blocker / should-fix / optional. Fix blockers. Give it `build/claims.md` and `sources/` too, and have it mark each fact on the page as traced, doc only, assumed, wrong or no row. Fix every wrong and every no row.
+4. Hand over: path, the evidence mix, the `doc` and `assumed` claims, every mismatch, what the check did not cover.
 
 ## Template mechanics (change only with reason)
 

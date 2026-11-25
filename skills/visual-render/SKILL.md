@@ -35,11 +35,22 @@ Before you scope, ground or build, write in 1–2 lines what the page will show.
 - **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
 - **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
 
+## Research the input and check the truth
+
+Follow `RESEARCH.md` in the `explain` skill folder. Read it before you collect anything. The hard rules:
+
+- After approval, write the claims that the page will make in `build/claims.md`, one row per claim, before you collect.
+- Read the deployed source, not the nearest one. Trust order: live state > deployed config > repo base > current doc > old doc > memory.
+- Save every raw output in `sources/` and cite it. Never write a model value from memory of a chat or a terminal.
+- Label every claim `live`, `config`, `doc` or `assumed`. Report a mismatch between two sources. Do not pick one value quietly.
+- Ask before you read production, read credentials or send traffic.
+- Screenshots check the layout, not the facts. Before the hand-over, run `check-claims.py`, run the fresh-eyes check on the facts, and show the evidence mix in the intro.
+
 ## 1. Read the real source
 
 - **Find it, don't assume it.** The obvious path can be empty. Docker leaves an empty directory where a bind-mounted file never existed, and a repo can have no config file at all. Search before you settle: declarative configs (`_format_version`, `kind:`, `image:` lines), provisioning scripts (curl calls to an admin API, Terraform, Pulumi), compose and k8s manifests. Read the folder's README and setup scripts: they often hold the real configuration.
 - **If there are several candidates, ask which one is the user's**, and say what each one contains.
-- **Write an inventory before any geometry.** List every entity that will appear (routes, services, plugins, consumers, queues, nodes, upstreams), each with `file:line`, and its real attributes (paths, ports, flags, counts). The figure draws this list and nothing else.
+- **Write an inventory before any geometry.** The inventory is the claim ledger, `build/claims.md` (see `RESEARCH.md`). List every entity that will appear (routes, services, plugins, consumers, queues, nodes, upstreams), each with `file:line`, and its real attributes (paths, ports, flags, counts). The figure draws this list and nothing else.
 - **Name what you leave out.** Generated or out-of-repo parts (specs on another machine, global plugins whose behaviour you could not confirm) go in the caption as "not drawn", never as guesses.
 - **Facts at the deployed version.** Read the version from the source (an image tag, a lockfile). When you fetch vendor source for behaviour (plugin order, error strings, defaults), fetch that version's tag, not the main branch. Every number and message in the readout and caption needs a source fetched in this session.
 
@@ -77,7 +88,8 @@ Anatomy warns that stacked plates and labelled boxes don't read as anything. Mod
   - one 4× close-up of the busiest junction, in a moment of motion
   - one capture of each rejection path mid-move (`capture.mjs --key <n> --times ...`)
   - `lines.mjs` must print `line ends: 0`
+  - the truth check from **Check the truth** in `RESEARCH.md`: `check-claims.py` passes, and a fresh-eyes subagent with the figure, `build/claims.md` and `sources/` finds no wrong fact and no fact without a row. Skip the subagent only when the user says so.
 - Check the camera early. A long line of stations at azimuth 45–60 runs diagonally and shrinks the figure, and a part that faces ±x almost disappears at high azimuth. Move the camera or turn the part so it faces the viewer.
 - All text in the figure and the page follows the **Prose** rules of `visual-explain`, including ASD-STE100.
 - Save as `.visuals/<name>/` (`build.mjs`, `<name>-render.html`, `sources/` with the config or code you read, `SOURCES.md`) at the project root, kept out of git through `.git/info/exclude`, as in `visual-explain`. In a learning vault, save to the folder that `explain` names instead (**Where the page goes**), and skip the exclude step. If the user wants a standalone repo instead, create one with a thin `CLAUDE.md`.
-- Hand over: the path, the inventory with its sources, what was not drawn and why, and the checks you ran or skipped.
+- Hand over: the path, the inventory with its sources and labels, the evidence mix, every mismatch, what was not drawn and why, and the checks you ran or skipped.

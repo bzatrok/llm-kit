@@ -20,6 +20,17 @@ Before you scope, ground or build, write in 1–2 lines what the page will show.
 - **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
 - **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
 
+## Research the input and check the truth
+
+Follow `RESEARCH.md` in the `explain` skill folder. Read it before you collect anything. The hard rules:
+
+- After approval, write the claims that the page will make in `build/claims.md`, one row per claim, before you collect.
+- Read the deployed source, not the nearest one. Trust order: live state > deployed config > repo base > current doc > old doc > memory.
+- Save every raw output in `sources/` and cite it. Never write a model value from memory of a chat or a terminal.
+- Label every claim `live`, `config`, `doc` or `assumed`. Report a mismatch between two sources. Do not pick one value quietly.
+- Ask before you read production, read credentials or send traffic.
+- Screenshots check the layout, not the facts. Before the hand-over, run `check-claims.py`, run the fresh-eyes check on the facts, and show the evidence mix in the intro.
+
 ## Scope first: three questions
 
 Ask only what the prompt and the approved statement do not already answer.
@@ -54,7 +65,7 @@ Real geography (a grid, a route, a region): read `maps.md` in this folder before
 
 ## Procedure, both renderers
 
-1. **Agree, scope and trace** (above). The approved statement comes first.
+1. **Agree, research, scope and trace** (above). The approved statement comes first, then `build/claims.md` and `sources/`.
 2. **List 5–8 steps.** Step 0 = starting state, last step = consequence, not summary. Something visibly changes at every step, or merge the step. Name the mental model once, in step 0 or 1, and reuse it as the throughline. Never put it in the `<h1>`; the title names the topic plainly.
 3. **One predict step, minimum.** A step's prose ends with a question ("where does the client look for the root?"). The next step's graphic answers it. The reader commits before the reveal.
 4. **Build the graphic once** with every element present. State is a single step number; the graphic is a pure function of it.
@@ -70,6 +81,7 @@ Real geography (a grid, a route, a region): read `maps.md` in this folder before
 - The header is one line: the title and a subtitle of 12 words or fewer. Everything else goes into step 1 or the assumptions block.
 - Each step ends with a `<details>` of 3–5 questions a learner is likely to ask at that step, each with a short answer. Write them from the predict step and from what the step leaves open.
 - Pre-empt common misreadings ("the root is not sent; if it were, the client would ignore it").
+- **Commands copy on click.** Show each command that the reader runs in a `<code class="cmd">` block. A click copies the exact text to the clipboard and shows "Copied". Use `navigator.clipboard`, with an `execCommand('copy')` fallback for pages opened from `file://`. The `visual-process` template has a working handler.
 - Every arrow in the graphic has a verb, in its label or in the step text: signs, sends, looks up, rejects.
 - Remove these tells: "not just X, it's Y", "at its core", "here's the thing", a rhetorical question as a transition, metaphor nouns (spine, throughline), em-dash chains, a closing aphorism.
 
@@ -115,7 +127,8 @@ Port of the nicobailon/visual-explainer kit. The mechanics are in `template.html
 
 1. `open <file>` and scroll end to end, both directions.
 2. 2D: `bash check.sh <file>` from this skill's folder, then Read every `step-N.png`. The report finds collisions and clipping, not errors of meaning.
-3. **Fresh eyes.** A subagent that did not write the page reads the HTML and the PNGs and answers: does step 0 show the full starting state, does every step visibly change something, is every claim traceable to the source or marked as an assumption, does the predict step land before its reveal, any slop (emoji as icons, decorative gradients, a palette with no colour taken from the subject). It ranks findings blocker / should-fix / optional. Fix the blockers, re-run `check.sh` on the edited steps. Only blockers fail the build.
-4. Hand over: path, the one-line question, assumptions, what the fresh-eyes pass did not check.
+3. **Truth check.** Follow **Check the truth** in `RESEARCH.md` (`explain` skill folder): run `python3 -I check-claims.py <visual folder>`, check that every fact on the page has a ledger row, run the safe behaviour probes, save `build/refresh.sh`, and put the evidence mix in the intro. A failed ledger check fails the build.
+4. **Fresh eyes.** A subagent that did not write the page reads the HTML and the PNGs and answers: does step 0 show the full starting state, does every step visibly change something, is every claim traceable to the source or marked as an assumption, does the predict step land before its reveal, any slop (emoji as icons, decorative gradients, a palette with no colour taken from the subject). It ranks findings blocker / should-fix / optional. Fix the blockers, re-run `check.sh` on the edited steps. Only blockers fail the build. Give it `build/claims.md` and `sources/` too, and have it mark each fact on the page as traced, doc only, assumed, wrong or no row. Fix every wrong and every no row.
+5. Hand over: path, the one-line question, the evidence mix, the `doc` and `assumed` claims, every mismatch, what the fresh-eyes pass did not check.
 
 See `RESOURCES.md` for references and worked examples to steal from.
