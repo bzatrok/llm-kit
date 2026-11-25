@@ -22,6 +22,19 @@ git clone https://github.com/wheresryan22/anatomy ~/.claude/skills/anatomy
 
 Needs Node ≥ 20.10, plus Chrome for the checks. Import the kit by absolute path from the build script: `<anatomy>/kit/iso-kit.mjs` and `<anatomy>/scripts/inline-kit.mjs`. Start from `<anatomy>/examples/dial-indicator/build.mjs`, the smallest complete template.
 
+## Agree on what to show (before anything else)
+
+Before you scope, ground or build, write in 1–2 lines what the page will show. Get the user's OK on it. Build nothing until they approve it.
+
+- **Form:** "**Shows:** <what is on screen, in the user's nouns>. **Answers:** <the one question the reader gets answered>."
+- **Name the subject, not the work around it.** "The request path from the internet to the API gateway, with DDoS protection and the WAF at each hop" is a subject. "How we checked that DDoS protection is on" is the work that found it. Show the work only when the user asks for it.
+- **After a conversation, look for the result.** When the request follows earlier work, the subject is usually a result already in the conversation: a path, a diagram, a list, a table. Quote it or point to it in the statement.
+- **Always ask, even when the prompt looks clear.** A clear-looking prompt is where the wrong subject slips through. Use AskUserQuestion: your statement first, marked recommended. Add one or two real alternatives that read the request in a different way. The user can correct through "Other".
+- **Refine until approved.** If the user corrects the statement, rewrite it and ask again. You may read sources to write a better statement. Do not write a model, a step list or a page before approval.
+- **Use it.** Put the approved statement in the page intro and in the handover. Every later choice (subject, flows, paths, steps, what you leave out) must serve it.
+- **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
+- **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
+
 ## 1. Read the real source
 
 - **Find it, don't assume it.** The obvious path can be empty. Docker leaves an empty directory where a bind-mounted file never existed, and a repo can have no config file at all. Search before you settle: declarative configs (`_format_version`, `kind:`, `image:` lines), provisioning scripts (curl calls to an admin API, Terraform, Pulumi), compose and k8s manifests. Read the folder's README and setup scripts: they often hold the real configuration.

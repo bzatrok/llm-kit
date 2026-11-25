@@ -13,11 +13,24 @@ Produce ONE self-contained HTML file: a process diagram. ELK.js lays it out, so 
 
 **visual-process, visual-map or visual-explain?** A map answers "what talks to what". A process answers "what do we do, in what order, with what, and where does the thing end up". An explainer answers "how does this mechanism work". A procedure someone carries out, a lifecycle something goes through, or an attack chain an attacker moves along (the subject is the attacker's access) is a process. If the steps run across systems the reader also needs to see, make the map and the process and link them from the intro line.
 
+## Agree on what to show (before anything else)
+
+Before you scope, ground or build, write in 1–2 lines what the page will show. Get the user's OK on it. Build nothing until they approve it.
+
+- **Form:** "**Shows:** <what is on screen, in the user's nouns>. **Answers:** <the one question the reader gets answered>."
+- **Name the subject, not the work around it.** "The request path from the internet to the API gateway, with DDoS protection and the WAF at each hop" is a subject. "How we checked that DDoS protection is on" is the work that found it. Show the work only when the user asks for it.
+- **After a conversation, look for the result.** When the request follows earlier work, the subject is usually a result already in the conversation: a path, a diagram, a list, a table. Quote it or point to it in the statement.
+- **Always ask, even when the prompt looks clear.** A clear-looking prompt is where the wrong subject slips through. Use AskUserQuestion: your statement first, marked recommended. Add one or two real alternatives that read the request in a different way. The user can correct through "Other".
+- **Refine until approved.** If the user corrects the statement, rewrite it and ask again. You may read sources to write a better statement. Do not write a model, a step list or a page before approval.
+- **Use it.** Put the approved statement in the page intro and in the handover. Every later choice (subject, flows, paths, steps, what you leave out) must serve it.
+- **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
+- **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
+
 ## Scope first: four questions
 
-Ask only what the prompt does not already answer.
+Ask only what the prompt and the approved statement do not already answer.
 
-1. **What is the subject?** The one thing whose state changes: "one nginx instance", "an order", "a pull request", "the attacker's access". If you cannot name one subject, the process is two processes, or it is a map.
+1. **What is the subject?** Take it from the approved statement. The one thing whose state changes: "one nginx instance", "an order", "a pull request", "the attacker's access". If you cannot name one subject, the process is two processes, or it is a map.
 2. **Who reads it?** The person who carries it out (needs commands and exact inputs) or someone who approves or audits it (needs decisions and end states).
 3. **Which 3–6 paths matter?** A path is one named run from start to an end ("happy path", "no fix yet", "rejected"). Every end state should be reached by at least one path.
 4. **Grounding.** Is there a runbook, a ticket workflow, a CI file, a state enum in code, an advisory? Read it.
@@ -70,7 +83,7 @@ showIO:    true                                  // chips on first load
 
 ## Procedure
 
-1. **Scope and ground** (above). List steps, decisions, states and artifacts with the source each came from, in your notes.
+1. **Agree, scope and ground** (above). The approved statement comes first. List steps, decisions, states and artifacts with the source each came from, in your notes.
 2. **Write states first**, then steps and links. Check: every step has a link in and out (start has none in, ends none out), every decision has ≥ 2 labelled links, every state is set by some step.
 3. **Write paths**, one per question from scope step 3. Read each back as a sentence per step: "Start a large copy makes Memory addresses and Corrupted heap, and the access is now Heap corrupted." If an input is not made by an earlier step on the path and is not external, a step is missing or the order is wrong.
 4. **Verify** (below).

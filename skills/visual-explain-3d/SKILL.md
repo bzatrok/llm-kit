@@ -9,7 +9,7 @@ Produce ONE self-contained HTML file: a WebGL stage beside a caption panel that 
 
 **Readability comes first.** When a rule below trades against an effect, the camera or density, the reader's ability to read the words and see the subject wins.
 
-This skill extends `visual-explain`. Its rules still apply here and are not repeated: **Scope first: three questions**, **Hand-trace before you draw**, the step list and predict step (**Procedure**, steps 1–3 and 5), **Prose**, the `.visuals/<name>/` folder (Procedure, step 8) and `maps.md` for real geography. Read that SKILL.md first. This file covers only what changes when the graphic is a continuous 3D timeline.
+This skill extends `visual-explain`. Its rules still apply here and are not repeated: **Agree on what to show** (1–2 lines, approved by the user before any build), **Scope first: three questions**, **Hand-trace before you draw**, the step list and predict step (**Procedure**, steps 1–3 and 5), **Prose**, the `.visuals/<name>/` folder (Procedure, step 8) and `maps.md` for real geography. Read that SKILL.md first. This file covers only what changes when the graphic is a continuous 3D timeline.
 
 ## When to use which
 

@@ -7,9 +7,22 @@ description: Build a single-file scrollytelling explainer (sticky graphic left, 
 
 Produce ONE self-contained HTML file: a sticky graphic that changes state as the reader scrolls through 5–8 short prose steps. Pattern from data journalism (The Pudding) and NYT 3D stories. Scrollama fires "step entered", the graphic renders that step. Nothing else.
 
+## Agree on what to show (before anything else)
+
+Before you scope, ground or build, write in 1–2 lines what the page will show. Get the user's OK on it. Build nothing until they approve it.
+
+- **Form:** "**Shows:** <what is on screen, in the user's nouns>. **Answers:** <the one question the reader gets answered>."
+- **Name the subject, not the work around it.** "The request path from the internet to the API gateway, with DDoS protection and the WAF at each hop" is a subject. "How we checked that DDoS protection is on" is the work that found it. Show the work only when the user asks for it.
+- **After a conversation, look for the result.** When the request follows earlier work, the subject is usually a result already in the conversation: a path, a diagram, a list, a table. Quote it or point to it in the statement.
+- **Always ask, even when the prompt looks clear.** A clear-looking prompt is where the wrong subject slips through. Use AskUserQuestion: your statement first, marked recommended. Add one or two real alternatives that read the request in a different way. The user can correct through "Other".
+- **Refine until approved.** If the user corrects the statement, rewrite it and ask again. You may read sources to write a better statement. Do not write a model, a step list or a page before approval.
+- **Use it.** Put the approved statement in the page intro and in the handover. Every later choice (subject, flows, paths, steps, what you leave out) must serve it.
+- **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
+- **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
+
 ## Scope first: three questions
 
-Ask only what the prompt does not already answer.
+Ask only what the prompt and the approved statement do not already answer.
 
 1. Who reads it, and what do they already know (newcomer / practitioner)? Depth follows from this.
 2. Which ONE question does the graphic answer ("how does one cylinder turn fuel into rotation?")? Broad topic → pick the core mechanism, say what you left out.
@@ -41,7 +54,7 @@ Real geography (a grid, a route, a region): read `maps.md` in this folder before
 
 ## Procedure, both renderers
 
-1. **Scope and trace** (above).
+1. **Agree, scope and trace** (above). The approved statement comes first.
 2. **List 5–8 steps.** Step 0 = starting state, last step = consequence, not summary. Something visibly changes at every step, or merge the step. Name the mental model once, in step 0 or 1, and reuse it as the throughline. Never put it in the `<h1>`; the title names the topic plainly.
 3. **One predict step, minimum.** A step's prose ends with a question ("where does the client look for the root?"). The next step's graphic answers it. The reader commits before the reveal.
 4. **Build the graphic once** with every element present. State is a single step number; the graphic is a pure function of it.

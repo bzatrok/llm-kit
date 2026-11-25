@@ -20,7 +20,7 @@ Skills, mods and plugins for [Claude Code](https://claude.com/claude-code), one 
 | `discuss` | Talk a thing through: short turns, one question at a time, stays on until you stop it |
 | `teach` | Teaching workspace over many sessions: mission, learner profile, glossary, resources, a spaced review queue and a learning record per topic; practice is graded in the terminal |
 | `learn` | Learn by talking, inside an existing `teach` workspace: tutor-led back-and-forth, predict-before-reveal, records written at close instead of HTML lessons |
-| `explain` | Router over the five `visual-*` skills: picks the format from the subject, offers two when two fit, obeys an explicit request |
+| `explain` | Router over the five `visual-*` skills: agrees with the user in 1–2 lines what the page shows, then picks the format from the subject, offers two when two fit, obeys an explicit request |
 | `visual-explain` | One scrollytelling HTML explainer per concept: sticky SVG or Three.js graphic driven by prose steps, animated tokens and self-drawing paths, a collision check script and a fresh-eyes review |
 | `visual-explain-3d` | One 3D explainer per concept in a readable one-screen player: a continuous timeline stepped with Next/Back and a scrubber (scroll as an option), shader cross-sections, additive beams and particles computed from one shared model, an observer inset and frozen-moment screenshots |
 | `visual-render` | One animated isometric figure of a real system read from its own config or code, built on the Anatomy kit: an inventory with sources first, then a machine or crafted modules, tokens on the real paths, outcomes as places |

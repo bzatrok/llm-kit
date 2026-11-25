@@ -5,11 +5,23 @@ description: Visualize anything as a single HTML file without choosing the forma
 
 # explain
 
-A router. It decides which of the five `visual-*` skills fits the subject, then invokes that skill with the Skill tool and passes the user's request through unchanged. It builds nothing itself.
+A router. It decides which of the five `visual-*` skills fits the subject, then invokes that skill with the Skill tool. It passes the approved statement and the user's request through unchanged. It builds nothing itself.
+
+## 0. Agree on what to show
+
+Before you route, write in 1–2 lines what the page will show, and get the user's OK. The statement also decides the skill. A wrong subject gives a wrong page in any format.
+
+- **Form:** "**Shows:** <what is on screen, in the user's nouns>. **Answers:** <the one question the reader gets answered>."
+- **Name the subject, not the work around it.** "The request path from the internet to the API gateway, with DDoS protection and the WAF at each hop" is a subject. "How we checked that DDoS protection is on" is the work that found it. Show the work only when the user asks for it.
+- **After a conversation, look for the result.** When the request follows earlier work, the subject is usually a result already in the conversation: a path, a diagram, a list, a table. Quote it or point to it in the statement.
+- **Always ask, even when the prompt looks clear.** A clear-looking prompt is where the wrong subject slips through. Use AskUserQuestion: your statement first, marked recommended. Add one or two real alternatives that read the request in a different way. The user can correct through "Other".
+- **Refine until approved.** If the user corrects the statement, rewrite it and ask again. You may read sources to write a better statement. Do not write a model, a step list or a page before approval.
+- **Use it.** Put the approved statement in the page intro and in the handover. Every later choice (subject, flows, paths, steps, what you leave out) must serve it.
+- **One ask only.** Ask for the statement and, if two skills fit, for the format, in the same AskUserQuestion call.
 
 ## 1. Explicit request wins
 
-If the user names a format, use it and skip the rest: "scrollytelling", "steps" → `visual-explain`; "3D", "scrubbable", "effects", "camera" → `visual-explain-3d`; "map", "architecture diagram", "stack", "data flow" → `visual-map`; "process", "procedure", "runbook", "flowchart", "lifecycle", "states", "attack chain", "kill chain" → `visual-process`; "render", "isometric", "draw my <system>", "Anatomy" → `visual-render`. Saying `/visual-<x>` is also explicit.
+If the user names a format, use it and skip steps 2 and 3 (never step 0): "scrollytelling", "steps" → `visual-explain`; "3D", "scrubbable", "effects", "camera" → `visual-explain-3d`; "map", "architecture diagram", "stack", "data flow" → `visual-map`; "process", "procedure", "runbook", "flowchart", "lifecycle", "states", "attack chain", "kill chain" → `visual-process`; "render", "isometric", "draw my <system>", "Anatomy" → `visual-render`. Saying `/visual-<x>` is also explicit.
 
 ## 2. Otherwise classify the subject
 
@@ -36,12 +48,12 @@ Signals that tip toward `visual-explain-3d` over `visual-explain`: the explanati
 
 ## 3. One fit → go. Two fits → offer
 
-- One clear fit: say in one line which skill and why, then invoke it. Do not ask.
+- One clear fit: say in one line which skill and why, then invoke it. Do not ask about the format.
 - Two fit about equally (common pairs: `visual-map` vs `visual-render` for a real system, `visual-map` vs `visual-process` for a pipeline that is both parts and steps, `visual-explain` vs `visual-explain-3d` for a mechanism): ask with AskUserQuestion, two options, the recommended one first, one sentence each on what the reader gets. Then invoke the pick.
 - Nothing fits (the subject is data, not a mechanism or system): say so and suggest `dataviz` or a plain written answer instead.
 
 ## 4. Hand off
 
-Invoke the chosen skill via the Skill tool with the user's original request as `args`. From there the chosen skill owns the work: its file layout, review steps and screenshots apply, not anything here. Whichever skill builds the page, its text follows the **Prose** rules of `visual-explain`, including ASD-STE100.
+Invoke the chosen skill via the Skill tool. Put the approved statement first in `args` ("Approved: Shows: … Answers: …"), then the user's original request. From there the chosen skill owns the work: its file layout, review steps and screenshots apply, not anything here. Whichever skill builds the page, its text follows the **Prose** rules of `visual-explain`, including ASD-STE100.
 
 **Where the page goes.** The visual skills save to `.visuals/<name>/` at the project root, with one exception: inside a learning vault. That is the case when the caller (for example `learn`) names an output folder, or when the working directory or the subject sits in a domain folder of an Obsidian vault (a folder `<Domain>/` with a hub note `<Domain>.md` whose properties have `kind: hub`). Then save to `<Domain>/_Files/visuals/<name>/`, with the same `sources/`, `build/` and `SOURCES.md` inside, and skip the `.git/info/exclude` step: the vault is the store and stays in git. Obsidian hides dot folders, so a `.visuals/` folder in a vault is never seen. Pass this folder to the chosen skill in `args`.

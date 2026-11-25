@@ -9,9 +9,22 @@ Produce ONE self-contained HTML file: a static map of a system. ELK.js lays it o
 
 **visual-map or visual-explain?** A map answers "what talks to what". An explainer answers "what happens, in order". A stack, a service landscape or an infra layout is a map. A protocol handshake or a mechanism is an explainer. If the user needs both, make the map and link the explainer from one flow.
 
+## Agree on what to show (before anything else)
+
+Before you scope, ground or build, write in 1–2 lines what the page will show. Get the user's OK on it. Build nothing until they approve it.
+
+- **Form:** "**Shows:** <what is on screen, in the user's nouns>. **Answers:** <the one question the reader gets answered>."
+- **Name the subject, not the work around it.** "The request path from the internet to the API gateway, with DDoS protection and the WAF at each hop" is a subject. "How we checked that DDoS protection is on" is the work that found it. Show the work only when the user asks for it.
+- **After a conversation, look for the result.** When the request follows earlier work, the subject is usually a result already in the conversation: a path, a diagram, a list, a table. Quote it or point to it in the statement.
+- **Always ask, even when the prompt looks clear.** A clear-looking prompt is where the wrong subject slips through. Use AskUserQuestion: your statement first, marked recommended. Add one or two real alternatives that read the request in a different way. The user can correct through "Other".
+- **Refine until approved.** If the user corrects the statement, rewrite it and ask again. You may read sources to write a better statement. Do not write a model, a step list or a page before approval.
+- **Use it.** Put the approved statement in the page intro and in the handover. Every later choice (subject, flows, paths, steps, what you leave out) must serve it.
+- **Wrong skill?** If the approved subject fits another `visual-*` skill better (a path through parts is a `visual-map`, steps with decisions are a `visual-process`), say so in the same ask and offer that skill.
+- **No second ask.** If `explain` passes an approved statement in `args` ("Approved: Shows: … Answers: …"), use it and do not ask again.
+
 ## Scope first: three questions
 
-Ask only what the prompt does not already answer.
+Ask only what the prompt and the approved statement do not already answer.
 
 1. Who reads it: a newcomer to the system, or an engineer who works on it? Newcomers get fewer parts and more tips.
 2. Which 2–5 flows matter? A flow is one named request or job end to end ("checkout", "nightly export"). Flows are what turn a box diagram into an explanation.
@@ -59,7 +72,7 @@ collapsed: [group ids closed on first load]
 
 ## Procedure
 
-1. **Scope and ground** (above). List parts and edges with the file each came from, in your notes.
+1. **Agree, scope and ground** (above). The approved statement comes first. List parts and edges with the file each came from, in your notes.
 2. **Write the model.** Edges first, then check every node has at least one edge. A part with no edge is either missing an edge or does not belong on the map.
 3. **Write flows**, one per question from scope step 2. Give every hop an `input` and an `output`. Read each one back as a sentence: "the renderer takes X and gives Y". If the output of a hop does not feed the input of the next, the flow order is wrong or a step is missing.
 4. **Verify** (below).
