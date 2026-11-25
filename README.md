@@ -27,6 +27,7 @@ Skills, mods and plugins for [Claude Code](https://claude.com/claude-code), one 
 | `visual-map` | One static HTML map per system: ELK auto-layout, animated dashed edges showing data direction, click-to-focus, collapsible groups for large systems and named flows traced end to end |
 | `visual-process` | One HTML process diagram per procedure, lifecycle or attack chain: steps and decisions laid out by ELK, inputs and outputs as chips beside each step, a state rail for the subject, named paths that play end to end with the view following |
 | `marktplaats` | Sell-and-check-up workflow for Marktplaats via the Chrome extension; every outgoing message is approval-gated |
+| `stackoverflow` | Practice pre-LLM problem solving: a simulated search results page of Q&A threads that are each a little off from your case, rendered as one local HTML page from JSON, so you find the pattern yourself |
 
 ## Mods
 

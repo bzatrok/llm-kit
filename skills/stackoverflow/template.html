@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stack Underflow</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg-soft: #f8f9f9; --bg-side: #ffffff;
+    --text: #232629; --muted: #6a737c; --faint: #9199a1;
+    --line: #e3e6e8; --link: #0a65c2; --link-hover: #0c7ae6;
+    --accent: #e8760b; --accent-ink: #ffffff;
+    --tag-bg: #e1ecf4; --tag-ink: #39739d;
+    --good: #2f6f44; --good-bg: #2f6f44; --good-soft: #e6f3ea;
+    --code-bg: #f1f2f3; --notice-bg: #fdf7e2; --notice-line: #e6cf79;
+    --vote-line: #babfc4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1f2123; --bg-soft: #2a2c2e; --bg-side: #1f2123;
+      --text: #e7e9eb; --muted: #9ea4aa; --faint: #7d838a;
+      --line: #3a3d40; --link: #5aa7f0; --link-hover: #84bdf4;
+      --tag-bg: #2d3c48; --tag-ink: #9cc3e0;
+      --good: #5fbf7f; --good-bg: #2f6f44; --good-soft: #233a2b;
+      --code-bg: #2d2f31; --notice-bg: #3a3420; --notice-line: #7a6a2e;
+      --vote-line: #5b6066;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1f2123; --bg-soft: #2a2c2e; --bg-side: #1f2123;
+    --text: #e7e9eb; --muted: #9ea4aa; --faint: #7d838a;
+    --line: #3a3d40; --link: #5aa7f0; --link-hover: #84bdf4;
+    --tag-bg: #2d3c48; --tag-ink: #9cc3e0;
+    --good: #5fbf7f; --good-bg: #2f6f44; --good-soft: #233a2b;
+    --code-bg: #2d2f31; --notice-bg: #3a3420; --notice-line: #7a6a2e;
+    --vote-line: #5b6066;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { color: var(--link-hover); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+
+  /* Top bar */
+  .top { position: sticky; top: 0; z-index: 5; background: var(--bg-soft);
+    border-top: 3px solid var(--accent); border-bottom: 1px solid var(--line); }
+  .top-inner { max-width: 1264px; margin: 0 auto; display: flex; align-items: center; gap: 16px; padding: 8px 16px; }
+  .brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 18px; white-space: nowrap; }
+  .brand b { font-weight: 700; }
+  .brand svg { flex: none; }
+  .search { flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid var(--vote-line);
+    border-radius: 6px; background: var(--bg); padding: 6px 10px; color: var(--muted); min-width: 0; }
+  .search input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; min-width: 0; }
+
+  /* Layout */
+  .wrap { max-width: 1264px; margin: 0 auto; display: flex; }
+  .nav { width: 164px; flex: none; padding: 24px 0 0 8px; border-right: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .nav a { display: block; padding: 4px 8px; color: var(--muted); border-radius: 4px 0 0 4px; }
+  .nav a.on { background: var(--bg-soft); color: var(--text); font-weight: 600; border-right: 3px solid var(--accent); }
+  main { flex: 1; min-width: 0; padding: 24px; }
+  .page { display: flex; gap: 24px; }
+  .col { flex: 1; min-width: 0; }
+  aside { width: 300px; flex: none; }
+
+  .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  h1 { font-size: 27px; font-weight: 400; margin: 0 0 8px; line-height: 1.3; }
+  .btn { background: var(--link); color: #fff; border: 0; border-radius: 6px; padding: 9px 12px; font: inherit;
+    font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .btn:hover { background: var(--link-hover); }
+  .btn.ghost { background: transparent; color: var(--link); border: 1px solid var(--link); }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+  .sub span { margin-right: 16px; }
+  .sub b { color: var(--text); font-weight: 400; }
+  .count { font-size: 17px; margin: 16px 0 8px; }
+
+  /* Result list */
+  .result { display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .stats { width: 108px; flex: none; text-align: right; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .stats .v { color: var(--text); }
+  .ans { padding: 2px 6px; border-radius: 4px; border: 1px solid transparent; }
+  .ans.has { border-color: var(--good); color: var(--good); }
+  .ans.acc { background: var(--good-bg); color: #fff; }
+  .r-title { font-size: 17px; margin: 0 0 4px; }
+  .r-ex { font-size: 13px; color: var(--text); margin: 0 0 8px; overflow-wrap: anywhere; }
+  .r-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag { background: var(--tag-bg); color: var(--tag-ink); font-size: 12px; padding: 2px 6px; border-radius: 4px; }
+  .who { font-size: 12px; color: var(--muted); }
+  .who a { font-size: 12px; }
+  .who b { color: var(--text); font-weight: 600; }
+
+  /* Thread */
+  .notice { background: var(--notice-bg); border: 1px solid var(--notice-line); border-radius: 4px; padding: 12px 16px; margin: 16px 0; font-size: 14px; }
+  .notice strong { display: block; margin-bottom: 4px; }
+  .post { display: flex; gap: 16px; padding: 16px 0; }
+  .post + .post, .answers-head + .post { border-top: 1px solid var(--line); }
+  .vote { width: 44px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .vote button { width: 40px; height: 40px; border: 1px solid var(--vote-line); border-radius: 50%; background: transparent;
+    color: var(--muted); cursor: pointer; display: grid; place-items: center; }
+  .vote button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .vote .n { font-size: 20px; font-weight: 600; }
+  .check { color: var(--good); margin-top: 4px; }
+  .body { flex: 1; min-width: 0; }
+  .md p { margin: 0 0 14px; }
+  .md pre { background: var(--code-bg); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 0 0 14px; }
+  .md :not(pre) > code { background: var(--code-bg); padding: 1px 4px; border-radius: 3px; }
+  .md blockquote { margin: 0 0 14px; padding: 8px 12px; border-left: 4px solid var(--notice-line); background: var(--notice-bg); }
+  .md ul, .md ol { margin: 0 0 14px; padding-left: 24px; }
+  .md h3 { font-size: 17px; margin: 0 0 10px; }
+  .post-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .edited { font-size: 12px; color: var(--link); }
+  .card { background: var(--bg-soft); border-radius: 4px; padding: 6px 8px; font-size: 12px; color: var(--muted); min-width: 180px; }
+  .card.q { background: var(--tag-bg); }
+  .card .nm { display: block; }
+  .card .rep { color: var(--text); font-weight: 600; }
+  .comments { margin-top: 12px; border-top: 1px solid var(--line); }
+  .comment { font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; }
+  .comment .cv { width: 22px; flex: none; text-align: right; color: var(--muted); }
+  .comment .cv.hot { color: var(--accent); font-weight: 600; }
+  .comment .ct { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .comment .ct code { background: var(--code-bg); padding: 1px 4px; border-radius: 3px; }
+  .comment .ca { color: var(--link); }
+  .comment .cd { color: var(--faint); }
+  .add-c { font-size: 13px; color: var(--faint); padding: 6px 0 0 32px; }
+  .answers-head { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 12px 0; }
+  .answers-head h2 { font-size: 19px; font-weight: 400; margin: 0; }
+  .sort { font-size: 12px; color: var(--muted); }
+
+  .box { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 16px; font-size: 13px; }
+  .box h4 { margin: 0; padding: 12px 16px; background: var(--bg-soft); border-bottom: 1px solid var(--line); font-size: 15px; font-weight: 400; }
+  .box ul { list-style: none; margin: 0; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .box li { display: flex; gap: 8px; }
+  .box .sc { flex: none; min-width: 38px; text-align: center; padding: 1px 4px; border-radius: 3px; background: var(--bg-soft); color: var(--text); height: fit-content; }
+  .box .sc.acc { background: var(--good-bg); color: #fff; }
+  .foot-note { color: var(--faint); font-size: 12px; text-align: center; padding: 32px 16px; }
+
+  /* Ask dialog */
+  dialog { border: 1px solid var(--line); border-radius: 8px; padding: 0; width: min(720px, calc(100vw - 32px));
+    background: var(--bg); color: var(--text); }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  .dlg { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .dlg h2 { margin: 0; font-weight: 400; font-size: 23px; }
+  .dlg label { font-weight: 600; font-size: 15px; display: block; }
+  .dlg .hint { font-weight: 400; font-size: 12px; color: var(--muted); margin: 2px 0 6px; display: block; }
+  .dlg input, .dlg textarea { width: 100%; border: 1px solid var(--vote-line); border-radius: 6px; padding: 8px;
+    font: inherit; background: var(--bg); color: var(--text); }
+  .dlg textarea { min-height: 84px; resize: vertical; }
+  .dlg textarea.mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; min-height: 110px; }
+  .dlg .row { display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+  .dlg .status { font-size: 13px; color: var(--good); margin-right: auto; }
+
+  @media (max-width: 980px) { aside { display: none; } }
+  @media (max-width: 720px) {
+    .nav { display: none; }
+    main { padding: 16px; }
+    .brand span { display: none; }
+    .result { flex-direction: column; gap: 8px; }
+    .stats { width: auto; flex-direction: row; gap: 12px; }
+    .head { flex-direction: column; }
+    h1 { font-size: 22px; }
+    .vote { width: 36px; }
+    .vote button { width: 34px; height: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#/">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="3" y="20" width="22" height="4" rx="1" fill="var(--accent)"/>
+        <path d="M8 6 L14 14 L20 6" fill="none" stroke="var(--muted)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>stack <b>underflow</b></span>
+    </a>
+    <label class="search">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11 L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="q" aria-label="Search">
+    </label>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="nav" aria-label="Main">
+    <a href="#/">Home</a>
+    <a href="#/" class="on">Questions</a>
+    <a href="#/">Tags</a>
+    <a href="#/">Users</a>
+    <a href="#/">Unanswered</a>
+  </nav>
+  <main id="app"></main>
+</div>
+
+<dialog id="ask">
+  <form class="dlg" method="dialog">
+    <h2>Ask a question</h2>
+    <div>
+      <label for="a-title">Title</label>
+      <span class="hint">Be specific, as if you were asking another developer.</span>
+      <input id="a-title">
+    </div>
+    <div>
+      <label for="a-problem">What are the details of your problem?</label>
+      <span class="hint">What you are trying to do, and the exact error message.</span>
+      <textarea id="a-problem"></textarea>
+    </div>
+    <div>
+      <label for="a-tried">What did you try, and what did you expect to happen?</label>
+      <span class="hint">Include what you found in other questions and why it did not work for you.</span>
+      <textarea id="a-tried"></textarea>
+    </div>
+    <div>
+      <label for="a-code">Minimal reproducible example</label>
+      <span class="hint">The smallest code or config that still shows the problem.</span>
+      <textarea id="a-code" class="mono"></textarea>
+    </div>
+    <div class="row">
+      <span class="status" id="a-status"></span>
+      <button class="btn ghost" value="cancel">Cancel</button>
+      <button class="btn" id="a-copy" type="button">Copy question</button>
+    </div>
+  </form>
+</dialog>
+
+<!--
+  Do not edit this file per search. render.py replaces the placeholder below with the
+  search's JSON (schema and Markdown subset: see SKILL.md).
+-->
+<script id="data" type="application/json">
+/*DATA*/
+</script>
+
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById('data').textContent);
+  const byId = Object.fromEntries(DATA.threads.map(t => [t.id, t]));
+  const app = document.getElementById('app');
+  document.getElementById('q').value = DATA.query;
+  document.title = DATA.query + ' - Stack Underflow';
+
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const inline = s => esc(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+
+  function blocks(text) {
+    return text.split(/\n{2,}/).map(b => b.trim()).filter(Boolean).map(b => {
+      const lines = b.split('\n');
+      if (b.startsWith('### ')) return '<h3>' + inline(b.slice(4)) + '</h3>';
+      if (lines.every(l => l.startsWith('> '))) return '<blockquote>' + inline(lines.map(l => l.slice(2)).join(' ')) + '</blockquote>';
+      if (lines.every(l => l.startsWith('- '))) return '<ul>' + lines.map(l => '<li>' + inline(l.slice(2)) + '</li>').join('') + '</ul>';
+      return '<p>' + inline(lines.join(' ')) + '</p>';
+    }).join('');
+  }
+  function md(src) {
+    const parts = String(src || '').split(/```[\w.+-]*\n([\s\S]*?)```/g);
+    return parts.map((p, i) => i % 2 ? '<pre><code>' + esc(p.replace(/\n$/, '')) + '</code></pre>' : blocks(p)).join('');
+  }
+  const plain = src => String(src || '').replace(/```[\s\S]*?```/g, ' ').replace(/[`*#>]/g, '').replace(/\s+/g, ' ').trim();
+  const excerpt = src => { const t = plain(src); return t.length > 200 ? t.slice(0, 200).replace(/\s\S*$/, '') + ' ...' : t; };
+
+  const accepted = t => t.answers.some(a => a.accepted);
+  const titleOf = t => t.title + (t.closed ? (t.closed.reason === 'duplicate' ? ' [duplicate]' : ' [closed]') : '');
+  const tags = list => '<div class="tags">' + list.map(x => '<span class="tag">' + esc(x) + '</span>').join('') + '</div>';
+  const up = '<svg width="18" height="18" viewBox="0 0 18 18"><path d="M1 12h16L9 4z" fill="currentColor"/></svg>';
+  const down = '<svg width="18" height="18" viewBox="0 0 18 18"><path d="M1 6h16l-8 8z" fill="currentColor"/></svg>';
+  const tick = '<svg width="36" height="36" viewBox="0 0 36 36"><path d="M6 19l8 8L30 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function askButton() { return '<button class="btn" data-ask>Ask Question</button>'; }
+
+  function renderResults() {
+    const rows = DATA.threads.map(t => {
+      const n = t.answers.length;
+      const cls = accepted(t) ? 'acc' : n ? 'has' : '';
+      return `<div class="result">
+        <div class="stats">
+          <div><span class="v">${esc(t.question.votes)}</span> votes</div>
+          <div class="ans ${cls}">${accepted(t) ? '✓ ' : ''}${n} answer${n === 1 ? '' : 's'}</div>
+          <div>${esc(t.views)} views</div>
+        </div>
+        <div class="col">
+          <h3 class="r-title"><a href="#/q/${esc(t.id)}">${esc(titleOf(t))}</a></h3>
+          <p class="r-ex">${esc(excerpt(t.question.body))}</p>
+          <div class="r-foot">${tags(t.tags)}
+            <div class="who"><a>${esc(t.question.author.name)}</a> <b>${esc(t.question.author.rep)}</b> asked ${esc(t.asked)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    app.innerHTML = `<div class="head"><h1>Search results</h1>${askButton()}</div>
+      <div class="sub">Results for <b>${esc(DATA.query)}</b></div>
+      <div class="count">${DATA.threads.length} results</div>${rows}
+      <div class="foot-note">Simulated threads for practice. These are not real posts or users.</div>`;
+    window.scrollTo(0, 0);
+  }
+
+  function comments(list) {
+    const items = (list || []).map(c => `<div class="comment">
+      <div class="cv ${c.votes >= 10 ? 'hot' : ''}">${c.votes ? esc(c.votes) : ''}</div>
+      <div class="ct">${inline(c.text)} – <span class="ca">${esc(c.author)}</span> <span class="cd">${esc(c.ago)}</span></div>
+    </div>`).join('');
+    return `<div class="comments">${items}</div><div class="add-c">Add a comment</div>`;
+  }
+
+  function post(p, kind, t) {
+    const when = kind === 'q' ? 'asked ' + t.asked : 'answered ' + p.ago;
+    return `<div class="post">
+      <div class="vote">
+        <button aria-label="Up vote" data-v="1">${up}</button>
+        <div class="n">${esc(p.votes)}</div>
+        <button aria-label="Down vote" data-v="-1">${down}</button>
+        ${p.accepted ? '<div class="check" title="Accepted answer">' + tick + '</div>' : ''}
+      </div>
+      <div class="body">
+        <div class="md">${md(p.body)}</div>
+        ${kind === 'q' ? tags(t.tags) : ''}
+        <div class="post-foot">
+          <span class="edited">${p.edited ? 'edited ' + esc(p.edited) : ''}</span>
+          <div class="card ${kind === 'q' ? 'q' : ''}">${esc(when)}<span class="nm"><a>${esc(p.author.name)}</a> <span class="rep">${esc(p.author.rep)}</span></span></div>
+        </div>
+        ${comments(p.comments)}
+      </div>
+    </div>`;
+  }
+
+  function notice(t) {
+    if (!t.closed) return '';
+    if (t.closed.reason === 'duplicate' && byId[t.closed.of]) {
+      const d = byId[t.closed.of];
+      return `<div class="notice"><strong>This question already has an answer here:</strong>
+        <a href="#/q/${esc(d.id)}">${esc(d.title)}</a> (${d.answers.length} answer${d.answers.length === 1 ? '' : 's'})<br>
+        <span class="who">Closed ${esc(t.closed.ago || '')}.</span></div>`;
+    }
+    return `<div class="notice"><strong>Closed.</strong> This question ${esc(t.closed.reason)}. It is not currently accepting answers.</div>`;
+  }
+
+  function renderThread(t) {
+    const answers = t.answers.slice().sort((a, b) => b.votes - a.votes);
+    const others = DATA.threads.filter(x => x.id !== t.id).map(x => `<li>
+      <span class="sc ${accepted(x) ? 'acc' : ''}">${esc(x.question.votes)}</span>
+      <a href="#/q/${esc(x.id)}">${esc(titleOf(x))}</a></li>`).join('');
+    app.innerHTML = `<div class="head"><h1>${esc(titleOf(t))}</h1>${askButton()}</div>
+      <div class="sub"><span>Asked <b>${esc(t.asked)}</b></span><span>Modified <b>${esc(t.modified)}</b></span><span>Viewed <b>${esc(t.views)} times</b></span></div>
+      <div class="page"><div class="col">
+        ${notice(t)}
+        ${post(t.question, 'q', t)}
+        ${answers.length ? `<div class="answers-head"><h2>${answers.length} Answer${answers.length === 1 ? '' : 's'}</h2><span class="sort">Sorted by: Highest score (default)</span></div>` : ''}
+        ${answers.map(a => post(a, 'a', t)).join('')}
+        <div class="foot-note"><a href="#/">Back to search results</a></div>
+      </div>
+      <aside><div class="box"><h4>Linked</h4><ul>${others}</ul></div></aside></div>`;
+    window.scrollTo(0, 0);
+  }
+
+  function route() {
+    const m = location.hash.match(/^#\/q\/(.+)$/);
+    const t = m && byId[decodeURIComponent(m[1])];
+    t ? renderThread(t) : renderResults();
+  }
+  window.addEventListener('hashchange', route);
+  route();
+
+  // Votes are local only: one click toggles, like the real thing.
+  app.addEventListener('click', e => {
+    const b = e.target.closest('.vote button');
+    if (!b) return;
+    const box = b.parentElement, n = box.querySelector('.n');
+    const base = Number(n.dataset.base ?? n.textContent);
+    n.dataset.base = base;
+    const was = b.classList.contains('on');
+    box.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    if (!was) b.classList.add('on');
+    n.textContent = base + (was ? 0 : Number(b.dataset.v));
+  });
+
+  // Ask Question: builds a question to paste back into the terminal.
+  const dlg = document.getElementById('ask');
+  document.addEventListener('click', e => {
+    if (!e.target.closest('[data-ask]')) return;
+    document.getElementById('a-status').textContent = '';
+    dlg.showModal();
+  });
+  document.getElementById('a-copy').addEventListener('click', async () => {
+    const v = id => document.getElementById(id).value.trim();
+    const text = ['QUESTION: ' + v('a-title'), '', 'Problem:', v('a-problem'), '', 'Tried and expected:', v('a-tried'), '', 'Example:', '```', v('a-code'), '```'].join('\n');
+    const status = document.getElementById('a-status');
+    try { await navigator.clipboard.writeText(text); status.textContent = 'Copied. Paste it in the terminal.'; }
+    catch { const ta = document.getElementById('a-code'); ta.value = text; ta.select(); status.textContent = 'Select all and copy, then paste it in the terminal.'; }
+  });
+})();
+</script>
+</body>
+</html>
